@@ -76,7 +76,7 @@ var GIMLI = function()
 		log("Loading GML: "+gmurl, 0);
 	};
 
-	// Check if aa file exists.
+	// Check if aa file exists. 
 	this.checkForFile=function(urlToFile)
 	{
 		var success = function(data)
