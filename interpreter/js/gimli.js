@@ -77,23 +77,8 @@ var GIMLI = function()
 	};
 
 	// Check if aa file exists.
-	// Code from here: https://www.kirupa.com/html5/checking_if_a_file_exists.htm
 	this.checkForFile=function(urlToFile)
 	{
-		/* Website code: 
-		var xhr = new XMLHttpRequest();
-		xhr.open('HEAD', urlToFile, false);
-		xhr.send();
-     
-		if(xhr.status == "404") 
-		{
-			log("File not found!", LOG_ERROR);
-			return false;
-		}else{
-			log("File found",LOG_DEBUG);
-			return true;
-		}
-		*/
 		var success = function(data)
 		{
 			log("file check ok for "+urlToFile,LOG_DEBUG);
