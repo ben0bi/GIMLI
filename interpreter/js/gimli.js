@@ -32,6 +32,12 @@ var log = function(text, loglevel = 0)
 };
 log.loglevel = LOG_DEBUG;
 
+	
+async function asyncFetch(urlToFile, success, failure)
+{
+	await fetch(urlToFile).then(success, failure);
+};
+
 var GIMLI = function()                       
 {
 	var me = this; // protect this from be this'ed from something other inside some brackets.
@@ -40,9 +46,13 @@ var GIMLI = function()
 	
 	this.init = function(gmurl)
 	{
-		me.checkForFile(gmurl)
-		m_initpage = me.makeGMURL(gmurl);
-		me.loadGML(m_initpage);
+		var checkurl = me.makeGMURL(gmurl);
+		var d = me.checkForFile(checkurl)
+		if(d)
+		{
+			m_initpage = checkurl;
+			me.loadGML(m_initpage);
+		}
 	};
 	
 	// check if the file has gml ending or add it.
@@ -76,21 +86,28 @@ var GIMLI = function()
 		log("Loading GML: "+gmurl, 0);
 	};
 
-	// Check if aa file exists. 
+	// Check if aa file exists.
 	this.checkForFile=function(urlToFile)
 	{
+		var fileFound = false;
 		var success = function(data)
 		{
 			log("file check ok for "+urlToFile,LOG_DEBUG);
+			fileFound = 1;
 		}
 		var failure=function(data)
 		{
 			log("File not found! or CORS. REMOVE THAT SHIT FROM THE INTERNET: CORS IS FOR NOTHING! "+data,LOG_USER);
+			fileFound = 0;
 		}
 		
-		fetch(urlToFile).then(success, failure);
+		// try to get the file.
+		asyncFetch(urlToFile, success, failure);
+		return fileFound;
 	}
+	
 };
 GIMLI.instance = new GIMLI();
 
+// Initialize the GIMLI engine.
 GIMLI.init = function(gmurl) {GIMLI.instance.init(gmurl);};
