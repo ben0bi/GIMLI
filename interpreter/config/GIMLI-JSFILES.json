@@ -1,0 +1,9 @@
+{
+	"//": "JS Files for the GIMLI System.",
+	"//": "By Benedict Jäggi in 19",
+	"//": "https://github.com/ben0bi/GIMLI.git",
+	
+	"jQuery": "js/jquery-3.3.1.min.js",
+	"Benis JQuery Extensions": "js/BeJQuery.js",
+	"GIMLI-BASE": "js/gimli.js"
+}

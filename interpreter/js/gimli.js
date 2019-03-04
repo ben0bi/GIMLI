@@ -11,6 +11,9 @@
  . NOT copying this work is prohibited :)     .
  ..............................................
  
+ needs jQuery.
+ See the GIMLI-JSFILES.json in the config dir.
+ 
 */
 
 // log something.
@@ -32,12 +35,13 @@ var log = function(text, loglevel = 0)
 };
 log.loglevel = LOG_DEBUG;
 
-	
+// fetch a file and do some functions on it.	
 async function asyncFetch(urlToFile, success, failure)
 {
 	await fetch(urlToFile).then(success, failure);
 };
 
+// The GIML-Interpreter
 var GIMLI = function()                       
 {
 	var me = this; // protect this from be this'ed from something other inside some brackets.
@@ -46,6 +50,7 @@ var GIMLI = function()
 	
 	this.init = function(gmurl)
 	{
+		__createMainWindow();
 		var checkurl = me.makeGMURL(gmurl);
 		var d = me.checkForFile(checkurl)
 		if(d)
@@ -106,6 +111,17 @@ var GIMLI = function()
 		return fileFound;
 	}
 	
+	// create the div where the action goes. :)
+	var __createMainWindow = function()
+	{
+		var body = $('body');
+		var cssfile = 'css/gimli-base.css';
+		var css= '<link rel="stylesheet" type="text/css" href="'+cssfile+'">';
+		var el = jQuery.getNewDiv('','gimli-main-window', 'gimli-pixelperfect');
+		jQuery.appendElementTo('head', css);
+		
+		jQuery.appendElementTo('body', el);
+	}
 };
 GIMLI.instance = new GIMLI();
 

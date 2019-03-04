@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>GIMLI INTERPRETER v A.0.1</title>
+<title>GIMLI INTERPRETER v A.0.2</title>
 <meta charset = "utf-8" />
 </head>
 <body>
-	<script src="js/gimli.js"></script>
+	<script src="js/JSFILELOADER.js"></script>
 	<script>
+	function main()
+	{
+		log("All JS files loaded. Initializing GIMLI...");
 		GIMLI.init("testsite/index.gml");
+	}
+	JSFILELOADER.recursiveLoad('config/GIMLI-JSFILES.json', main);
 	</script>
 </body>
 </html>
