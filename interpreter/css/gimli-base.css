@@ -3,6 +3,12 @@
 	https://benis-bastelschuppen.github.io
 	https://github.com/ben0bi
 */
+
+@font-face {
+  font-family: 'pixel_regular';
+  src: url('../fonts/basis33.ttf');
+}
+
 html, body
 {
 	position: absolute;
@@ -12,12 +18,23 @@ html, body
 	margin: 0;
 	width: 100%;
 	height: 100%;
+	/*border: 1px solid #00FF00;*/
 }
 
 body
 {
 	background-color: #333369;
 	background-image: url('../images/GIMLI_BACKGROUND_SEAMLESS.png');
+}
+
+a, a:visited
+{
+	color: #FFAA00;
+	text-decoration: none;
+}
+a:hover
+{
+	color: #FFFF00;
 }
 
 /* the gimli main window where all the action happens */
@@ -33,6 +50,17 @@ body
 	left: 50%;
     transform: perspective(1px) translateY(-50%) translateX(-50%);
 	background-color: #000033;
+}
+
+#gimli-footer-window
+{
+	position: absolute;
+	bottom: 10px;
+	width: 100%;
+	text-align: center;
+	color: #FFFFFF;
+	font-family: 'pixel_regular', monospace;
+	/*border: 1px solid #00ff00;*/
 }
 
 /* a general image in the gimli engine */

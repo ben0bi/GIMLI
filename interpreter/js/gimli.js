@@ -15,6 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
+const GIMLIVERSION = "0.0.3a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and so.
@@ -118,9 +119,11 @@ var GIMLI = function()
 		var cssfile = 'css/gimli-base.css';
 		var css= '<link rel="stylesheet" type="text/css" href="'+cssfile+'">';
 		var el = jQuery.getNewDiv('','gimli-main-window', 'gimli-pixelperfect');
+		var el2= jQuery.getNewDiv('<a href="https://github.com/ben0bi/GIMLI/">GIML-Interpreter</a> v'+GIMLIVERSION+' (JS-Version) by Benedict Jäggi in 2019', 'gimli-footer-window', 'gimli-pixelperfect');
 		jQuery.appendElementTo('head', css);
 		
 		jQuery.appendElementTo('body', el);
+		jQuery.appendElementTo('body', el2);
 	}
 };
 GIMLI.instance = new GIMLI();
