@@ -27,5 +27,5 @@ like a ball to play with. If you click an Item, a script would be loaded and do 
 the screws into your bag ("Warenkorb") or moving the ball a little on the screen. Or it could open
 a customized GIMLI-Window, like for paying the screws on the "real market".
 
-IT IS NOT RUNNING YET. But please look at the file structure.
+IT IS halfway RUNNING. But please look at the file structure in the "testsite" folder.
 

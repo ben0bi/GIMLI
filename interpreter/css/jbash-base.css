@@ -1,0 +1,156 @@
+@font-face {
+  font-family: 'consolefont';
+  src: url('../fonts/basis33.ttf');
+}
+
+
+/*  The console window. */
+#gimli-jbash-window
+{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-color: #111166;
+	z-index: 10;
+	overflow-x: hidden;
+	overflow-y: auto;
+	color: #3A3;
+	font-family: 'consolefont', Courier, monospace;
+}
+
+#gimli-jbash-outer-window
+{
+	position: absolute;
+	width: 100%;
+	height: 70%;
+	overflow-x: hidden;
+	overflow-y: hidden;
+	border-bottom: 2px solid #FFFFFA;
+	z-index: 1111;
+}
+
+#gimli-button-hide-console
+{
+	display: inline-block;
+	position: absolute;
+	bottom: 10px;
+	right: 30px;
+	z-index: 20;
+	width: 25px;
+	height: 25px;
+	border: 1px solid #FFAA00;
+	border-radius: 3px;
+	background-color: #111133;
+	text-align: center;
+	font-size: 12pt;
+}
+#gimli-button-hide-console:hover
+{
+	border-color: #FFFF00;
+	background-color: #222266;
+}
+
+/* This is the div which you must create. */
+#jbashscreen
+{
+	padding: 5px;
+	width: 98%;
+	overflow: auto;
+}
+
+/*a, a:visited
+{
+	text-decoration:none;
+	color: #FA3;
+}
+
+a:hover
+{
+	text-decoration: none;
+	color:#FA3;
+}*/
+
+/* colour of "your" text on the screen. */
+.jBashCmd
+{
+	color: #3AF;
+}
+
+#jBashInnerInput
+{
+	color: #3A3;
+	background-color: #114;
+	border: none;
+	/*border: 1px solid #FA3;*/
+	width: 100%;
+	font-family: 'consolefont', Courier, monospace;
+	font-size: 12pt;
+}
+
+#jBashInnerInput:focus
+{
+	outline: none;
+}
+
+#jBashInnerScreen {;;}
+
+/* additional stuff */
+hr
+{
+	border: 0px;
+	border-top: 2px dashed #3A3;
+	background-color: transparent;
+}
+
+.error
+{
+	color: #A00;
+}
+
+/* disabled means, no click on it is allowed. */
+.jBash_disabled
+{
+	color: #666;
+	pointer-events:none;
+}
+
+a.jBash_disabled
+{
+	color: #999;
+	pointer-events:none;
+}
+
+/* hide an input type=file thingie. */
+.inputfile 
+{
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+/* custom button style */
+.btn
+{
+	padding: 5px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	color: #3A3;
+	background-color: #224;
+	border: 2px solid #3A3;
+	border-left: 2px solid #6A6;
+	border-top: 2px solid #6A6;
+	font-family: Courier, monospace;
+	font-size: 12pt;
+}
+
+.btn:focus, .btn:hover
+{
+	background-color: #446;	
+	border: 2px solid #3F3;
+	border-left: 2px solid #6F6;
+	border-top: 2px solid #6F6;
+	cursor: pointer;
+}

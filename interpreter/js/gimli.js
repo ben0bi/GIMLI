@@ -31,6 +31,7 @@ var log = function(text, loglevel = 0)
 	if(log.loglevel>=loglevel)
 	{
 		console.log("> "+text);
+		jBash.instance.AddLine(text);
 		// TODO: show to user.
 	}
 };
@@ -117,16 +118,62 @@ var GIMLI = function()
 	{
 		var body = $('body');
 		var cssfile = 'css/gimli-base.css';
+		var cssfile2="css/jbash-base.css"
 		var css= '<link rel="stylesheet" type="text/css" href="'+cssfile+'">';
+		var css2= '<link rel="stylesheet" type="text/css" href="'+cssfile2+'">';
+		
 		var el = jQuery.getNewDiv('','gimli-main-window', 'gimli-pixelperfect');
-		var el2= jQuery.getNewDiv('<a href="https://github.com/ben0bi/GIMLI/">GIML-Interpreter</a> v'+GIMLIVERSION+' (JS-Version) by Benedict Jäggi in 2019', 'gimli-footer-window', 'gimli-pixelperfect');
+		var elconsole = jQuery.getNewDiv('','gimli-jbash-window', 'gimli-pixelperfect');
+		var elconsole_outer = jQuery.getNewDiv('', 'gimli-jbash-outer-window', 'gimli-pixelperfect');
+		var elhidebutton = jQuery.getNewJSButton('&#9049', "GIMLI.hideConsole();", 'gimli-button-hide-console', 'gimli-button');
+		elconsole_outer.append(elconsole)
+		elconsole_outer.append(elhidebutton);
+		el.append(elconsole_outer);
+		
+		var el2= jQuery.getNewDiv('<a href="https://github.com/ben0bi/GIMLI/">GIML-Interpreter</a> v'+GIMLIVERSION+' (JS-Version) by Benedict Jäggi in 2019 | <a href="javascript:" onclick="GIMLI.showConsole();">console</a>', 'gimli-footer-window', 'gimli-pixelperfect');
+		jQuery.appendElementTo('head', css2);
 		jQuery.appendElementTo('head', css);
 		
 		jQuery.appendElementTo('body', el);
 		jQuery.appendElementTo('body', el2);
+		
+		jBash.initialize("#gimli-jbash-window", "");
 	}
 };
 GIMLI.instance = new GIMLI();
 
 // Initialize the GIMLI engine.
 GIMLI.init = function(gmurl) {GIMLI.instance.init(gmurl);};
+
+/* FUNCTIONS to Show and hide the console. */
+GIMLI.hideConsole = function()  {__hideGIMLIconsole();}
+GIMLI.showConsole = function() {__showGIMLIconsole();}
+
+function __hideGIMLIconsole()
+{
+	var c = $('#gimli-jbash-outer-window');
+	var t = parseInt(c.css('top'));
+	if(t > -(c.height()+10))
+	{
+		t=t-10;
+		c.css('top', t+'px');
+		setTimeout(__hideGIMLIconsole, 15);
+	}else{
+		c.hide();
+	}
+}
+
+function __showGIMLIconsole()
+{
+	var c = $('#gimli-jbash-outer-window');
+	var t = parseInt(c.css('top'));
+	c.show();
+	jBash.instance.focus();
+	if(t < 0)
+	{
+		t=t+10;
+		if(t>0) t=0;
+		c.css('top', t+'px');
+		setTimeout(__showGIMLIconsole, 15);
+	}
+}
