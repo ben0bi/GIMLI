@@ -138,6 +138,7 @@ var GIMLI = function()
 		jQuery.appendElementTo('body', el2);
 		
 		jBash.initialize("#gimli-jbash-window", "");
+		jBash.instance.Parse("cmd");
 	}
 };
 GIMLI.instance = new GIMLI();
