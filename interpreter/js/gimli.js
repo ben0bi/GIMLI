@@ -47,10 +47,10 @@ var log = function(text, loglevel = 0)
 log.loglevel = LOG_DEBUG;
 
 // fetch a file and do some functions on it.	
-async function asyncFetch(urlToFile, success, failure)
+/*async function asyncFetch(urlToFile, success, failure)
 {
 	await fetch(urlToFile).then(success, failure);
-};
+};*/
 
 // The GIML-Interpreter
 var GIMLI = function()                       
@@ -63,12 +63,10 @@ var GIMLI = function()
 	{
 		__createMainWindow();
 		var checkurl = me.makeGMURL(gmurl);
-		var d = me.checkForFile(checkurl)
-		if(d)
-		{
+		me.loadJSONFile(checkurl, function(json) {
 			m_initpage = checkurl;
-			me.loadGML(m_initpage);
-		}
+			me.parseGML(json);
+		});
 	};
 	
 	// check if the file has gml ending or add it.
@@ -97,29 +95,34 @@ var GIMLI = function()
 	};
 	
 	// load a gml json file.
-	this.loadGML = function(gmurl)
+	this.parseGML = function(json)
 	{
-		log("Loading GML: "+gmurl, 0);
+		log("Parsing GML: "+json.toString(), 0);
 	};
 
-	// Check if aa file exists.
-	this.checkForFile=function(urlToFile)
+	// Check if a file exists.
+	this.loadJSONFile=function(urlToFile, successFunction)
 	{
-		var fileFound = false;
-		var success = function(data)
-		{
-			log("file check ok for "+urlToFile,LOG_DEBUG);
-			fileFound = 1;
-		}
-		var failure=function(data)
-		{
-			log("File not found! or CORS. REMOVE THAT SHIT FROM THE INTERNET: CORS IS FOR NOTHING! "+data,LOG_USER);
-			fileFound = 0;
-		}
-		
-		// try to get the file.
-		asyncFetch(urlToFile, success, failure);
-		return fileFound;
+		// Make an ajax call without jquery so we can load jquery with this loader.
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function()
+    	{
+        	if (xhr.readyState === XMLHttpRequest.DONE)
+			{
+        		if (xhr.status === 200) 
+				{
+					var json=xhr.response;
+					log("JSON from "+urlToFile+" loaded.");
+					if(typeof(successFunction)==="function")
+						successFunction(json);
+        		} else {
+					log("Could not load file "+urlToFile+" / XHR: "+xhr.status, LOG_ERROR);
+				}
+        	}
+    	};
+    	xhr.open("GET", urlToFile, true);
+		xhr.responseType = "json";
+    	xhr.send();
 	}
 	
 	// create the div where the action goes. :)
@@ -146,8 +149,12 @@ var GIMLI = function()
 		jQuery.appendElementTo('body', el);
 		jQuery.appendElementTo('body', el2);
 		
+		// initialize the console.
 		jBash.initialize("#gimli-jbash-window", "");
+		// parse the cmd-Command to show commands.
 		jBash.instance.Parse("cmd");
+		// hide the console in front of the user. :)
+		//setTimeout(GIMLI.hideConsole,750);
 	}
 };
 GIMLI.instance = new GIMLI();

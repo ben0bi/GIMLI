@@ -99,10 +99,10 @@ var JSFILELOADER = function(configFilePath, asyncFunction)
 		// Make an ajax call without jquery so we can load jquery with this loader.
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function()
-    		{
-        		if (xhr.readyState === XMLHttpRequest.DONE)
+    	{
+        	if (xhr.readyState === XMLHttpRequest.DONE)
 			{
-        			if (xhr.status === 200) 
+        		if (xhr.status === 200) 
 				{
 					var json=xhr.response;
 					var maxCount=0;
@@ -120,11 +120,11 @@ var JSFILELOADER = function(configFilePath, asyncFunction)
         			} else {
 					console.log("XHR Error: "+xhr.status);
 				}
-        		}
-    		};
-    		xhr.open("GET", m_configFilePath, true);
+        	}
+    	};
+    	xhr.open("GET", m_configFilePath, true);
 		xhr.responseType = "json";
-    		xhr.send();
+    	xhr.send();
 	};
 
 	// LOAD
