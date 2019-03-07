@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.5a";
+const GIMLIVERSION = "0.0.6a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and so.
@@ -30,8 +30,17 @@ var log = function(text, loglevel = 0)
 {
 	if(log.loglevel>=loglevel)
 	{
+		var ll="";
+		switch(loglevel)
+		{
+			//case LOG_USER: ll="";break;
+			case LOG_ERROR: ll="[ERROR]> ";break;
+			case LOG_WARN: ll="[WARNING]> ";break;
+			case LOG_DEBUG: ll="[DEBUG]> ";break;
+			default: break;
+		}
 		console.log("> "+text);
-		jBash.instance.AddLine(text);
+		jBash.instance.AddLine(ll+text);
 		// TODO: show to user.
 	}
 };

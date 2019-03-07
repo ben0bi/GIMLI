@@ -1,6 +1,7 @@
 @font-face {
   font-family: 'consolefont';
-  src: url('../fonts/basis33.ttf');
+  /*src: url('../fonts/basis33.ttf');*/
+  src: url('../fonts/chary___.ttf');
 }
 
 
@@ -16,6 +17,7 @@
 	overflow-y: auto;
 	color: #3A3;
 	font-family: 'consolefont', Courier, monospace;
+	font-size: 12pt;
 }
 
 #gimli-jbash-outer-window

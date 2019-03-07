@@ -1,2 +1,3 @@
 0.0.1a -> 0.0.3a: Outer screen setup, file structure definition.
 0.0.4a -> 0.0.5a: Included a console (jBash from github.com/ben0bi)
+0.0.6a -> other fonts choosen.
