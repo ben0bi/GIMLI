@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.6a";
+const GIMLIVERSION = "0.0.7a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and so.
