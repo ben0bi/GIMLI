@@ -2,3 +2,5 @@
 0.0.4a -> 0.0.5a: Included a console (jBash from github.com/ben0bi)
 0.0.6a -> other fonts choosen.
 0.0.7a -> trying to load a gml file.
+0.0.8a -> GIML-Rooms and Items (prototype)
+0.0.9a -> loading GML file and making all the array names uppercase.

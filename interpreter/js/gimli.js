@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.7a";
+const GIMLIVERSION = "0.0.9a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and so.
@@ -34,9 +34,9 @@ var log = function(text, loglevel = 0)
 		switch(loglevel)
 		{
 			//case LOG_USER: ll="";break;
-			case LOG_ERROR: ll="[ERROR]> ";break;
-			case LOG_WARN: ll="[WARNING]> ";break;
-			case LOG_DEBUG: ll="[DEBUG]> ";break;
+			case LOG_ERROR: ll='[<span class="jBashError">ERROR</span>]&gt; ';break;
+			case LOG_WARN: ll='[<span class="jBashWarning">WARNING</span>]&gt; ';break;
+			case LOG_DEBUG: ll='[<span class="jBashCmd">DEBUG</span>]&gt; ';break;
 			default: break;
 		}
 		console.log("> "+text);
@@ -52,12 +52,39 @@ log.loglevel = LOG_DEBUG;
 	await fetch(urlToFile).then(success, failure);
 };*/
 
+// an item in the giml system.
+var GIMLitem = function()
+{
+	var m_isPickable = false;
+	this.setPickable = function(pickable) {m_isPickable = pickable;};
+	var m_posX = 0;
+	var m_posY = 0;
+	var m_posZ = 10; // pos z is the z index.
+	var m_imageFile = "";
+	var m_internName = "";
+	this.setImage=function(imageName) {m_imageFile = imageName;}
+	this.getInitialHTML = function() 
+	{
+		return '<img src="'+m_imageFile+'" class="gimli-image" style="position: absolute; top: \''+posY+'px\'; left: \''+posX+'px\'>';
+	};
+};
+
+// a room in the giml system.
+var GIMLroom = function()
+{
+	var m_roomName ="";
+	var m_internName = "";
+	var m_items = [];
+	this.addItem = function(item) {m_items.push(item);};	
+};
+
 // The GIML-Interpreter
 var GIMLI = function()                       
 {
 	var me = this; // protect this from be this'ed from something other inside some brackets.
 	
 	var m_initpage = "";  // the gml file which was called on the init function.
+	var m_actualRoomIntern = ""; // the actual room intern name.
 	
 	this.init = function(gmurl)
 	{
@@ -97,8 +124,35 @@ var GIMLI = function()
 	// load a gml json file.
 	this.parseGML = function(json)
 	{
-		log("Parsing GML: "+json.toString(), 0);
+		log("Parsing GML: "+JSON.stringify(json), LOG_DEBUG);
+		
+		log("Converting array names to uppercase..", LOG_DEBUG);
+		var json2 = __jsonUpperCase(json);
+		
+		m_actualRoomIntern = json2['STARTLOCATION'];
+		if(typeof(m_actualRoomIntern)==="undefined")
+			m_actualRoomIntern = "not found";
+		log ("GML start location: "+m_actualRoomIntern, LOG_DEBUG);
 	};
+	
+	// make all the array names in a json object upper case.
+	function __jsonUpperCase(obj) {
+		var key, upKey;
+		for (key in obj) {
+			if (obj.hasOwnProperty(key)) {
+				upKey = key.toUpperCase();
+				if (upKey !== key) {
+					obj[upKey] = obj[key];
+					delete(obj[key]);
+				}
+				// recurse
+				if (typeof obj[upKey] === "object") {
+					__jsonUpperCase(obj[upKey]);
+				}
+			}
+		}
+		return obj;
+	}
 
 	// Check if a file exists.
 	this.loadJSONFile=function(urlToFile, successFunction)
@@ -112,7 +166,7 @@ var GIMLI = function()
         		if (xhr.status === 200) 
 				{
 					var json=xhr.response;
-					log("JSON from "+urlToFile+" loaded.");
+					log("JSON from "+urlToFile+" loaded.", LOG_DEBUG);
 					if(typeof(successFunction)==="function")
 						successFunction(json);
         		} else {

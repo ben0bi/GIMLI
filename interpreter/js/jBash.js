@@ -272,7 +272,7 @@ _finishInitialize(startpage);
 	};
 
 	// load a local page.
-	var _loadPage = function(directory,pagename, force, endfunction)
+	/*var _loadPage = function(directory,pagename, force, endfunction)
 	{
 		if(_screen==null)
 			return;
@@ -304,7 +304,7 @@ _finishInitialize(startpage);
 	};
 	this.loadPage = function(directory,pagename, force) {_loadPage(directory, pagename, force, null);};
 	this.loadPageExtended = function(directory, pagename, force, endfunction) {_loadPage(directory,pagename, force, endfunction);};
-
+*/
 	// enable or disable input
 	this.enableMe = function(enabled)
 	{
@@ -499,8 +499,8 @@ jBash.GP = function(p) {return jBash.instance.getParams(p);}
 // register some commands.
 jBash.registerCommand("cmd", "Show registered jBash commands.", function(params) 
 	{jBash.instance.showCommandList();});
-jBash.registerCommand(jBash._man_command_name, "Show manual for a command. E.g. {<span class='jBashCmd'>man cmd</span>}", function(params)
-	{jBash.instance.loadManual(jBash.GP(params)[0]);});
+//jBash.registerCommand(jBash._man_command_name, "Show manual for a command. E.g. {<span class='jBashCmd'>man cmd</span>}", function(params)
+//	{jBash.instance.loadManual(jBash.GP(params)[0]);});
 jBash.registerCommand("cls", "Clear the screen.", function(params)
 	{jBash.instance.cls();});
 //jBash.registerCommand("ls", "Linux style for {<span class='jBashCmd'>dir</span>}.", function(params)

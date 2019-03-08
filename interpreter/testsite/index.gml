@@ -1,5 +1,5 @@
 {
-	"STARTLOCATION": "living_room",
+	"STARtLOCATION": "living_room",
 	"LOCATIONS": [
 		{
 			"NAME": "Living Room",

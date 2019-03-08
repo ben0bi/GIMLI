@@ -31,6 +31,7 @@
 	z-index: 1111;
 }
 
+/* the hide console button. */
 #gimli-button-hide-console
 {
 	display: inline-block;
@@ -60,22 +61,20 @@
 	overflow: auto;
 }
 
-/*a, a:visited
-{
-	text-decoration:none;
-	color: #FA3;
-}
-
-a:hover
-{
-	text-decoration: none;
-	color:#FA3;
-}*/
-
 /* colour of "your" text on the screen. */
 .jBashCmd
 {
 	color: #3AF;
+}
+
+.jBashError
+{
+	color: #F33;
+}
+
+.jBashWarning
+{
+	color: #FA3;
 }
 
 #jBashInnerInput
