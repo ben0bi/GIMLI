@@ -5,3 +5,4 @@
 0.0.8a -> GIML-Rooms and Items (prototype)
 0.0.9a -> loading GML file and making all the array names uppercase.
 0.0.10a -> new console font, console scrolling bug fixed.
+0.0.11a -> 2 new console buttons for cmd and cls.

@@ -38,10 +38,23 @@
 /* the hide console button. */
 #gimli-button-hide-console
 {
-	display: inline-block;
-	position: absolute;
 	bottom: 10px;
 	right: 30px;
+}
+#gimli-button-cls-console
+{
+	bottom: 10px;
+	right: 60px;
+}
+#gimli-button-help-console
+{
+	bottom: 10px;
+	right: 90px;
+}
+.gimli-jbash-button
+{
+	display: inline-block;
+	position: absolute;
 	z-index: 20;
 	width: 25px;
 	height: 25px;
@@ -51,11 +64,12 @@
 	text-align: center;
 	font-size: 12pt;
 }
-#gimli-button-hide-console:hover
+.gimli-jbash-button:hover
 {
 	border-color: #FFFF00;
-	background-color: #222266;
+	background-color: #222266;	
 }
+
 
 /* This is the div which you must create. */
 #jbashscreen

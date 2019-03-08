@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.10a";
+const GIMLIVERSION = "0.0.11a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and so.
@@ -191,9 +191,13 @@ var GIMLI = function()
 		var el = jQuery.getNewDiv('','gimli-main-window', 'gimli-pixelperfect');
 		var elconsole = jQuery.getNewDiv('','gimli-jbash-window', '');
 		var elconsole_outer = jQuery.getNewDiv('', 'gimli-jbash-outer-window', '');
-		var elhidebutton = jQuery.getNewJSButton('&#9049', "GIMLI.hideConsole();", 'gimli-button-hide-console', 'gimli-button');
+		var elhidebutton = jQuery.getNewJSButton('&#9049;', "GIMLI.hideConsole();", 'gimli-button-hide-console', 'gimli-jbash-button');
+		var elhelpbutton = jQuery.getNewJSButton('&#8264;', "jBash.instance.DoLine('cmd');", 'gimli-button-help-console', 'gimli-jbash-button');
+		var elclsbutton = jQuery.getNewJSButton('&#8709;', "jBash.instance.DoLine('cls');", 'gimli-button-cls-console', 'gimli-jbash-button');
 		elconsole_outer.append(elconsole)
 		elconsole_outer.append(elhidebutton);
+		elconsole_outer.append(elclsbutton);
+		elconsole_outer.append(elhelpbutton);
 		el.append(elconsole_outer);
 		
 		var el2= jQuery.getNewDiv('<a href="https://github.com/ben0bi/GIMLI/">GIML-Interpreter</a> v'+GIMLIVERSION+' (JS-Version) by Benedict Jäggi in 2019 | <a href="javascript:" onclick="GIMLI.showConsole();">console</a>', 'gimli-footer-window', 'gimli-pixelperfect');
