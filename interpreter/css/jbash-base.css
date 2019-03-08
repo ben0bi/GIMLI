@@ -1,7 +1,10 @@
 @font-face {
   font-family: 'consolefont';
   /*src: url('../fonts/basis33.ttf');*/
-  src: url('../fonts/chary___.ttf');
+  /*src: url('../fonts/chary___.ttf');*/
+  /*src: url('../fonts/smallest_pixel-7.ttf');*/
+/*	src: url('../fonts/pcsenior.ttf');*/
+	src: url('../fonts/west_england.ttf');
 }
 
 
@@ -17,9 +20,10 @@
 	overflow-y: auto;
 	color: #3A3;
 	font-family: 'consolefont', Courier, monospace;
-	font-size: 12pt;
+	font-size: 10pt;
 }
 
+/* the outer window of the jbash console window. */
 #gimli-jbash-outer-window
 {
 	position: absolute;
@@ -62,21 +66,11 @@
 }
 
 /* colour of "your" text on the screen. */
-.jBashCmd
-{
-	color: #3AF;
-}
+.jBashCmd {color: #3AF;}
+.jBashError {color: #F33;}
+.jBashWarning {color: #FA3;}
 
-.jBashError
-{
-	color: #F33;
-}
-
-.jBashWarning
-{
-	color: #FA3;
-}
-
+/* the console input */
 #jBashInnerInput
 {
 	color: #3A3;
@@ -85,7 +79,7 @@
 	/*border: 1px solid #FA3;*/
 	width: 100%;
 	font-family: 'consolefont', Courier, monospace;
-	font-size: 12pt;
+	font-size: 10pt;
 }
 
 #jBashInnerInput:focus

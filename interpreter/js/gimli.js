@@ -189,8 +189,8 @@ var GIMLI = function()
 		var css2= '<link rel="stylesheet" type="text/css" href="'+cssfile2+'">';
 		
 		var el = jQuery.getNewDiv('','gimli-main-window', 'gimli-pixelperfect');
-		var elconsole = jQuery.getNewDiv('','gimli-jbash-window', 'gimli-pixelperfect');
-		var elconsole_outer = jQuery.getNewDiv('', 'gimli-jbash-outer-window', 'gimli-pixelperfect');
+		var elconsole = jQuery.getNewDiv('','gimli-jbash-window', '');
+		var elconsole_outer = jQuery.getNewDiv('', 'gimli-jbash-outer-window', '');
 		var elhidebutton = jQuery.getNewJSButton('&#9049', "GIMLI.hideConsole();", 'gimli-button-hide-console', 'gimli-button');
 		elconsole_outer.append(elconsole)
 		elconsole_outer.append(elhidebutton);

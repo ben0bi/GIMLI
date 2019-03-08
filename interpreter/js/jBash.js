@@ -92,7 +92,7 @@ _finishInitialize(startpage);
 	{
 		if(_outerScreen==null)
 			return;
-
+		
 		if(jBash.ScrollWithBody == true)
 		{
 			window.scrollTo(0,document.body.scrollHeight);
@@ -483,7 +483,7 @@ jBash.configFile ="jBash_config.json";
 
 // If this is true, it scrolls the whole body, else it scrolls the div. Div must have specific height then.
 // Div can NOT have specific height when scrolling with the body.
-jBash.ScrollWithBody = true;
+jBash.ScrollWithBody = false;
 
 // This is the text before anything, to emulate a user-like experience.
 jBash.ShellText = ">";
