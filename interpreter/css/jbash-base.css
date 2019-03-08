@@ -7,20 +7,20 @@
 	src: url('../fonts/west_england.ttf');
 }
 
-
 /*  The console window. */
 #gimli-jbash-window
 {
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	background-color: #111166;
+	background-color: #111169;
 	z-index: 10;
 	overflow-x: hidden;
-	overflow-y: auto;
+	overflow-y: scroll;
 	color: #3A3;
 	font-family: 'consolefont', Courier, monospace;
 	font-size: 10pt;
+	scrollbar-color: #AAAAFA #3333AA;
 }
 
 /* the outer window of the jbash console window. */

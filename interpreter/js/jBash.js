@@ -16,6 +16,7 @@ jBashObject = function(name, desc, func)
 
 jBash = function()
 {
+	var me = this;
 	var _outerScreen = null;
 	var _screen = null;
 	var _input = null;
@@ -70,6 +71,11 @@ _finishInitialize(startpage);
 					_addLine(jBash.ShellText);
 				_input.focus();
 			}
+		});
+		
+		_screen.click(function(e)
+		{
+			me.focus();
 		});
 	};
 
@@ -234,7 +240,7 @@ _finishInitialize(startpage);
 	};
 */
 	// same as loadpage but it will show a short command description if the manual was not found.
-	this.loadManual = function(pagename)
+/*	this.loadManual = function(pagename)
 	{
 		pagename = pagename.toLowerCase();
 		if(_screen==null)
@@ -270,7 +276,7 @@ _finishInitialize(startpage);
 			_addLine("<small>No manual file was found, this is the short description.</small><br />");
 		});
 	};
-
+*/
 	// load a local page.
 	/*var _loadPage = function(directory,pagename, force, endfunction)
 	{
@@ -470,11 +476,11 @@ _finishInitialize(startpage);
 jBash._man_command_name = "man";
 
 // relative dir to the php files, loaded with json.
-jBash._dir_php = "";
+//jBash._dir_php = "";
 // relative dir to the public non-upload pages, loaded with json.
-jBash_dir_pages = "";
+//jBash_dir_pages = "";
 // relative dir to the manual pages, loaded with json.
-jBash._dir_manuals = "";
+//jBash._dir_manuals = "";
 
 jBash.instance = new jBash();
 
