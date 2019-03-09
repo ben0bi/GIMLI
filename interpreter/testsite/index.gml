@@ -24,6 +24,8 @@
 		{
 			"NAME": "Bag of Weed",
 			"INTERN": "BoW",
+			"FOLDER": "entities/bag_of_grass",
+			"IMAGE": "bag_of_grass.png",
 			"DESCRIPTION": "A delicious bag of weed.",
 			"SCRIPT": 0,
 			"LOCATION": ["living_room", 50, 200]

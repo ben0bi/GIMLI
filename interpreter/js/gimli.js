@@ -11,11 +11,11 @@
  . NOT copying this work is prohibited :)     .
  ..............................................
  
- needs jQuery.
+ needs jQuery, BeJQuery and jBash.
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.11a";
+const GIMLIVERSION = "0.0.14a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and so.
@@ -62,10 +62,21 @@ var GIMLitem = function()
 	var m_posZ = 10; // pos z is the z index.
 	var m_imageFile = "";
 	var m_internName = "";
+	var m_itemName = "";
+	var m_Description = "";
+	var m_folder = "";
+	
 	this.setImage=function(imageName) {m_imageFile = imageName;}
 	this.getInitialHTML = function() 
 	{
-		return '<img src="'+m_imageFile+'" class="gimli-image" style="position: absolute; top: \''+posY+'px\'; left: \''+posX+'px\'>';
+		return '<img src="'+m_imageFile+'" class="gimli-image" style="position: absolute; top: \''+posY+'px\'; left: \''+posX+'px\'; z-index: '+m_posZ+'>';
+	};
+	
+	this.debug=function(loglevel=LOG_DEBUG) {
+		log("* Item '"+m_itemName+"' (intern: '"+m_internName+"')", loglevel);
+		log(" --&gt; resides in '"+m_folder+"'", loglevel);
+		log(" --&gt; Image: '"+m_imageFile+"'", loglevel);
+		log(" ", loglevel);
 	};
 };
 
@@ -74,28 +85,45 @@ var GIMLroom = function()
 {
 	var m_roomName ="";
 	var m_internName = "";
-	var m_items = [];
-	this.addItem = function(item) {m_items.push(item);};	
+	var m_bgImageFile = "";
+	var m_folder = "";
+	this.set = function(roomName, roomInternalName, roomFolder, roomBGimageName)
+	{
+		m_roomName = roomName;
+		m_internName = roomInternalName;
+		m_bgImageFile = roomBGimageName;
+		if(roomFolder==null)
+			roomFolder="";
+		// add ending / if it is not there.
+		if(roomFolder.length>=1)
+		{
+			lastChar = roomFolder[roomFolder.length-1];
+			if(lastChar!='\\' && lastChar!='/')
+				roomFolder+='/';
+		}
+		m_folder = roomFolder;
+	}
+	
+	this.debug=function(loglevel=LOG_DEBUG) {
+		log("* Room '"+m_roomName+"' (intern: '"+m_internName+"')", loglevel);
+		log(" --&gt; resides in '"+m_folder+"'", loglevel);
+		log(" --&gt; bgImage: '"+m_bgImageFile+"'", loglevel);
+		log(" ", loglevel);
+	};
 };
 
-// The GIML-Interpreter
-var GIMLI = function()                       
+// a GML url has a forepart with the initial directory (all images will be loaded from that point)
+// and a back part with the actual site filename.
+var GMLurl = function(filename)
 {
-	var me = this; // protect this from be this'ed from something other inside some brackets.
+	var me = this;
+	var m_directory = "";
+	var m_filename = "";
+	this.getDirectory = function() {return m_directory;}
+	this.getFilename = function() {return m_filename;}
+	this.getCombined = function() {return m_directory+m_filename;}
 	
-	var m_initpage = "";  // the gml file which was called on the init function.
-	var m_actualRoomIntern = ""; // the actual room intern name.
-	
-	this.init = function(gmurl)
-	{
-		__createMainWindow();
-		var checkurl = me.makeGMURL(gmurl);
-		me.loadJSONFile(checkurl, function(json) {
-			m_initpage = checkurl;
-			me.parseGML(json);
-		});
-	};
-	
+	// create the actual stuff and maybe overwrite the old one.
 	// check if the file has gml ending or add it.
 	this.makeGMURL = function(gmurl)
 	{
@@ -117,23 +145,161 @@ var GIMLI = function()
 					r+=addending;
 			}
 		}
-		log("MakeGMLUrl: "+r,LOG_DEBUG)
-		return r;
+		
+		// regex from the internets
+		m_directory = r.match(/(.*)[\/\\]/); //[1]||'';
+		if(m_directory==null) 
+			m_directory ="";
+		else
+			m_directory = m_directory[1]||'';
+		
+		if(m_directory!="") m_directory+='/';
+		m_filename = r.replace(/^.*[\\\/]/, '');
+
+		log("MakeGMLUrl: "+gmurl,LOG_DEBUG)
+		log(" --&gt; Directory: "+m_directory, LOG_DEBUG);
+		log(" --&gt; Filename : "+m_filename, LOG_DEBUG);
+		return me;
 	};
 	
+	// initialize the stuff.
+	me.makeGMURL(filename);
+	return this;
+}
+GMLurl.makeGMURL = function(filename)
+{
+	var gmurl = new GMLurl(filename);
+	return gmurl;
+}
+
+// The GIML-Interpreter
+var GIMLI = function()                       
+{
+	var me = this; // protect this from be this'ed from something other inside some brackets.
+	
+	var m_initpage = "";  // the gml file which was called on the init function.
+	var m_initialDirectoray = ""; // the directory where the initpage gml file was called in. Used to load images and stuff.
+	var m_actualRoomIntern = ""; // the actual room intern name.
+	var m_roomsLoaded = [];		// the rooms (locations) loaded with the gml file.
+	var m_itemsLoaded = [];		// the items loaaded with the gml file.
+	var __clearRooms = function() {m_roomsLoaded = [];};
+	var __clearItems = function() {m_itemsLoaded = [];};
+	var __roomCount = function() {return m_roomsLoaded.length;}
+	var __itemCount = function() {return m_itemsLoaded.length;}
+	
+	// show debug info about the rooms.
+	this.debugRooms = function()
+	{
+		if(__roomCount<=0)
+		{
+			log("There are no rooms loaded.", LOG_USER);
+			return;
+		}
+		log("+++ SHOWING DATA FOR "+__roomCount()+" LOADED LOCATIONS. +++", LOG_USER);
+		for(var i=0;i<__roomCount();i++)
+		{
+			m_roomsLoaded[i].debug(LOG_USER);
+		}
+	}
+	
+	// show debug info about the items.
+	this.debugItems = function()
+	{
+		if(__itemCount<=0)
+		{
+			log("There are no items loaded.", LOG_USER);
+			return;
+		}
+		log("+++ SHOWING DATA FOR "+__itemCount()+" LOADED ITEMS. +++", LOG_USER);
+		for(var i=0;i<__itemCount();i++)
+		{
+			m_itemsLoaded[i].debug(LOG_USER);
+		}
+	}
+	
+	this.init = function(gmurl)
+	{
+		__createMainWindow();
+		var checkurl = GMLurl.makeGMURL(gmurl);
+		log("Loading "+checkurl.getCombined()+"...");
+		me.loadJSONFile(checkurl.getCombined(), function(json) {
+			m_initpage = checkurl;
+			me.parseGML(json);
+		});
+	};
+		
 	// load a gml json file.
 	this.parseGML = function(json)
 	{
-		log("Parsing GML: "+JSON.stringify(json), LOG_DEBUG);
+		log("Parsing GML: "/*+JSON.stringify(json)*/, LOG_DEBUG);
 		
 		log("Converting array names to uppercase..", LOG_DEBUG);
 		var json2 = __jsonUpperCase(json);
+		json = json2;
 		
-		m_actualRoomIntern = json2['STARTLOCATION'];
+		m_actualRoomIntern = json['STARTLOCATION'];
+		var locationArray = json['LOCATIONS'];
+		var itemArray = json['ITEMS'];
+		
 		if(typeof(m_actualRoomIntern)==="undefined")
-			m_actualRoomIntern = "not found";
+			m_actualRoomIntern = "@ not found @";
 		log ("GML start location: "+m_actualRoomIntern, LOG_DEBUG);
+		
+		// clear the rooms and items.
+		__clearItems();
+		__clearRooms();
+		
+		// fill the rooms and items.
+		if(__defined(json['LOCATIONS']))
+		{
+			for(var i = 0;i<locationArray.length;i++)
+			{
+				var jroom = locationArray[i];
+				var room = new GIMLroom();
+				var name = jroom['NAME'];
+				var intern=jroom['INTERN'];
+				var bgfile=jroom['BGIMAGE'];
+				// check if the json has the entries.
+				var folder = jroom['FOLDER'];
+				if(!__defined(jroom['NAME']))
+					name = "@ NAME not found @";
+				if(!__defined(jroom['INTERN']))
+					intern = "@ INTERN not found @";
+				if(!__defined(jroom['FOLDER']))
+					folder = "@ FOLDER not found @";
+				if(!__defined(jroom['BGIMAGE']))
+					bgfile = "@ BGIMAGE not found @";
+
+				room.set(name, intern, folder, bgfile);
+				room.debug();
+				m_roomsLoaded.push(room);
+			}
+		}else{
+			log("No rooms defined in the given GML file.", LOG_WARN);
+		}
+		
+		// load in the items.
+		if(__defined(json['ITEMS']))
+		{
+			for(var i = 0;i<itemArray.length;i++)
+			{
+				var item = new GIMLitem();
+				m_itemsLoaded.push(item);
+				item.debug();
+			}
+		}else{
+			log("No items defined in the given GML file.", LOG_WARN);
+		}
+		log(__roomCount()+ " rooms loaded.",LOG_USER);
+		log(__itemCount()+" items loaded.", LOG_USER);
 	};
+	
+	var __defined=function(variable)
+	{
+		if(typeof(variable)==="undefined")
+			return false;
+		return true;
+	}
 	
 	// make all the array names in a json object upper case.
 	function __jsonUpperCase(obj) {
@@ -219,6 +385,12 @@ GIMLI.instance = new GIMLI();
 
 // Initialize the GIMLI engine.
 GIMLI.init = function(gmurl) {GIMLI.instance.init(gmurl);};
+
+// Hooks for the jBash instance.
+jBash.registerCommand("rooms", "Show info about the loaded rooms.", function(params)
+	{GIMLI.instance.debugRooms();});
+jBash.registerCommand("items", "Show info about the loaded items.", function(params)
+	{GIMLI.instance.debugItems();});
 
 /* FUNCTIONS to Show and hide the console. */
 GIMLI.hideConsole = function()  {__hideGIMLIconsole();}

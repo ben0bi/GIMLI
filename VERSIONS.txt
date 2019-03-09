@@ -6,3 +6,6 @@
 0.0.9a -> loading GML file and making all the array names uppercase.
 0.0.10a -> new console font, console scrolling bug fixed.
 0.0.11a -> 2 new console buttons for cmd and cls.
+0.0.12a -> Console focus now on click in console, console scrollbar color (FireFox only)
+0.0.13a -> First GML loading into structure.
+0.0.14a -> Loading rooms but not yet the items. Two new console commands: "rooms" and "items", show debug info about them.
