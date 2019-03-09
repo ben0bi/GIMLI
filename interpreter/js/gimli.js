@@ -18,7 +18,7 @@
 const GIMLIVERSION = "0.0.14a";
 
 // log something.
-// loglevels: 0: only user related stuff like crash errors and so.
+// loglevels: 0: only user related stuff like crash errors and user information and such.
 // 1 = 0 with errors
 // 2 = 1 with warnings
 // 3 = 2 with debug
@@ -41,7 +41,6 @@ var log = function(text, loglevel = 0)
 		}
 		console.log("> "+text);
 		jBash.instance.AddLine(ll+text);
-		// TODO: show to user.
 	}
 };
 log.loglevel = LOG_DEBUG;
@@ -225,6 +224,8 @@ var GIMLI = function()
 		me.loadJSONFile(checkurl.getCombined(), function(json) {
 			m_initpage = checkurl;
 			me.parseGML(json);
+			// hide the console in front of the user. :)
+			setTimeout(GIMLI.hideConsole,750);
 		});
 	};
 		
@@ -377,8 +378,6 @@ var GIMLI = function()
 		jBash.initialize("#gimli-jbash-window", "");
 		// parse the cmd-Command to show commands.
 		jBash.instance.Parse("cmd");
-		// hide the console in front of the user. :)
-		//setTimeout(GIMLI.hideConsole,750);
 	}
 };
 GIMLI.instance = new GIMLI();
