@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.14a";
+const GIMLIVERSION = "0.0.15a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and user information and such.
@@ -82,8 +82,10 @@ var GIMLitem = function()
 // a room in the giml system.
 var GIMLroom = function()
 {
+	var me = this;
 	var m_roomName ="";
 	var m_internName = "";
+	this.getIntern = function() {return m_internName;};
 	var m_bgImageFile = "";
 	var m_folder = "";
 	this.set = function(roomName, roomInternalName, roomFolder, roomBGimageName)
@@ -102,6 +104,9 @@ var GIMLroom = function()
 		}
 		m_folder = roomFolder;
 	}
+	
+	// return the image file including the path.
+	this.getBGimagePath=function() {return m_folder+m_bgImageFile;};
 	
 	this.debug=function(loglevel=LOG_DEBUG) {
 		log("* Room '"+m_roomName+"' (intern: '"+m_internName+"')", loglevel);
@@ -177,10 +182,24 @@ var GIMLI = function()
 	var me = this; // protect this from be this'ed from something other inside some brackets.
 	
 	var m_initpage = "";  // the gml file which was called on the init function.
-	var m_initialDirectoray = ""; // the directory where the initpage gml file was called in. Used to load images and stuff.
 	var m_actualRoomIntern = ""; // the actual room intern name.
+	var m_startLocationIntern = ""; // the start room intern name.
+	var m_actualRoomX = 0;
+	var m_actualRoomY = 0;
 	var m_roomsLoaded = [];		// the rooms (locations) loaded with the gml file.
 	var m_itemsLoaded = [];		// the items loaaded with the gml file.
+	// find a room (local). Return null if nothing found.
+	var __findRoom = function(roomIntern)
+	{
+		for(var i=0;i<__roomCount();i++)
+		{
+			var r = m_roomsLoaded[i];
+			if(r.getIntern()==roomIntern)
+				return r;
+		}
+		return null;
+	};
+	
 	var __clearRooms = function() {m_roomsLoaded = [];};
 	var __clearItems = function() {m_itemsLoaded = [];};
 	var __roomCount = function() {return m_roomsLoaded.length;}
@@ -216,6 +235,7 @@ var GIMLI = function()
 		}
 	}
 	
+	// initialize gimli with a gml-file.
 	this.init = function(gmurl)
 	{
 		__createMainWindow();
@@ -224,11 +244,47 @@ var GIMLI = function()
 		me.loadJSONFile(checkurl.getCombined(), function(json) {
 			m_initpage = checkurl;
 			me.parseGML(json);
+			me.jumpToStartLocation();
 			// hide the console in front of the user. :)
 			setTimeout(GIMLI.hideConsole,750);
 		});
 	};
-		
+	
+	// jump to the start location of a gml file.
+	this.jumpToStartLocation = function()
+	{
+		var location = __findRoom(m_startLocation);
+		if(location==null)
+		{
+			log("Room '"+m_startLocation+"' not found. No jump done.", LOG_ERROR);
+			return;
+		}
+		log("Jumping to start room '"+m_startLocation+"'", LOG_DEBUG);
+		var main = __getMainWindow();
+		var imgPath = m_initpage.getDirectory()+location.getBGimagePath();
+		log("--> Loading background: "+imgPath,LOG_DEBUG);
+		main.html("");
+		main.css("background-image", "url('"+imgPath+"')");
+		main.css("background-repeat", "no-repeat");
+		me.addBGposition(-100,-100);
+	};
+	
+	// add some values to the bg position.
+	this.addBGposition=function(addX, addY)
+	{
+		m_actualRoomX+=addX;
+		m_actualRoomY+=addY;
+		me.setBGposition(m_actualRoomX, m_actualRoomY);
+	};
+	
+	this.setBGposition=function(setX, setY)
+	{
+		var mainWindow = __getMainWindow();
+		m_actualRoomX = setX;
+		m_actualRoomY = setY;
+		mainWindow.css('background-position', ''+setX+'px '+setY+'px');
+	};
+	
 	// load a gml json file.
 	this.parseGML = function(json)
 	{
@@ -238,7 +294,7 @@ var GIMLI = function()
 		var json2 = __jsonUpperCase(json);
 		json = json2;
 		
-		m_actualRoomIntern = json['STARTLOCATION'];
+		m_actualRoomIntern = m_startLocation = json['STARTLOCATION'];
 		var locationArray = json['LOCATIONS'];
 		var itemArray = json['ITEMS'];
 		
@@ -295,6 +351,7 @@ var GIMLI = function()
 		log(__itemCount()+" items loaded.", LOG_USER);
 	};
 	
+	// check if a variable is defined or not.
 	var __defined=function(variable)
 	{
 		if(typeof(variable)==="undefined")
@@ -346,6 +403,9 @@ var GIMLI = function()
     	xhr.send();
 	}
 	
+	// get the main window
+	var __getMainWindow = function() {return $('#gimli-main-window');};
+	
 	// create the div where the action goes. :)
 	var __createMainWindow = function()
 	{
@@ -355,7 +415,10 @@ var GIMLI = function()
 		var css= '<link rel="stylesheet" type="text/css" href="'+cssfile+'">';
 		var css2= '<link rel="stylesheet" type="text/css" href="'+cssfile2+'">';
 		
-		var el = jQuery.getNewDiv('','gimli-main-window', 'gimli-pixelperfect');
+		var outerwindow = jQuery.getNewDiv('', 'gimli-outer-window', 'gimli-pixelperfect');
+		
+		var mainwindow = jQuery.getNewDiv('','gimli-main-window', 'gimli-pixelperfect');
+		
 		var elconsole = jQuery.getNewDiv('','gimli-jbash-window', '');
 		var elconsole_outer = jQuery.getNewDiv('', 'gimli-jbash-outer-window', '');
 		var elhidebutton = jQuery.getNewJSButton('&#9049;', "GIMLI.hideConsole();", 'gimli-button-hide-console', 'gimli-jbash-button');
@@ -365,13 +428,14 @@ var GIMLI = function()
 		elconsole_outer.append(elhidebutton);
 		elconsole_outer.append(elclsbutton);
 		elconsole_outer.append(elhelpbutton);
-		el.append(elconsole_outer);
+		outerwindow.append(mainwindow);
+		outerwindow.append(elconsole_outer);
 		
 		var el2= jQuery.getNewDiv('<a href="https://github.com/ben0bi/GIMLI/">GIML-Interpreter</a> v'+GIMLIVERSION+' (JS-Version) by Benedict Jäggi in 2019 | <a href="javascript:" onclick="GIMLI.showConsole();">console</a>', 'gimli-footer-window', 'gimli-pixelperfect');
 		jQuery.appendElementTo('head', css2);
 		jQuery.appendElementTo('head', css);
 		
-		jQuery.appendElementTo('body', el);
+		jQuery.appendElementTo('body', outerwindow);
 		jQuery.appendElementTo('body', el2);
 		
 		// initialize the console.

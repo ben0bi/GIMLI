@@ -10,3 +10,4 @@
 0.0.13a -> First GML loading into structure.
 0.0.14a -> Loading rooms but not yet the items. Two new console commands: "rooms" and "items", show debug info about them.
 	Uh, huh...the log-to-console call is on line 42, what to say more... :)
+0.0.15a -> First background image loaded, yay.
