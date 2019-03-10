@@ -12,3 +12,4 @@
 	Uh, huh...the log-to-console call is on line 42, what to say more... :)
 0.0.15a -> First background image loaded, yay.
 0.0.16a -> Scrolling works halfway.
+0.0.17a -> Better scrolling mechanism. But size of background is not in account yet.

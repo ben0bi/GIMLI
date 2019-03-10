@@ -64,7 +64,8 @@ here all images will be appended and other stuff. */
 	left: 0px;
 	background-color: #000033;
 	overflow: hidden;
-	background-size: 200% 200%; /* BG should have the same size like the gimli-image */
+	/* The background and other sizes will be calculated with the scale factor in the gml file. */
+	/*background-size: 200% 200%;*/ /* BG should have the same size like the gimli-image */
 }
 
 #gimli-footer-window

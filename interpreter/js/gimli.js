@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.16a";
+const GIMLIVERSION = "0.0.17a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and user information and such.
@@ -194,6 +194,10 @@ var GIMLI = function()
 	var m_scrollYDir = 0;
 	var m_scrollStep = 5;
 	var m_isScrolling = false;
+	var m_scrollingEnabled = true; // disable scrolling when the console is over.
+	
+	// the size factor. usually 1 or 2
+	var m_scaleFactor = 1.0;
 	
 	// find a room (local). Return null if nothing found.
 	var __findRoom = function(roomIntern)
@@ -301,8 +305,20 @@ var GIMLI = function()
 		__realScroll();
 	}
 	
+	// the real scroll function, will call itself when scrolling is on and determine itself, IF scrolling is on.
 	var __realScroll = function()
 	{
+		// maybe disable scrolling.
+		if(!m_scrollingEnabled)
+		{
+			if(m_scrollInterval!=null)
+			{
+				clearInterval(m_scrollInterval);
+				m_scrollInterval = null;
+			}
+			return;
+		}
+		
 		var evt = m_lastMouseEvent;
 		// get the size of the main screen.
 		main = __getMainWindow();
@@ -313,14 +329,7 @@ var GIMLI = function()
 		var l = r.left;				// get left of main window.
 		var cx = evt.clientX-l;		// get mouse x relative to main window.
 		var cy = evt.clientY-t;		// get mouse y relative to main window.
-		
-		// check if mouse is out of field.
-		if(cx<=0 || cx>w || cy<0 || cy>h)
-		{
-			m_isScrolling = false;
-			//return;
-		}
-		
+				
 		// scrolling areas
 		var minW = w*0.2;
 		var maxW = w*0.2*4;
@@ -336,6 +345,9 @@ var GIMLI = function()
 			m_isScrolling = false;
 		}
 		
+		// check if mouse is out of field.
+		if(cx<=0 || cx>=w || cy<=0 || cy>=h) {m_isScrolling = false;}
+		
 		// set scroll directories.
 		m_scrollXDir = 0;
 		m_scrollYDir = 0;
@@ -347,19 +359,19 @@ var GIMLI = function()
 			m_scrollYDir = -1;
 		if(cy>=maxH)
 			m_scrollYDir = 1;
-		
-		m_actualRoomX +=m_scrollXDir*m_scrollStep;
-		m_actualRoomY +=m_scrollYDir*m_scrollStep;
-		if(m_actualRoomX>0)
-			m_actualRoomX = 0;
-		if(m_actualRoomY>0)
-			m_actualRoomY=0;
-		
-		me.setPosition(m_actualRoomX, m_actualRoomY);
-		log("Scroll: W"+w+" H"+h+" +x"+l+" +y"+t+" X"+cx+" Y"+cy, LOG_DEBUG);
+						
 		// repeat the scrolling.
 		if(m_isScrolling)
 		{
+			m_actualRoomX +=m_scrollXDir*m_scrollStep;
+			m_actualRoomY +=m_scrollYDir*m_scrollStep;
+			if(m_actualRoomX>0)
+				m_actualRoomX = 0;
+			if(m_actualRoomY>0)
+				m_actualRoomY=0;
+
+			me.setPosition(m_actualRoomX, m_actualRoomY);
+			//log("Scroll: W"+w+" H"+h+" +x"+l+" +y"+t+" X"+cx+" Y"+cy, LOG_DEBUG);
 			if(m_scrollInterval==null)
 				m_scrollInterval=setInterval(__realScroll, 15);
 		}else{
@@ -380,13 +392,23 @@ var GIMLI = function()
 		var json2 = __jsonUpperCase(json);
 		json = json2;
 		
-		m_actualRoomIntern = m_startLocation = json['STARTLOCATION'];
+		// get the start location.
+		if(__defined(json['STARTLOCATION']))
+			m_actualRoomIntern = m_startLocation = json['STARTLOCATION'];
+		else
+			m_actualRoomIntern = m_startLocation = "@ STARTLOCATION not found. @";
+		
+		// get the scale factor.
+		if(!__defined(json['SCALEFACTOR']))
+			m_scaleFactor=1.0;
+		else
+			m_scaleFactor = parseFloat(json['SCALEFACTOR']);
+			
 		var locationArray = json['LOCATIONS'];
 		var itemArray = json['ITEMS'];
 		
-		if(typeof(m_actualRoomIntern)==="undefined")
-			m_actualRoomIntern = "@ not found @";
-		log ("GML start location: "+m_actualRoomIntern, LOG_DEBUG);
+		log("GML start location: "+m_actualRoomIntern, LOG_DEBUG);
+		log("General GML scale factor: "+parseFloat(m_scaleFactor));
 		
 		// clear the rooms and items.
 		__clearItems();
@@ -529,17 +551,23 @@ var GIMLI = function()
 		// parse the cmd-Command to show commands.
 		jBash.instance.Parse("cmd");
 		
-		// apply mouseover to the main window.
-		var main = __getMainWindow();
-		main.mousemove(function(evt) {
+		// apply mouseover to the body.
+		/*var main = __getMainWindow();*/
+		var body = $('body');
+		body.mousemove(function(evt) {
 			__scroll(evt);
 		});
-		main.mouseover(function(evt) {
+/*		main.mouseover(function(evt) {
 			__scroll(evt);
-		});
-		main.mouseout(function(evt) {
+		});*/
+		body.mouseout(function(evt) {
 			m_isScrolling = false;
 		});
+		
+		// disable scrolling when jbash is on.
+		var jb = $('#gimli-jbash-outer-window');
+		jb.mouseover(function(evt) {m_scrollingEnabled=false;});
+		jb.mouseout(function(evt) {m_scrollingEnabled=true;});
 	}
 };
 GIMLI.instance = new GIMLI();
