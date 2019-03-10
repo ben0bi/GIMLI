@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.15a";
+const GIMLIVERSION = "0.0.16a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and user information and such.
@@ -188,6 +188,13 @@ var GIMLI = function()
 	var m_actualRoomY = 0;
 	var m_roomsLoaded = [];		// the rooms (locations) loaded with the gml file.
 	var m_itemsLoaded = [];		// the items loaaded with the gml file.
+	
+	// scrolling variables.
+	var m_scrollXDir = 0;
+	var m_scrollYDir = 0;
+	var m_scrollStep = 5;
+	var m_isScrolling = false;
+	
 	// find a room (local). Return null if nothing found.
 	var __findRoom = function(roomIntern)
 	{
@@ -200,6 +207,7 @@ var GIMLI = function()
 		return null;
 	};
 	
+	// return and clear rooms and items.
 	var __clearRooms = function() {m_roomsLoaded = [];};
 	var __clearItems = function() {m_itemsLoaded = [];};
 	var __roomCount = function() {return m_roomsLoaded.length;}
@@ -266,24 +274,102 @@ var GIMLI = function()
 		main.html("");
 		main.css("background-image", "url('"+imgPath+"')");
 		main.css("background-repeat", "no-repeat");
-		me.addBGposition(-100,-100);
+		//me.addBGposition(-100,-100);
 	};
 	
 	// add some values to the bg position.
-	this.addBGposition=function(addX, addY)
+	this.addPosition=function(addX, addY)
 	{
-		m_actualRoomX+=addX;
-		m_actualRoomY+=addY;
-		me.setBGposition(m_actualRoomX, m_actualRoomY);
+		me.setPosition(m_actualRoomX+addX, m_actualRoomY+addY);
 	};
-	
-	this.setBGposition=function(setX, setY)
+
+	// set a position directly.
+	this.setPosition=function(setX, setY)
 	{
 		var mainWindow = __getMainWindow();
 		m_actualRoomX = setX;
 		m_actualRoomY = setY;
 		mainWindow.css('background-position', ''+setX+'px '+setY+'px');
 	};
+	
+	// scrolling function
+	var m_lastMouseEvent = null;
+	var m_scrollInterval = null;
+	var __scroll = function(evt)
+	{
+		m_lastMouseEvent = evt;
+		__realScroll();
+	}
+	
+	var __realScroll = function()
+	{
+		var evt = m_lastMouseEvent;
+		// get the size of the main screen.
+		main = __getMainWindow();
+		var w = main.width();		// get width of main window.
+		var h = main.height();		// get height of main window.
+		var r = main.get(0).getBoundingClientRect();
+		var t = r.top;				// get top of main window.
+		var l = r.left;				// get left of main window.
+		var cx = evt.clientX-l;		// get mouse x relative to main window.
+		var cy = evt.clientY-t;		// get mouse y relative to main window.
+		
+		// check if mouse is out of field.
+		if(cx<=0 || cx>w || cy<0 || cy>h)
+		{
+			m_isScrolling = false;
+			//return;
+		}
+		
+		// scrolling areas
+		var minW = w*0.2;
+		var maxW = w*0.2*4;
+		var minH = h*0.2;
+		var maxH = h*0.2*4;
+		
+		// check for mouse position.
+		if(cx<=minW || cx>=maxW || cy<=minH || cy>=maxH)
+		{
+			m_isScrolling = true;
+		}else
+		{
+			m_isScrolling = false;
+		}
+		
+		// set scroll directories.
+		m_scrollXDir = 0;
+		m_scrollYDir = 0;
+		if(cx<=minW)
+			m_scrollXDir = -1;
+		if(cx>=maxW)
+			m_scrollXDir = 1;
+		if(cy<=minH)
+			m_scrollYDir = -1;
+		if(cy>=maxH)
+			m_scrollYDir = 1;
+		
+		m_actualRoomX +=m_scrollXDir*m_scrollStep;
+		m_actualRoomY +=m_scrollYDir*m_scrollStep;
+		if(m_actualRoomX>0)
+			m_actualRoomX = 0;
+		if(m_actualRoomY>0)
+			m_actualRoomY=0;
+		
+		me.setPosition(m_actualRoomX, m_actualRoomY);
+		log("Scroll: W"+w+" H"+h+" +x"+l+" +y"+t+" X"+cx+" Y"+cy, LOG_DEBUG);
+		// repeat the scrolling.
+		if(m_isScrolling)
+		{
+			if(m_scrollInterval==null)
+				m_scrollInterval=setInterval(__realScroll, 15);
+		}else{
+			if(m_scrollInterval!=null)
+			{
+				clearInterval(m_scrollInterval);
+				m_scrollInterval = null;
+			}
+		}
+	}
 	
 	// load a gml json file.
 	this.parseGML = function(json)
@@ -360,7 +446,7 @@ var GIMLI = function()
 	}
 	
 	// make all the array names in a json object upper case.
-	function __jsonUpperCase(obj) {
+	var __jsonUpperCase=function(obj) {
 		var key, upKey;
 		for (key in obj) {
 			if (obj.hasOwnProperty(key)) {
@@ -442,6 +528,18 @@ var GIMLI = function()
 		jBash.initialize("#gimli-jbash-window", "");
 		// parse the cmd-Command to show commands.
 		jBash.instance.Parse("cmd");
+		
+		// apply mouseover to the main window.
+		var main = __getMainWindow();
+		main.mousemove(function(evt) {
+			__scroll(evt);
+		});
+		main.mouseover(function(evt) {
+			__scroll(evt);
+		});
+		main.mouseout(function(evt) {
+			m_isScrolling = false;
+		});
 	}
 };
 GIMLI.instance = new GIMLI();
