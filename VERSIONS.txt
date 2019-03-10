@@ -13,3 +13,4 @@
 0.0.15a -> First background image loaded, yay.
 0.0.16a -> Scrolling works halfway.
 0.0.17a -> Better scrolling mechanism. But size of background is not in account yet.
+0.0.18a -> Scrolling boundaries set by bg in onload function. General SCALEFACTOR in the GML files.

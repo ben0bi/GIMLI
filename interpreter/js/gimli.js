@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.17a";
+const GIMLIVERSION = "0.0.18a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and user information and such.
@@ -176,6 +176,7 @@ GMLurl.makeGMURL = function(filename)
 	return gmurl;
 }
 
+/*******************************************************************************************************************************************************************/
 // The GIML-Interpreter
 var GIMLI = function()                       
 {
@@ -195,6 +196,9 @@ var GIMLI = function()
 	var m_scrollStep = 5;
 	var m_isScrolling = false;
 	var m_scrollingEnabled = true; // disable scrolling when the console is over.
+	//  we just need two boundaries: -x and -y. +x and +y are 0.
+	var m_scrollBoundarX = 0;
+	var m_scrollBoundarY = 0;
 	
 	// the size factor. usually 1 or 2
 	var m_scaleFactor = 1.0;
@@ -275,9 +279,42 @@ var GIMLI = function()
 		var main = __getMainWindow();
 		var imgPath = m_initpage.getDirectory()+location.getBGimagePath();
 		log("--> Loading background: "+imgPath,LOG_DEBUG);
-		main.html("");
-		main.css("background-image", "url('"+imgPath+"')");
-		main.css("background-repeat", "no-repeat");
+		
+		// get background size.
+		var bgimg = new Image();
+		bgimg.onload = function()
+		{
+			m_scrollBoundarX = 0;
+			m_scrollBoundarY = 0;
+			var bgwidth = this.width;
+			var bgheight = this.height;
+			var mainWidth = main.width();
+			var mainHeight = main.height();
+			log("main: "+mainWidth+" "+mainHeight+" "+m_scaleFactor, LOG_DEBUG);
+			
+			// scale the bg.
+			var scaledbgwidth = parseInt(bgwidth*m_scaleFactor);
+			var scaledbgheight = parseInt(bgheight*m_scaleFactor);
+			if(scaledbgwidth > mainWidth)
+				m_scrollBoundarX = mainWidth-scaledbgwidth;
+			if(scaledbgheight > mainHeight)
+				m_scrollBoundarY = mainHeight - scaledbgheight;
+			
+			main.html("");
+			main.css("background-image", "url('"+imgPath+"')");
+			main.css("background-repeat", "no-repeat");
+		
+			/* adjust sizes */
+			main.css('background-size', ''+scaledbgwidth+'px '+scaledbgheight+'px');
+			var scale = parseInt(m_scaleFactor*100.0);
+			$('.gimli-image').each(function(idx) 
+			{
+				$(this).css('width', ''+scale+'%');
+				$(this).css('height', ''+scale+'%');			
+			});
+			log("Background '"+imgPath+"' loaded. ["+bgwidth+" "+bgheight+"] {"+m_scrollBoundarX+" "+m_scrollBoundarY+"}" , LOG_DEBUG);
+		}
+		bgimg.src = imgPath;
 		//me.addBGposition(-100,-100);
 	};
 	
@@ -365,10 +402,17 @@ var GIMLI = function()
 		{
 			m_actualRoomX +=m_scrollXDir*m_scrollStep;
 			m_actualRoomY +=m_scrollYDir*m_scrollStep;
+			
+			/* constrain the positions. */
 			if(m_actualRoomX>0)
 				m_actualRoomX = 0;
 			if(m_actualRoomY>0)
 				m_actualRoomY=0;
+			
+			if(m_actualRoomX<m_scrollBoundarX)
+				m_actualRoomX=m_scrollBoundarX;
+			if(m_actualRoomY<m_scrollBoundarY)
+				m_actualRoomY=m_scrollBoundarY;	
 
 			me.setPosition(m_actualRoomX, m_actualRoomY);
 			//log("Scroll: W"+w+" H"+h+" +x"+l+" +y"+t+" X"+cx+" Y"+cy, LOG_DEBUG);
@@ -551,6 +595,7 @@ var GIMLI = function()
 		// parse the cmd-Command to show commands.
 		jBash.instance.Parse("cmd");
 		
+/* Some event functions */	
 		// apply mouseover to the body.
 		/*var main = __getMainWindow();*/
 		var body = $('body');

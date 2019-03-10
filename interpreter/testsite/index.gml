@@ -1,5 +1,6 @@
 {
 	"STARtLOCATION": "living_room",
+	"ScaleFactor": "2.0",
 	"LOCATIONS": [
 		{
 			"NAME": "Living Room",
