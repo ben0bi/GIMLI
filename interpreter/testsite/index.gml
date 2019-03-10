@@ -17,7 +17,7 @@
 		{
 			"NAME": "Floor",
 			"INTERN": "floor",
-			"FOLDER": "locations/computer_room",
+			"FOLDER": "locations/floor",
 			"BGIMAGE": "DSC_4230_floor.png"
 		}
 	],

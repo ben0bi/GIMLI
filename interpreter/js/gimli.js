@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.19a";
+const GIMLIVERSION = "0.0.20a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and user information and such.
@@ -109,7 +109,7 @@ var GIMLroom = function()
 	this.getBGimagePath=function() {return m_folder+m_bgImageFile;};
 	
 	this.debug=function(loglevel=LOG_DEBUG) {
-		log("* Room '"+m_roomName+"' (intern: '"+m_internName+"')", loglevel);
+		log("* Room '<span class='jBashCmd'>"+m_roomName+"</span>' (intern: '<span class='jBashCmd'>"+m_internName+"</span>')", loglevel);
 		log(" --&gt; resides in '"+m_folder+"'", loglevel);
 		log(" --&gt; bgImage: '"+m_bgImageFile+"'", loglevel);
 		log(" ", loglevel);
@@ -182,9 +182,9 @@ var GIMLI = function()
 {
 	var me = this; // protect this from be this'ed from something other inside some brackets.
 	
-	var m_initpage = "";  // the gml file which was called on the init function.
+	var m_GMURL_initpage = "";  // the gml file which was called on the init function.
 	var m_actualRoomIntern = ""; // the actual room intern name.
-	var m_startLocationIntern = ""; // the start room intern name.
+	var m_startRoomIntern = ""; // the start room intern name.
 	var m_actualRoomX = 0;
 	var m_actualRoomY = 0;
 	var m_roomsLoaded = [];		// the rooms (locations) loaded with the gml file.
@@ -229,7 +229,8 @@ var GIMLI = function()
 			log("There are no rooms loaded.", LOG_USER);
 			return;
 		}
-		log("+++ SHOWING DATA FOR "+__roomCount()+" LOADED LOCATIONS. +++", LOG_USER);
+		log(" ", LOG_USER);
+		log("+++ <span class='jBashCmd'>SHOWING DATA FOR "+__roomCount()+" LOADED ROOMS.</span> +++", LOG_USER);
 		for(var i=0;i<__roomCount();i++)
 		{
 			m_roomsLoaded[i].debug(LOG_USER);
@@ -244,7 +245,8 @@ var GIMLI = function()
 			log("There are no items loaded.", LOG_USER);
 			return;
 		}
-		log("+++ SHOWING DATA FOR "+__itemCount()+" LOADED ITEMS. +++", LOG_USER);
+		log(" ", LOG_USER);
+		log("+++ <span class='jBashCmd'>SHOWING DATA FOR "+__itemCount()+" LOADED ITEMS.</span> +++", LOG_USER);
 		for(var i=0;i<__itemCount();i++)
 		{
 			m_itemsLoaded[i].debug(LOG_USER);
@@ -258,27 +260,32 @@ var GIMLI = function()
 		var checkurl = GMLurl.makeGMURL(gmurl);
 		log("Loading "+checkurl.getCombined()+"...");
 		me.loadJSONFile(checkurl.getCombined(), function(json) {
-			m_initpage = checkurl;
+			m_GMURL_initpage = checkurl;
 			me.parseGML(json);
-			me.jumpToStartLocation();
+			me.jumpToStartRoom();
 			// hide the console in front of the user. :)
 			setTimeout(GIMLI.hideConsole,750);
 		});
 	};
 	
 	// jump to the start location of a gml file.
-	this.jumpToStartLocation = function()
+	this.jumpToStartRoom = function() {me.jumpToRoom(m_startRoomIntern);};
+	
+	this.jumpToRoom=function(roomInternName)
 	{
-		var location = __findRoom(m_startLocation);
-		if(location==null)
+		var room = __findRoom(roomInternName);
+		if(room==null)
 		{
-			log("Room '"+m_startLocation+"' not found. No jump done.", LOG_ERROR);
+			log("Room '"+roomInternName+"' not found. No jump done.", LOG_ERROR);
 			return;
 		}
-		log("Jumping to start room '"+m_startLocation+"'", LOG_DEBUG);
+		m_actualRoomX = 0;
+		m_actualRoomY = 0;
+		log("Jumping to room '"+roomInternName+"'", LOG_USER);
 		var main = __getMainWindow();
-		var imgPath = m_initpage.getDirectory()+location.getBGimagePath();
-		log("--> Loading background: "+imgPath,LOG_DEBUG);
+		var imgPath = m_GMURL_initpage.getDirectory()+room.getBGimagePath();
+		
+		//log("--> Loading background: "+imgPath,LOG_DEBUG);
 		
 		// get background size.
 		var bgimg = new Image();
@@ -290,7 +297,7 @@ var GIMLI = function()
 			var bgheight = this.height;
 			var mainWidth = main.width();
 			var mainHeight = main.height();
-			log("main: "+mainWidth+" "+mainHeight+" "+m_scaleFactor, LOG_DEBUG);
+			//log("main: "+mainWidth+" "+mainHeight+" "+m_scaleFactor, LOG_DEBUG);
 			
 			// scale the bg.
 			var scaledbgwidth = parseInt(bgwidth*m_scaleFactor);
@@ -312,20 +319,16 @@ var GIMLI = function()
 				$(this).css('width', ''+scale+'%');
 				$(this).css('height', ''+scale+'%');			
 			});
-			log("Background '"+imgPath+"' loaded. ["+bgwidth+" "+bgheight+"] {"+m_scrollBoundarX+" "+m_scrollBoundarY+"}" , LOG_DEBUG);
+			log("Background '"+imgPath+"' loaded. [Size: "+scaledbgwidth+" "+scaledbgheight+" from "+bgheight+" "+bgwidth+"]" , LOG_DEBUG);
 		}
-		bgimg.src = imgPath;
-		//me.addBGposition(-100,-100);
+		bgimg.src = imgPath;	
 	};
 	
-	// add some values to the bg position.
-	this.addPosition=function(addX, addY)
-	{
-		me.setPosition(m_actualRoomX+addX, m_actualRoomY+addY);
-	};
+	// add some values to the room position.
+	this.addRoomPosition=function(addX, addY) {me.setRoomPosition(m_actualRoomX+addX, m_actualRoomY+addY);};
 
 	// set a position directly.
-	this.setPosition=function(setX, setY)
+	this.setRoomPosition=function(setX, setY)
 	{
 		var mainWindow = __getMainWindow();
 		m_actualRoomX = setX;
@@ -414,7 +417,7 @@ var GIMLI = function()
 			if(m_actualRoomY<m_scrollBoundarY)
 				m_actualRoomY=m_scrollBoundarY;	
 
-			me.setPosition(m_actualRoomX, m_actualRoomY);
+			me.setRoomPosition(m_actualRoomX, m_actualRoomY);
 			//log("Scroll: W"+w+" H"+h+" +x"+l+" +y"+t+" X"+cx+" Y"+cy, LOG_DEBUG);
 			if(m_scrollInterval==null)
 				m_scrollInterval=setInterval(__realScroll, 15);
@@ -436,22 +439,30 @@ var GIMLI = function()
 		var json2 = __jsonUpperCase(json);
 		json = json2;
 		
-		// get the start location.
+		// get the start room. (StartLocation or StartRoom)
+		m_actualRoomIntern = m_startRoomIntern = "@ STARTLOCATION/STARTROOM not found. @";
+		
 		if(__defined(json['STARTLOCATION']))
-			m_actualRoomIntern = m_startLocation = json['STARTLOCATION'];
-		else
-			m_actualRoomIntern = m_startLocation = "@ STARTLOCATION not found. @";
+			m_actualRoomIntern = m_startRoomIntern = json['STARTLOCATION'];
+		if(__defined(json['STARTROOM']))
+			m_actualRoomIntern = m_startRoomIntern = json['STARTROOM'];
 		
 		// get the scale factor.
 		if(!__defined(json['SCALEFACTOR']))
 			m_scaleFactor=1.0;
 		else
 			m_scaleFactor = parseFloat(json['SCALEFACTOR']);
-			
-		var locationArray = json['LOCATIONS'];
+		
+		// get locations (LOCATIONS or ROOMS)
+		var roomArray = [];
+		if(__defined(json['LOCATIONS']))
+			roomArray = json['LOCATIONS'];
+		if(__defined(json['ROOMS']))
+			roomArray = json['ROOMS'];
+
 		var itemArray = json['ITEMS'];
 		
-		log("GML start location: "+m_actualRoomIntern, LOG_DEBUG);
+		log("GML start room: "+m_startRoomIntern, LOG_DEBUG);
 		log("General GML scale factor: "+parseFloat(m_scaleFactor));
 		
 		// clear the rooms and items.
@@ -459,11 +470,11 @@ var GIMLI = function()
 		__clearRooms();
 		
 		// fill the rooms and items.
-		if(__defined(json['LOCATIONS']))
+		if(roomArray.length>0)
 		{
-			for(var i = 0;i<locationArray.length;i++)
+			for(var i = 0;i<roomArray.length;i++)
 			{
-				var jroom = locationArray[i];
+				var jroom = roomArray[i];
 				var room = new GIMLroom();
 				var name = jroom['NAME'];
 				var intern=jroom['INTERN'];
@@ -625,6 +636,7 @@ jBash.registerCommand("rooms", "Show info about the loaded rooms.", function(par
 	{GIMLI.instance.debugRooms();});
 jBash.registerCommand("items", "Show info about the loaded items.", function(params)
 	{GIMLI.instance.debugItems();});
+jBash.registerCommand("jump", "Jump to a given room (intern name)", function(params) {GIMLI.instance.jumpToRoom(jBash.GP(params));});
 
 /* FUNCTIONS to Show and hide the console. */
 GIMLI.hideConsole = function()  {__hideGIMLIconsole();}
