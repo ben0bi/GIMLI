@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.18a";
+const GIMLIVERSION = "0.0.19a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and user information and such.
@@ -389,13 +389,13 @@ var GIMLI = function()
 		m_scrollXDir = 0;
 		m_scrollYDir = 0;
 		if(cx<=minW)
-			m_scrollXDir = -1;
-		if(cx>=maxW)
 			m_scrollXDir = 1;
+		if(cx>=maxW)
+			m_scrollXDir = -1;
 		if(cy<=minH)
-			m_scrollYDir = -1;
-		if(cy>=maxH)
 			m_scrollYDir = 1;
+		if(cy>=maxH)
+			m_scrollYDir = -1;
 						
 		// repeat the scrolling.
 		if(m_isScrolling)
