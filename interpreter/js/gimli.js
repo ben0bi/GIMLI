@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.21a";
+const GIMLIVERSION = "0.0.22a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and user information and such.
@@ -88,6 +88,10 @@ var GIMLroom = function()
 	this.getIntern = function() {return m_internName;};
 	var m_bgImageFile = "";
 	var m_folder = "";
+	var m_scaleFactor = 1.0;
+	this.setScaleFactor=function(scaleFactor) {m_scaleFactor = scaleFactor;}
+	this.getScaleFactor=function(scaleFactor) {return m_scaleFactor;}
+	
 	this.set = function(roomName, roomInternalName, roomFolder, roomBGimageName)
 	{
 		m_roomName = roomName;
@@ -310,8 +314,8 @@ var GIMLI = function()
 			//log("main: "+mainWidth+" "+mainHeight+" "+m_scaleFactor, LOG_DEBUG);
 			
 			// scale the bg.
-			var scaledbgwidth = parseInt(bgwidth*m_scaleFactor);
-			var scaledbgheight = parseInt(bgheight*m_scaleFactor);
+			var scaledbgwidth = parseInt(bgwidth*room.getScaleFactor());
+			var scaledbgheight = parseInt(bgheight*room.getScaleFactor());
 			
 			// set scroll boundaries.
 			if(scaledbgwidth > mainWidth)
@@ -476,11 +480,12 @@ var GIMLI = function()
 		if(__defined(json['STARTROOM']))
 			m_actualRoomIntern = m_startRoomIntern = json['STARTROOM'];
 		
-		// get the scale factor.
-		if(!__defined(json['SCALEFACTOR']))
-			m_scaleFactor=1.0;
-		else
+		// get the global scale factor.
+		m_scaleFactor=1.0;
+		if(__defined(json['SCALEFACTOR']))
 			m_scaleFactor = parseFloat(json['SCALEFACTOR']);
+		if(__defined(json['SCALE']))
+			m_scaleFactor = parseFloat(json['SCALE']);
 		
 		// get locations (LOCATIONS or ROOMS)
 		var roomArray = [];
@@ -518,6 +523,12 @@ var GIMLI = function()
 					folder = "@ FOLDER not found @";
 				if(!__defined(jroom['BGIMAGE']))
 					bgfile = "@ BGIMAGE not found @";
+				// set the room scale factor.
+				room.setScaleFactor(m_scaleFactor); // set global scale.
+				if(__defined(jroom['SCALEFACTOR']))	// get room scale.
+					room.setScaleFactor(parseFloat(jroom['SCALEFACTOR']));
+				if(__defined(jroom['SCALE']))	// get room scale 2.
+					room.setScaleFactor(parseFloat(jroom['SCALEFACTOR']));
 
 				room.set(name, intern, folder, bgfile);
 				room.debug();

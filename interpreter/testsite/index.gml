@@ -6,7 +6,8 @@
 			"NAME": "Living Room",
 			"INTERN": "living_room",
 			"FOLDER": "locations/living_room",
-			"BGIMAGE": "DSC_4229_living_room.png"
+			"BGIMAGE": "DSC_4229_living_room.png",
+			"ScaleFactor": "1.0"
 		},
 		{
 			"NAME": "Computer Room",
