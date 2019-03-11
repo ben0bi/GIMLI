@@ -4,6 +4,9 @@
 	needs jQuery.
 */
 
+// the directory to the manuals seen from the loading page.
+const JBASH_MANUAL_DIR = "js/jbash_manuals/";
+
 jBashObject = function(name, desc, func)
 {
 	var _name = name;
@@ -181,7 +184,7 @@ _finishInitialize(startpage);
 	this.AddLine = function(text) {_addLine(text);};
 
 	// get filename without ../
-	var _parseFileName = function(pagename)
+/*	var _parseFileName = function(pagename)
 	{
 		pagename=pagename.trim();
 		// remove / at begin.
@@ -209,7 +212,7 @@ _finishInitialize(startpage);
 		}
 		return pagename;
 	}
-
+*/
 /*	var _download = function(url)
 	{
 	        $('#jBashHiddenDownloadItem').attr('href',url);
@@ -240,7 +243,7 @@ _finishInitialize(startpage);
 	};
 */
 	// same as loadpage but it will show a short command description if the manual was not found.
-/*	this.loadManual = function(pagename)
+	this.loadManual = function(pagename)
 	{
 		pagename = pagename.toLowerCase();
 		if(_screen==null)
@@ -251,32 +254,36 @@ _finishInitialize(startpage);
 
 		var path = jBash._dir_manuals + pagename + ".html";
 		// load the page.
-		jQuery.get(path, function(data) 
-		{
-			_addLine(data);
-		})
-		.fail(function() 
-		{
-			var found = null;
-			for(var i=0;i<_commands.length;i++)
-			{
-				if(pagename==_commands[i].Name().toLowerCase())
+		$.ajax({
+			mimeType: 'text/plain; charset=x-user-defined',
+			url: path,
+			type: "GET",
+			dataType: "text",
+			cache: false,
+			success: function(data) {_addLine(data);},
+			error: function(data) {
+				// check if there is a command with this name and print out its description.
+				var found = null;
+				for(var i=0;i<_commands.length;i++)
 				{
-					found = _commands[i];
+					if(pagename==_commands[i].Name().toLowerCase())
+					{
+						found = _commands[i];
+					}
+				};
+			
+				if(found==null)
+				{
+					_addLine("The command {<span class='jBashCmd'>"+pagename+"</span>} does not exist.");
+					return;
 				}
-			};
 			
-			if(found==null)
-			{
-				_addLine("The command {<span class='jBashCmd'>"+pagename+"</span>} does not exist.");
-				return;
+				_addLine("<br /><span class='jBashCmd'>"+pagename+"</span>: "+found.Description());
+				_addLine("<small>No manual file was found, this is the short description.</small><br />");				
 			}
-			
-			_addLine("<br /><span class='jBashCmd'>"+pagename+"</span>: "+found.Description());
-			_addLine("<small>No manual file was found, this is the short description.</small><br />");
 		});
 	};
-*/
+
 	// load a local page.
 	/*var _loadPage = function(directory,pagename, force, endfunction)
 	{
@@ -472,15 +479,12 @@ _finishInitialize(startpage);
 	});
 };
 
-// name of the manual command, used to load its page when no parameter is given.
-jBash._man_command_name = "man";
-
 // relative dir to the php files, loaded with json.
 //jBash._dir_php = "";
 // relative dir to the public non-upload pages, loaded with json.
 //jBash_dir_pages = "";
 // relative dir to the manual pages, loaded with json.
-//jBash._dir_manuals = "";
+jBash._dir_manuals = JBASH_MANUAL_DIR;
 
 jBash.instance = new jBash();
 
@@ -505,8 +509,8 @@ jBash.GP = function(p) {return jBash.instance.getParams(p);}
 // register some commands.
 jBash.registerCommand("cmd", "Show registered jBash commands.", function(params) 
 	{jBash.instance.showCommandList();});
-//jBash.registerCommand(jBash._man_command_name, "Show manual for a command. E.g. {<span class='jBashCmd'>man cmd</span>}", function(params)
-//	{jBash.instance.loadManual(jBash.GP(params)[0]);});
+jBash.registerCommand("man", "Show manual for a command. E.g. {<span class='jBashCmd'>man cmd</span>}", function(params)
+	{jBash.instance.loadManual(jBash.GP(params)[0]);});
 jBash.registerCommand("cls", "Clear the screen.", function(params)
 	{jBash.instance.cls();});
 //jBash.registerCommand("ls", "Linux style for {<span class='jBashCmd'>dir</span>}.", function(params)

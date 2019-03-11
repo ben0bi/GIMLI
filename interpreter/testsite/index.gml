@@ -11,7 +11,7 @@
 		},
 		{
 			"NAME": "Computer Room",
-			"INTERN": "computer_room",
+			"INTERN": "computer room",
 			"FOLDER": "locations/computer_room",
 			"BGIMAGE": "DSC_4228_computer_room.png"
 		},

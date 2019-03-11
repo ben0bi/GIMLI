@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.22a";
+const GIMLIVERSION = "0.0.24a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and user information and such.
@@ -512,6 +512,13 @@ var GIMLI = function()
 				var room = new GIMLroom();
 				var name = jroom['NAME'];
 				var intern=jroom['INTERN'];
+				// replace spaces from intern name.
+				var i2 = intern.split(' ').join('_');
+				if(intern!=i2)
+				{
+					log("Spaces are not allowed in intern names. ['"+intern+"' ==&gt; '"+i2+"']", LOG_WARN);
+					intern = i2;
+				}
 				var bgfile=jroom['BGIMAGE'];
 				// check if the json has the entries.
 				var folder = jroom['FOLDER'];
@@ -676,7 +683,7 @@ jBash.registerCommand("rooms", "Show info about the loaded rooms.", function(par
 	{GIMLI.instance.debugRooms();});
 jBash.registerCommand("items", "Show info about the loaded items.", function(params)
 	{GIMLI.instance.debugItems();});
-jBash.registerCommand("jump", "Jump to a given room (intern name)", function(params) {GIMLI.instance.jumpToRoom(jBash.GP(params));});
+jBash.registerCommand("jump", "Jump to a given room (intern name)<br />E.g. {<span class='jBashCmd'>jump garden</span>}", function(params) {GIMLI.instance.jumpToRoom(jBash.GP(params));});
 
 /* FUNCTIONS to Show and hide the console. */
 GIMLI.hideConsole = function()  {__hideGIMLIconsole();}
