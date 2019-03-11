@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.20a";
+const GIMLIVERSION = "0.0.21a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and user information and such.
@@ -196,9 +196,11 @@ var GIMLI = function()
 	var m_scrollStep = 5;
 	var m_isScrolling = false;
 	var m_scrollingEnabled = true; // disable scrolling when the console is over.
-	//  we just need two boundaries: -x and -y. +x and +y are 0.
-	var m_scrollBoundarX = 0;
-	var m_scrollBoundarY = 0;
+	//  the scroll boundaries.
+	var m_scrollBoundarX1 = 0;
+	var m_scrollBoundarY2 = 0;
+	var m_scrollBoundarX2 = 0;
+	var m_scrollBoundarY2 = 0;
 	
 	// the size factor. usually 1 or 2
 	var m_scaleFactor = 1.0;
@@ -291,8 +293,16 @@ var GIMLI = function()
 		var bgimg = new Image();
 		bgimg.onload = function()
 		{
-			m_scrollBoundarX = 0;
-			m_scrollBoundarY = 0;
+			// reset scroll boundaries.
+			m_scrollBoundarX1 = 0;
+			m_scrollBoundarY1 = 0;
+			m_scrollBoundarX2 = 0;
+			m_scrollBoundarY2 = 0;
+			// actual room position.
+			var newRoomX = 0;
+			var newRoomY = 0;
+			
+			// width and height.
 			var bgwidth = this.width;
 			var bgheight = this.height;
 			var mainWidth = main.width();
@@ -302,10 +312,28 @@ var GIMLI = function()
 			// scale the bg.
 			var scaledbgwidth = parseInt(bgwidth*m_scaleFactor);
 			var scaledbgheight = parseInt(bgheight*m_scaleFactor);
+			
+			// set scroll boundaries.
 			if(scaledbgwidth > mainWidth)
-				m_scrollBoundarX = mainWidth-scaledbgwidth;
+			{
+				// bg width is bigger than screen.
+				m_scrollBoundarX2 = mainWidth-scaledbgwidth;
+			}else{
+				// bg width is smaller than screen.
+				var newRoomX = mainWidth*0.5 - scaledbgwidth*0.5;
+				m_scrollBoundarX1 = newRoomX;
+				m_scrollBoundarX2 = newRoomX;
+			}
 			if(scaledbgheight > mainHeight)
-				m_scrollBoundarY = mainHeight - scaledbgheight;
+			{
+				// bg height is bigger than screen.
+				m_scrollBoundarY2 = mainHeight - scaledbgheight;
+			}else{
+				// bg height is smaller than screen.
+				var newRoomY = mainHeight*0.5 - scaledbgheight*0.5;
+				m_scrollBoundarY1 = newRoomY;
+				m_scrollBoundarY2 = newRoomY;
+			}
 			
 			main.html("");
 			main.css("background-image", "url('"+imgPath+"')");
@@ -314,14 +342,15 @@ var GIMLI = function()
 			/* adjust sizes */
 			main.css('background-size', ''+scaledbgwidth+'px '+scaledbgheight+'px');
 			var scale = parseInt(m_scaleFactor*100.0);
-			$('.gimli-image').each(function(idx) 
+			/*$('.gimli-image').each(function(idx) 
 			{
 				$(this).css('width', ''+scale+'%');
 				$(this).css('height', ''+scale+'%');			
-			});
+			});*/
+			me.setRoomPosition(newRoomX, newRoomY);
 			log("Background '"+imgPath+"' loaded. [Size: "+scaledbgwidth+" "+scaledbgheight+" from "+bgheight+" "+bgwidth+"]" , LOG_DEBUG);
 		}
-		bgimg.src = imgPath;	
+		bgimg.src = imgPath;
 	};
 	
 	// add some values to the room position.
@@ -407,15 +436,15 @@ var GIMLI = function()
 			m_actualRoomY +=m_scrollYDir*m_scrollStep;
 			
 			/* constrain the positions. */
-			if(m_actualRoomX>0)
-				m_actualRoomX = 0;
-			if(m_actualRoomY>0)
-				m_actualRoomY=0;
+			if(m_actualRoomX>m_scrollBoundarX1)
+				m_actualRoomX = m_scrollBoundarX1;
+			if(m_actualRoomY>m_scrollBoundarY1)
+				m_actualRoomY=m_scrollBoundarY1;
 			
-			if(m_actualRoomX<m_scrollBoundarX)
-				m_actualRoomX=m_scrollBoundarX;
-			if(m_actualRoomY<m_scrollBoundarY)
-				m_actualRoomY=m_scrollBoundarY;	
+			if(m_actualRoomX<m_scrollBoundarX2)
+				m_actualRoomX=m_scrollBoundarX2;
+			if(m_actualRoomY<m_scrollBoundarY2)
+				m_actualRoomY=m_scrollBoundarY2;	
 
 			me.setRoomPosition(m_actualRoomX, m_actualRoomY);
 			//log("Scroll: W"+w+" H"+h+" +x"+l+" +y"+t+" X"+cx+" Y"+cy, LOG_DEBUG);

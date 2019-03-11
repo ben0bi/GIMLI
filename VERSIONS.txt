@@ -16,3 +16,4 @@
 0.0.18a -> Scrolling boundaries set by bg in onload function. General SCALEFACTOR in the GML files.
 0.0.19a -> You can now use STARTROOM or STARTLOCATION and LOCATIONS or ROOMS in the GML file, room is prreferred over location.
 0.0.20a -> JUMP command for the console. (Not really working right with the params, but almost.)
+0.0.21a -> Put all the stuff into middle of screen when it is smaller than the screen.
