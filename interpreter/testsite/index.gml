@@ -31,12 +31,20 @@
 	"ITEMS": [
 		{
 			"NAME": "Bag of Weed",
-			"INTERN": "BoW",
+			"INTERN": "item_bow",
 			"FOLDER": "entities/bag_of_grass",
 			"IMAGE": "bag_of_grass.png",
 			"DESCRIPTION": "A delicious bag of weed.",
 			"SCRIPT": 0,
 			"LOCATION": ["living_room", 50, 200]
+		},
+		{
+			"NAME": "LEGO for Nintendo Switch",
+			"INTERN": "item_nsa",
+			"FOLDER": "entities/nsa",
+			"IMAGE": "nsa.png",
+			"OVERIMAGE": "nsa_mouseover.png",
+			"LOCATION": ["werkstatt", 100, 100]
 		}
 	]
 }
