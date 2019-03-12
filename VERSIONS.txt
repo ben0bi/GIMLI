@@ -21,3 +21,4 @@
 			You can now use SCALEFACTOR or SCALE in the GML file, global and local for rooms. SCALE is preferred over SCALEFACTOR.
 0.0.23a -> Intern names from rooms cannot contain spaces, which will be replaced by underscore character.
 0.0.24a -> The man command is again in the console, with the jbash_manuals-directory in the js-directory as manual-pageserver. :)
+0.0.25a -> New room image which will be the main image for benis-bastelschuppen.github.io

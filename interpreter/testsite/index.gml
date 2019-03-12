@@ -20,6 +20,12 @@
 			"INTERN": "floor",
 			"FOLDER": "locations/floor",
 			"BGIMAGE": "DSC_4230_floor.png"
+		},
+		{
+			"NAME": "Benis Bastelschuppen",
+			"INTERN": "werkstatt",
+			"FOLDER": "locations/werkstatt",
+			"BGIMAGE": "werkstatt.png"
 		}
 	],
 	"ITEMS": [
