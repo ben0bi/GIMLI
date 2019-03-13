@@ -640,8 +640,11 @@ var GIMLI = function()
 		elconsole_outer.append(elhelpbutton);
 		outerwindow.append(mainwindow);
 		outerwindow.append(elconsole_outer);
-		
-		var el2= jQuery.getNewDiv('<a href="https://github.com/ben0bi/GIMLI/">GIML-Interpreter</a> v'+GIMLIVERSION+' (JS-Version) by Benedict Jäggi in 2019 | <a href="javascript:" onclick="GIMLI.showConsole();">console</a>', 'gimli-footer-window', 'gimli-pixelperfect');
+
+		var t='<a href="https://github.com/ben0bi/GIMLI/">GIML-Interpreter</a> v'+GIMLIVERSION+' (JS-Version) by Benedict Jäggi in 2019&nbsp;|&nbsp;';
+		t+='<a href="javascript:" onclick="GIMLI.showConsole();">console</a>&nbsp;|&nbsp;';
+		t+='<a href="javascript:" onclick="GIMLI.showConsole();jBash.Parse(\'donate\');">donate</a>';
+		var el2= jQuery.getNewDiv(t, 'gimli-footer-window', 'gimli-pixelperfect');
 		jQuery.appendElementTo('head', css2);
 		jQuery.appendElementTo('head', css);
 		
