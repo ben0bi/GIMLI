@@ -507,6 +507,7 @@ jBash.Parse = function(text) {jBash.instance.Parse(text);};
 jBash.GP = function(p) {return jBash.instance.getParams(p);}
 
 // register some commands.
+jBash.registerCommand("donate", "Please donate my work. Thank you.", function(params) {jBash.Parse("man donate");});
 jBash.registerCommand("cmd", "Show registered jBash commands.", function(params) 
 	{jBash.instance.showCommandList();});
 jBash.registerCommand("man", "Show manual for a command. E.g. {<span class='jBashCmd'>man cmd</span>}", function(params)

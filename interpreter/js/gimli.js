@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.25a";
+const GIMLIVERSION = "0.0.27a";
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and user information and such.
@@ -684,36 +684,56 @@ jBash.registerCommand("rooms", "Show info about the loaded rooms.", function(par
 jBash.registerCommand("items", "Show info about the loaded items.", function(params)
 	{GIMLI.instance.debugItems();});
 jBash.registerCommand("jump", "Jump to a given room (intern name)<br />E.g. {<span class='jBashCmd'>jump garden</span>}", function(params) {GIMLI.instance.jumpToRoom(jBash.GP(params));});
-
 /* FUNCTIONS to Show and hide the console. */
 GIMLI.hideConsole = function()  {__hideGIMLIconsole();}
 GIMLI.showConsole = function() {__showGIMLIconsole();}
 
 function __hideGIMLIconsole()
 {
-	var c = $('#gimli-jbash-outer-window');
-	var t = parseInt(c.css('top'));
-	if(t > -(c.height()+10))
-	{
-		t=t-10;
-		c.css('top', t+'px');
-		setTimeout(__hideGIMLIconsole, 15);
-	}else{
-		c.hide();
-	}
+	m___consoleDirection = -1;
+	m___consoleInterval=setInterval(__GIMLIconsoleMover,15);
 }
 
 function __showGIMLIconsole()
 {
+	m___consoleDirection=2; // 2 to show window, 1 for moving only.
+	m___consoleInterval=setInterval(__GIMLIconsoleMover,15);
+}
+
+var m___consoleDirection = 0;
+var m___consoleInterval = null;
+function __GIMLIconsoleMover()
+{
+	if(m___consoleDirection==0)
+	{
+		if(m___consoleInterval!=null)
+			clearInterval(m___consoleInterval);
+		m___consoleInterval=0;
+		return;
+	}
+	
 	var c = $('#gimli-jbash-outer-window');
 	var t = parseInt(c.css('top'));
-	c.show();
-	jBash.instance.focus();
-	if(t < 0)
+
+	// maybe show the window.
+	if(m___consoleDirection==2)
 	{
-		t=t+10;
-		if(t>0) t=0;
-		c.css('top', t+'px');
-		setTimeout(__showGIMLIconsole, 15);
+		c.show();
+		jBash.instance.focus();
+		m___consoleDirection = 1;
 	}
+
+	t = t + 10 * m___consoleDirection;
+
+	if(t>=0 && m___consoleDirection>0)
+	{
+		t = 0;
+		m___consoleDirection=0;
+	}
+	if(t < -c.height()-10 && m___consoleDirection<0)
+	{
+		c.hide();
+		m___consoleDirection = 0;
+	}
+	c.css('top', t+'px');
 }
