@@ -24,3 +24,6 @@
 0.0.25a -> New room image which will be the main image for benis-bastelschuppen.github.io
 0.0.26a -> donation page and man and jBash command: I would appreciate it if you give me some money. Thank you.
 0.0.27a -> Better console show and hide mechanism.
+0.0.28a -> Loading items. (into console)
+0.0.29a -> setting new scaling: globalscale*roomscale*itemscale instead of globalscale OR (roomscale OR itemscale)
+0.0.30a -> Parsing room gml in room class. Setting folder name properly in items and rooms.

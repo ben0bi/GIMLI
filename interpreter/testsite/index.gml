@@ -7,7 +7,7 @@
 			"INTERN": "living_room",
 			"FOLDER": "locations/living_room",
 			"BGIMAGE": "DSC_4229_living_room.png",
-			"ScaleFactor": "1.0"
+			"ScaleFactor": "0.5"
 		},
 		{
 			"NAME": "Computer Room",
@@ -44,7 +44,7 @@
 			"FOLDER": "entities/nsa",
 			"IMAGE": "nsa.png",
 			"OVERIMAGE": "nsa_mouseover.png",
-			"LOCATION": ["werkstatt", 100, 100]
+			"LOCATION": ["living_room", 100, 100]
 		}
 	]
 }

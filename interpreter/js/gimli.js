@@ -15,7 +15,31 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.27a";
+const GIMLIVERSION = "0.0.30a";
+
+// check if a variable is defined or not.
+function __defined(variable)
+{
+	if(typeof(variable)==="undefined")
+		return false;
+	return true;
+}
+
+// add a slash to the folder name if there is none.
+function __addSlashIfNot(directoryName)
+{
+	var d = directoryName;
+	if(d==null)
+		d="";
+	// add ending / if it is not there.
+	if(d.length>=1)
+	{
+		lastChar = d[d.length-1];
+		if(lastChar!='\\' && lastChar!='/')
+			d+='/';
+	}
+	return d;
+}
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and user information and such.
@@ -45,12 +69,6 @@ var log = function(text, loglevel = 0)
 };
 log.loglevel = LOG_DEBUG;
 
-// fetch a file and do some functions on it.	
-/*async function asyncFetch(urlToFile, success, failure)
-{
-	await fetch(urlToFile).then(success, failure);
-};*/
-
 // an item in the giml system.
 var GIMLitem = function()
 {
@@ -59,24 +77,82 @@ var GIMLitem = function()
 	var m_posX = 0;
 	var m_posY = 0;
 	var m_posZ = 10; // pos z is the z index.
+	var m_posLocation = "";	// the location where the item is placed.
 	var m_imageFile = "";
+	var m_overImageFile = ""; // mouse over image.
 	var m_internName = "";
 	var m_itemName = "";
-	var m_Description = "";
+	var m_description = "";
 	var m_folder = "";
+	var m_scaleFactor = 1.0;
+	
+	// get world scale factor.
+	this.getScaleFactor=function(outerscaleFactor=1.0) {return m_scaleFactor*m_outerScaleFactor;}
 	
 	this.setImage=function(imageName) {m_imageFile = imageName;}
 	this.getInitialHTML = function() 
 	{
-		return '<img src="'+m_imageFile+'" class="gimli-image" style="position: absolute; top: \''+posY+'px\'; left: \''+posX+'px\'; z-index: '+m_posZ+'>';
+		return '<div class="gimli-item" style="position: absolute; top: \''+posY+'px\'; left: \''+posX+'px\'; z-index: \''+m_posZ+'\';"><img src="'+m_imageFile+'" class="gimli-image"></div>';
 	};
 	
 	this.debug=function(loglevel=LOG_DEBUG) {
 		log("* Item '"+m_itemName+"' (intern: '"+m_internName+"')", loglevel);
 		log(" --&gt; resides in '"+m_folder+"'", loglevel);
 		log(" --&gt; Image: '"+m_imageFile+"'", loglevel);
+		log(" --&gt; Mouseover: '"+m_overImageFile+"'", loglevel);
+		log(" --&gt; Location: ['"+m_posLocation+"', "+m_posX+", "+m_posY+"]", loglevel);
 		log(" ", loglevel);
 	};
+	
+	this.parseGML=function(gmlItem)
+	{
+		m_itemName = gmlItem['NAME'];
+		m_internName = gmlItem['INTERN'];
+		m_folder = gmlItem['FOLDER'];
+		m_description = gmlItem['DESCRIPTION'];
+		m_imageFile = gmlItem['IMAGE'];
+		m_overImageFile = gmlItem['OVERIMAGE'];
+		
+		// get the location.
+		var location = [];
+		if(__defined(gmlItem['LOCATION']))
+			location = gmlItem['LOCATION'];
+
+		m_posLocation ="";
+		if(location.length>0)
+			m_posLocation = location[0];
+		if(location.length>1)
+			m_posX = parseInt(location[1]);
+		if(location.length>2)
+			m_posY = parseInt(location[2]);
+		
+		// check if the json has the entries.
+		if(!__defined(gmlItem['NAME']))
+			m_itemName = "@ NAME not found @";
+		if(!__defined(gmlItem['INTERN']))
+			m_internName = "@_INTERN_not_found_@";
+		// replace spaces from intern name.
+		var i2 = m_internName.split(' ').join('_');
+		if(m_internName!=i2)
+		{
+			log("Spaces are not allowed in intern names. ['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
+			m_internName = i2;
+		}
+		if(!__defined(gmlItem['FOLDER']))
+			m_folder = "";
+		m_folder=__addSlashIfNot(m_folder);
+		if(!__defined(gmlItem['DESCRIPTION']))
+			m_description = "";
+		if(!__defined(gmlItem['IMAGE']))
+			m_imageFile = "@ IMAGE not found. @";
+		if(!__defined(gmlItem['OVERIMAGE']))
+			m_overImageFile = m_imageFile;
+
+		if(__defined(gmlItem['SCALEFACTOR']))	// get item scale.
+			m_scaleFactor=parseFloat(jroom['SCALEFACTOR']);
+		if(__defined(gmlItem['SCALE']))	// get item scale 2.
+			m_scaleFactor=parseFloat(jroom['SCALE']);		
+	}
 };
 
 // a room in the giml system.
@@ -90,27 +166,44 @@ var GIMLroom = function()
 	var m_folder = "";
 	var m_scaleFactor = 1.0;
 	this.setScaleFactor=function(scaleFactor) {m_scaleFactor = scaleFactor;}
-	this.getScaleFactor=function(scaleFactor) {return m_scaleFactor;}
-	
-	this.set = function(roomName, roomInternalName, roomFolder, roomBGimageName)
-	{
-		m_roomName = roomName;
-		m_internName = roomInternalName;
-		m_bgImageFile = roomBGimageName;
-		if(roomFolder==null)
-			roomFolder="";
-		// add ending / if it is not there.
-		if(roomFolder.length>=1)
-		{
-			lastChar = roomFolder[roomFolder.length-1];
-			if(lastChar!='\\' && lastChar!='/')
-				roomFolder+='/';
-		}
-		m_folder = roomFolder;
-	}
-	
+	this.getScaleFactor=function(outerScaleFactor=1.0) {return m_scaleFactor*outerScaleFactor;}
+		
 	// return the image file including the path.
 	this.getBGimagePath=function() {return m_folder+m_bgImageFile;};
+	
+	// parse the gml of a room.
+	this.parseGML=function(gmlRoom)
+	{
+		me.setScaleFactor(1.0);
+		m_roomName = gmlRoom['NAME'];
+		m_internName = gmlRoom['INTERN'];
+		m_bgImageFile = gmlRoom['BGIMAGE'];
+		m_folder = gmlRoom['FOLDER'];
+		// check if the json has the entries.
+		if(!__defined(m_roomName))
+			m_roomName = "@ NAME not found @";
+		if(!__defined(m_internName))
+			m_internName = "@_INTERN_not_found_@";
+		// replace spaces from intern name.
+		var i2 = m_internName.split(' ').join('_');
+		if(m_internName!=i2)
+		{
+			log("Spaces are not allowed in intern names. ['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
+			m_internName = i2;
+		}
+		if(!__defined(m_folder))
+			m_folder = "";
+		m_folder=__addSlashIfNot(m_folder);
+		
+		if(!__defined(m_bgImageFile))
+			m_bgImageFile = "@ BGIMAGE not found @";
+		// set the room scale factor.
+		//room.setScaleFactor(m_scaleFactor); // set global scale. 0.0.29: multiply instead of or-ing.
+		if(__defined(gmlRoom['SCALEFACTOR']))	// get room scale.
+			me.setScaleFactor(parseFloat(gmlRoom['SCALEFACTOR']));
+		if(__defined(gmlRoom['SCALE']))	// get room scale 2.
+			me.setScaleFactor(parseFloat(gmlRoom['SCALE']));
+	};
 	
 	this.debug=function(loglevel=LOG_DEBUG) {
 		log("* Room '<span class='jBashCmd'>"+m_roomName+"</span>' (intern: '<span class='jBashCmd'>"+m_internName+"</span>')", loglevel);
@@ -314,8 +407,8 @@ var GIMLI = function()
 			//log("main: "+mainWidth+" "+mainHeight+" "+m_scaleFactor, LOG_DEBUG);
 			
 			// scale the bg.
-			var scaledbgwidth = parseInt(bgwidth*room.getScaleFactor());
-			var scaledbgheight = parseInt(bgheight*room.getScaleFactor());
+			var scaledbgwidth = parseInt(bgwidth*room.getScaleFactor(m_scaleFactor));
+			var scaledbgheight = parseInt(bgheight*room.getScaleFactor(m_scaleFactor));
 			
 			// set scroll boundaries.
 			if(scaledbgwidth > mainWidth)
@@ -462,6 +555,8 @@ var GIMLI = function()
 			}
 		}
 	}
+
+// THIS IS THE MAIN GML FUNCTION SO FAR
 	
 	// load a gml json file.
 	this.parseGML = function(json)
@@ -493,8 +588,6 @@ var GIMLI = function()
 			roomArray = json['LOCATIONS'];
 		if(__defined(json['ROOMS']))
 			roomArray = json['ROOMS'];
-
-		var itemArray = json['ITEMS'];
 		
 		log("GML start room: "+m_startRoomIntern, LOG_DEBUG);
 		log("General GML scale factor: "+parseFloat(m_scaleFactor));
@@ -510,35 +603,7 @@ var GIMLI = function()
 			{
 				var jroom = roomArray[i];
 				var room = new GIMLroom();
-				var name = jroom['NAME'];
-				var intern=jroom['INTERN'];
-				// replace spaces from intern name.
-				var i2 = intern.split(' ').join('_');
-				if(intern!=i2)
-				{
-					log("Spaces are not allowed in intern names. ['"+intern+"' ==&gt; '"+i2+"']", LOG_WARN);
-					intern = i2;
-				}
-				var bgfile=jroom['BGIMAGE'];
-				// check if the json has the entries.
-				var folder = jroom['FOLDER'];
-				if(!__defined(jroom['NAME']))
-					name = "@ NAME not found @";
-				if(!__defined(jroom['INTERN']))
-					intern = "@ INTERN not found @";
-				if(!__defined(jroom['FOLDER']))
-					folder = "@ FOLDER not found @";
-				if(!__defined(jroom['BGIMAGE']))
-					bgfile = "@ BGIMAGE not found @";
-				// set the room scale factor.
-				room.setScaleFactor(m_scaleFactor); // set global scale.
-				if(__defined(jroom['SCALEFACTOR']))	// get room scale.
-					room.setScaleFactor(parseFloat(jroom['SCALEFACTOR']));
-				if(__defined(jroom['SCALE']))	// get room scale 2.
-					room.setScaleFactor(parseFloat(jroom['SCALEFACTOR']));
-
-				room.set(name, intern, folder, bgfile);
-				room.debug();
+				room.parseGML(jroom);
 				m_roomsLoaded.push(room);
 			}
 		}else{
@@ -548,9 +613,12 @@ var GIMLI = function()
 		// load in the items.
 		if(__defined(json['ITEMS']))
 		{
+			var itemArray = json['ITEMS'];
 			for(var i = 0;i<itemArray.length;i++)
 			{
+				var jitem = itemArray[i];
 				var item = new GIMLitem();
+				item.parseGML(jitem);
 				m_itemsLoaded.push(item);
 				item.debug();
 			}
@@ -560,15 +628,9 @@ var GIMLI = function()
 		log(__roomCount()+ " rooms loaded.",LOG_USER);
 		log(__itemCount()+" items loaded.", LOG_USER);
 	};
-	
-	// check if a variable is defined or not.
-	var __defined=function(variable)
-	{
-		if(typeof(variable)==="undefined")
-			return false;
-		return true;
-	}
-	
+
+// ENDOF GML PARSER
+		
 	// make all the array names in a json object upper case.
 	var __jsonUpperCase=function(obj) {
 		var key, upKey;
@@ -663,9 +725,6 @@ var GIMLI = function()
 		body.mousemove(function(evt) {
 			__scroll(evt);
 		});
-/*		main.mouseover(function(evt) {
-			__scroll(evt);
-		});*/
 		body.mouseout(function(evt) {
 			m_isScrolling = false;
 		});
@@ -686,7 +745,21 @@ jBash.registerCommand("rooms", "Show info about the loaded rooms.", function(par
 	{GIMLI.instance.debugRooms();});
 jBash.registerCommand("items", "Show info about the loaded items.", function(params)
 	{GIMLI.instance.debugItems();});
-jBash.registerCommand("jump", "Jump to a given room (intern name)<br />E.g. {<span class='jBashCmd'>jump garden</span>}", function(params) {GIMLI.instance.jumpToRoom(jBash.GP(params));});
+jBash.registerCommand("jump", "Jump to a given room (intern name)<br />E.g. {<span class='jBashCmd'>jump to garden</span>}", function(params) 
+	{
+		var p = jBash.GP(params);
+		var r = "";
+		if(p!="")
+		{
+			r = p[0];
+			if(r.toLowerCase()=="to" && p.length>1)
+				r = p[1];
+		}else{
+			jBash.Parse("man jump");
+			return;
+		}
+		GIMLI.instance.jumpToRoom(r);
+	});
 /* FUNCTIONS to Show and hide the console. */
 GIMLI.hideConsole = function()  {__hideGIMLIconsole();}
 GIMLI.showConsole = function() {__showGIMLIconsole();}

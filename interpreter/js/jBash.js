@@ -511,7 +511,15 @@ jBash.registerCommand("donate", "Please donate my work. Thank you.", function(pa
 jBash.registerCommand("cmd", "Show registered jBash commands.", function(params) 
 	{jBash.instance.showCommandList();});
 jBash.registerCommand("man", "Show manual for a command. E.g. {<span class='jBashCmd'>man cmd</span>}", function(params)
-	{jBash.instance.loadManual(jBash.GP(params)[0]);});
+	{
+		var jp = jBash.GP(params);
+		if(jp=="")
+		{
+			jBash.instance.loadManual("man");
+			return;
+		}
+		jBash.instance.loadManual(jp[0]);
+	});
 jBash.registerCommand("cls", "Clear the screen.", function(params)
 	{jBash.instance.cls();});
 //jBash.registerCommand("ls", "Linux style for {<span class='jBashCmd'>dir</span>}.", function(params)
