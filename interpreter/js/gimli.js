@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.30a";
+const GIMLIVERSION = "0.0.34";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -72,15 +72,18 @@ log.loglevel = LOG_DEBUG;
 // an item in the giml system.
 var GIMLitem = function()
 {
+	var me = this;
 	var m_isPickable = false;
 	this.setPickable = function(pickable) {m_isPickable = pickable;};
 	var m_posX = 0;
 	var m_posY = 0;
 	var m_posZ = 10; // pos z is the z index.
 	var m_posLocation = "";	// the location where the item is placed.
+	this.getLocationIntern = function() {return m_posLocation;}
 	var m_imageFile = "";
 	var m_overImageFile = ""; // mouse over image.
 	var m_internName = "";
+	this.getIntern = function() {return m_internName;};
 	var m_itemName = "";
 	var m_description = "";
 	var m_folder = "";
@@ -90,9 +93,12 @@ var GIMLitem = function()
 	this.getScaleFactor=function(outerscaleFactor=1.0) {return m_scaleFactor*m_outerScaleFactor;}
 	
 	this.setImage=function(imageName) {m_imageFile = imageName;}
-	this.getInitialHTML = function() 
+	this.getInitialHTML = function(rootdirectory="") 
 	{
-		return '<div class="gimli-item" style="position: absolute; top: \''+posY+'px\'; left: \''+posX+'px\'; z-index: \''+m_posZ+'\';"><img src="'+m_imageFile+'" class="gimli-image"></div>';
+		rootdirectory=__addSlashIfNot(rootdirectory);
+		var path = rootdirectory+m_folder+m_imageFile;
+		log("item path: "+path+" pos:"+m_posX+" "+m_posY);
+		return '<div class="gimli-item" style="top: '+m_posY+'px; left: '+m_posX+'px; z-index: '+m_posZ+';"><img src="'+path+'" class="gimli-image"></div>';
 	};
 	
 	this.debug=function(loglevel=LOG_DEBUG) {
@@ -100,7 +106,7 @@ var GIMLitem = function()
 		log(" --&gt; resides in '"+m_folder+"'", loglevel);
 		log(" --&gt; Image: '"+m_imageFile+"'", loglevel);
 		log(" --&gt; Mouseover: '"+m_overImageFile+"'", loglevel);
-		log(" --&gt; Location: ['"+m_posLocation+"', "+m_posX+", "+m_posY+"]", loglevel);
+		log(" --&gt; Loc./Room: ['"+m_posLocation+"', "+m_posX+", "+m_posY+"]", loglevel);
 		log(" ", loglevel);
 	};
 	
@@ -112,15 +118,25 @@ var GIMLitem = function()
 		m_description = gmlItem['DESCRIPTION'];
 		m_imageFile = gmlItem['IMAGE'];
 		m_overImageFile = gmlItem['OVERIMAGE'];
+		m_posLocation = "";
 		
 		// get the location.
 		var location = [];
 		if(__defined(gmlItem['LOCATION']))
 			location = gmlItem['LOCATION'];
-
-		m_posLocation ="";
+		if(__defined(gmlItem['ROOM']))
+			location = gmlItem['ROOM'];
+		
+		if(!__defined(gmlItem['INTERN']))
+			m_internName = "@_INTERN_not_found_@";
 		if(location.length>0)
-			m_posLocation = location[0];
+		{
+			var loc = location[0];
+			var loc2 =loc.split(' ').join('_');
+			if(loc!=loc2)
+				log("Spaces are not allowed in intern names. ['"+loc+"' ==&gt; '"+loc2+"'] in location for item '"+m_internName+"'.", LOG_WARN);
+			m_posLocation = loc2;
+		}
 		if(location.length>1)
 			m_posX = parseInt(location[1]);
 		if(location.length>2)
@@ -129,8 +145,6 @@ var GIMLitem = function()
 		// check if the json has the entries.
 		if(!__defined(gmlItem['NAME']))
 			m_itemName = "@ NAME not found @";
-		if(!__defined(gmlItem['INTERN']))
-			m_internName = "@_INTERN_not_found_@";
 		// replace spaces from intern name.
 		var i2 = m_internName.split(' ').join('_');
 		if(m_internName!=i2)
@@ -152,6 +166,14 @@ var GIMLitem = function()
 			m_scaleFactor=parseFloat(jroom['SCALEFACTOR']);
 		if(__defined(gmlItem['SCALE']))	// get item scale 2.
 			m_scaleFactor=parseFloat(jroom['SCALE']);		
+	}
+	
+	// add this item to a room div.
+	this.addToRoomDiv=function(div, rootdirectory="")
+	{
+		log("Placing the item '"+m_internName+"' in the room...", LOG_DEBUG);
+		var myElement = me.getInitialHTML(rootdirectory);
+		div.html(div.html()+myElement);		
 	}
 };
 
@@ -301,6 +323,188 @@ var GIMLI = function()
 	
 	// the size factor. usually 1 or 2
 	var m_scaleFactor = 1.0;
+
+// THIS IS THE MAIN GML FUNCTION SO FAR
+	
+	// load a gml json file.
+	this.parseGML = function(json)
+	{
+		log("Parsing GML: "/*+JSON.stringify(json)*/, LOG_DEBUG);
+		
+		log("Converting array names to uppercase..", LOG_DEBUG);
+		var json2 = __jsonUpperCase(json);
+		json = json2;
+		
+		// get the start room. (StartLocation or StartRoom)
+		m_actualRoomIntern = m_startRoomIntern = "@ STARTLOCATION/STARTROOM not found. @";
+		
+		if(__defined(json['STARTLOCATION']))
+			m_actualRoomIntern = m_startRoomIntern = json['STARTLOCATION'];
+		if(__defined(json['STARTROOM']))
+			m_actualRoomIntern = m_startRoomIntern = json['STARTROOM'];
+		
+		// get the global scale factor.
+		m_scaleFactor=1.0;
+		if(__defined(json['SCALEFACTOR']))
+			m_scaleFactor = parseFloat(json['SCALEFACTOR']);
+		if(__defined(json['SCALE']))
+			m_scaleFactor = parseFloat(json['SCALE']);
+		
+		// get locations (LOCATIONS or ROOMS)
+		var roomArray = [];
+		if(__defined(json['LOCATIONS']))
+			roomArray = json['LOCATIONS'];
+		if(__defined(json['ROOMS']))
+			roomArray = json['ROOMS'];
+		
+		log("GML start room: "+m_startRoomIntern, LOG_DEBUG);
+		log("General GML scale factor: "+parseFloat(m_scaleFactor));
+		
+		// clear the rooms and items.
+		__clearItems();
+		__clearRooms();
+		
+		// load in the rooms.
+		if(roomArray.length>0)
+		{
+			for(var i = 0;i<roomArray.length;i++)
+			{
+				var jroom = roomArray[i];
+				var room = new GIMLroom();
+				room.parseGML(jroom);
+				m_roomsLoaded.push(room);
+			}
+		}else{
+			log("No rooms defined in the given GML file.", LOG_WARN);
+		}
+		
+		// load in the items.
+		if(__defined(json['ITEMS']))
+		{
+			var itemArray = json['ITEMS'];
+			for(var i = 0;i<itemArray.length;i++)
+			{
+				var jitem = itemArray[i];
+				var item = new GIMLitem();
+				item.parseGML(jitem);
+				m_itemsLoaded.push(item);
+				item.debug();
+			}
+		}else{
+			log("No items defined in the given GML file.", LOG_WARN);
+		}
+		log(__roomCount()+ " rooms loaded.",LOG_USER);
+		log(__itemCount()+" items loaded.", LOG_USER);
+	};
+
+// ENDOF GML PARSER
+// JUMP FUNCTION *********************************************************************************************************************
+
+// this is the second main function:  It loads a room and its items and shows it in the window.
+	this.jumpToRoom=function(roomInternName)
+	{
+		var room = __findRoom(roomInternName);
+		if(room==null)
+		{
+			log("Room '"+roomInternName+"' not found. No jump done.", LOG_ERROR);
+			return;
+		}
+		m_actualRoomX = 0;
+		m_actualRoomY = 0;
+		log("Jumping to room '"+roomInternName+"'", LOG_USER);
+		
+		// get the divs with the size and the content.
+		var outer = __getOuterWindow();
+		var main = __getMainWindow();
+		
+		// clear the main window.
+		main.html("");
+		// get the background image path.
+		var imgPath = m_GMURL_initpage.getDirectory()+room.getBGimagePath();
+		
+		//log("--> Loading background: "+imgPath,LOG_DEBUG);
+		
+		// get background size.
+		var bgimg = new Image();
+		bgimg.onload = function()
+		{
+			// reset scroll boundaries.
+			m_scrollBoundarX1 = 0;
+			m_scrollBoundarY1 = 0;
+			m_scrollBoundarX2 = 0;
+			m_scrollBoundarY2 = 0;
+			// actual room position.
+			var newRoomX = 0;
+			var newRoomY = 0;
+			
+			// width and height.
+			var bgwidth = this.width;
+			var bgheight = this.height;
+			var outerWidth = outer.width();
+			var outerHeight = outer.height();
+			//log("main: "+mainWidth+" "+mainHeight+" "+m_scaleFactor, LOG_DEBUG);
+			
+			// scale the bg.
+			var scaledbgwidth = parseInt(bgwidth*room.getScaleFactor(m_scaleFactor));
+			var scaledbgheight = parseInt(bgheight*room.getScaleFactor(m_scaleFactor));
+						
+			// set scroll boundaries.
+			if(scaledbgwidth > outerWidth)
+			{
+				// bg width is bigger than screen.
+				m_scrollBoundarX2 = outerWidth-scaledbgwidth;
+			}else{
+				// bg width is smaller than screen.
+				var newRoomX = outerWidth*0.5 - scaledbgwidth*0.5;
+				m_scrollBoundarX1 = newRoomX;
+				m_scrollBoundarX2 = newRoomX;
+			}
+			if(scaledbgheight > outerHeight)
+			{
+				// bg height is bigger than screen.
+				m_scrollBoundarY2 = outerHeight - scaledbgheight;
+			}else{
+				// bg height is smaller than screen.
+				var newRoomY = outerHeight*0.5 - scaledbgheight*0.5;
+				m_scrollBoundarY1 = newRoomY;
+				m_scrollBoundarY2 = newRoomY;
+			}
+			
+			main.css("background-image", "url('"+imgPath+"')");
+			main.css("background-repeat", "no-repeat");	
+			/* adjust sizes */
+			main.width(scaledbgwidth);
+			main.height(scaledbgheight);
+			main.css('background-size', ''+scaledbgwidth+'px '+scaledbgheight+'px');
+			var scale = parseInt(m_scaleFactor*100.0);
+			/*$('.gimli-image').each(function(idx) 
+			{
+				$(this).css('width', ''+scale+'%');
+				$(this).css('height', ''+scale+'%');			
+			});*/
+			
+			me.setRoomPosition(newRoomX, newRoomY);
+			log("Background '"+imgPath+"' loaded. [Size: "+scaledbgwidth+" "+scaledbgheight+" from "+bgwidth+" "+bgheight+"]" , LOG_DEBUG);
+		}
+		bgimg.src = imgPath;
+		
+		// Search all items which are associated to this room.
+		var count = 0;
+		for(var i=0; i < __itemCount(); i++)
+		{
+			var itm = m_itemsLoaded[i];
+			var intern = itm.getIntern();
+			if(room.getIntern() == itm.getLocationIntern())
+			{
+				count++;
+				itm.addToRoomDiv(main,m_GMURL_initpage.getDirectory());
+				// TODO: add items to room.
+			}
+		}
+		log(count+" items are placed in this room.", LOG_USER);
+	};
+	
+// ENDOF JUMP FUNCTION *********************************************************************************************************************
 	
 	// find a room (local). Return null if nothing found.
 	var __findRoom = function(roomIntern)
@@ -370,86 +574,6 @@ var GIMLI = function()
 	// jump to the start location of a gml file.
 	this.jumpToStartRoom = function() {me.jumpToRoom(m_startRoomIntern);};
 	
-	this.jumpToRoom=function(roomInternName)
-	{
-		var room = __findRoom(roomInternName);
-		if(room==null)
-		{
-			log("Room '"+roomInternName+"' not found. No jump done.", LOG_ERROR);
-			return;
-		}
-		m_actualRoomX = 0;
-		m_actualRoomY = 0;
-		log("Jumping to room '"+roomInternName+"'", LOG_USER);
-		var main = __getMainWindow();
-		var imgPath = m_GMURL_initpage.getDirectory()+room.getBGimagePath();
-		
-		//log("--> Loading background: "+imgPath,LOG_DEBUG);
-		
-		// get background size.
-		var bgimg = new Image();
-		bgimg.onload = function()
-		{
-			// reset scroll boundaries.
-			m_scrollBoundarX1 = 0;
-			m_scrollBoundarY1 = 0;
-			m_scrollBoundarX2 = 0;
-			m_scrollBoundarY2 = 0;
-			// actual room position.
-			var newRoomX = 0;
-			var newRoomY = 0;
-			
-			// width and height.
-			var bgwidth = this.width;
-			var bgheight = this.height;
-			var mainWidth = main.width();
-			var mainHeight = main.height();
-			//log("main: "+mainWidth+" "+mainHeight+" "+m_scaleFactor, LOG_DEBUG);
-			
-			// scale the bg.
-			var scaledbgwidth = parseInt(bgwidth*room.getScaleFactor(m_scaleFactor));
-			var scaledbgheight = parseInt(bgheight*room.getScaleFactor(m_scaleFactor));
-			
-			// set scroll boundaries.
-			if(scaledbgwidth > mainWidth)
-			{
-				// bg width is bigger than screen.
-				m_scrollBoundarX2 = mainWidth-scaledbgwidth;
-			}else{
-				// bg width is smaller than screen.
-				var newRoomX = mainWidth*0.5 - scaledbgwidth*0.5;
-				m_scrollBoundarX1 = newRoomX;
-				m_scrollBoundarX2 = newRoomX;
-			}
-			if(scaledbgheight > mainHeight)
-			{
-				// bg height is bigger than screen.
-				m_scrollBoundarY2 = mainHeight - scaledbgheight;
-			}else{
-				// bg height is smaller than screen.
-				var newRoomY = mainHeight*0.5 - scaledbgheight*0.5;
-				m_scrollBoundarY1 = newRoomY;
-				m_scrollBoundarY2 = newRoomY;
-			}
-			
-			main.html("");
-			main.css("background-image", "url('"+imgPath+"')");
-			main.css("background-repeat", "no-repeat");
-		
-			/* adjust sizes */
-			main.css('background-size', ''+scaledbgwidth+'px '+scaledbgheight+'px');
-			var scale = parseInt(m_scaleFactor*100.0);
-			/*$('.gimli-image').each(function(idx) 
-			{
-				$(this).css('width', ''+scale+'%');
-				$(this).css('height', ''+scale+'%');			
-			});*/
-			me.setRoomPosition(newRoomX, newRoomY);
-			log("Background '"+imgPath+"' loaded. [Size: "+scaledbgwidth+" "+scaledbgheight+" from "+bgheight+" "+bgwidth+"]" , LOG_DEBUG);
-		}
-		bgimg.src = imgPath;
-	};
-	
 	// add some values to the room position.
 	this.addRoomPosition=function(addX, addY) {me.setRoomPosition(m_actualRoomX+addX, m_actualRoomY+addY);};
 
@@ -459,7 +583,8 @@ var GIMLI = function()
 		var mainWindow = __getMainWindow();
 		m_actualRoomX = setX;
 		m_actualRoomY = setY;
-		mainWindow.css('background-position', ''+setX+'px '+setY+'px');
+		mainWindow.css('left', ''+setX+'px');
+		mainWindow.css('top', ''+setY+'px');
 	};
 	
 	// scrolling function
@@ -487,10 +612,11 @@ var GIMLI = function()
 		
 		var evt = m_lastMouseEvent;
 		// get the size of the main screen.
-		main = __getMainWindow();
-		var w = main.width();		// get width of main window.
-		var h = main.height();		// get height of main window.
-		var r = main.get(0).getBoundingClientRect();
+		var main = __getMainWindow();
+		var outer = __getOuterWindow();
+		var w = outer.width();		// get width of outer window.
+		var h = outer.height();		// get height of outer window.
+		var r = outer.get(0).getBoundingClientRect();
 		var t = r.top;				// get top of main window.
 		var l = r.left;				// get left of main window.
 		var cx = evt.clientX-l;		// get mouse x relative to main window.
@@ -555,81 +681,6 @@ var GIMLI = function()
 			}
 		}
 	}
-
-// THIS IS THE MAIN GML FUNCTION SO FAR
-	
-	// load a gml json file.
-	this.parseGML = function(json)
-	{
-		log("Parsing GML: "/*+JSON.stringify(json)*/, LOG_DEBUG);
-		
-		log("Converting array names to uppercase..", LOG_DEBUG);
-		var json2 = __jsonUpperCase(json);
-		json = json2;
-		
-		// get the start room. (StartLocation or StartRoom)
-		m_actualRoomIntern = m_startRoomIntern = "@ STARTLOCATION/STARTROOM not found. @";
-		
-		if(__defined(json['STARTLOCATION']))
-			m_actualRoomIntern = m_startRoomIntern = json['STARTLOCATION'];
-		if(__defined(json['STARTROOM']))
-			m_actualRoomIntern = m_startRoomIntern = json['STARTROOM'];
-		
-		// get the global scale factor.
-		m_scaleFactor=1.0;
-		if(__defined(json['SCALEFACTOR']))
-			m_scaleFactor = parseFloat(json['SCALEFACTOR']);
-		if(__defined(json['SCALE']))
-			m_scaleFactor = parseFloat(json['SCALE']);
-		
-		// get locations (LOCATIONS or ROOMS)
-		var roomArray = [];
-		if(__defined(json['LOCATIONS']))
-			roomArray = json['LOCATIONS'];
-		if(__defined(json['ROOMS']))
-			roomArray = json['ROOMS'];
-		
-		log("GML start room: "+m_startRoomIntern, LOG_DEBUG);
-		log("General GML scale factor: "+parseFloat(m_scaleFactor));
-		
-		// clear the rooms and items.
-		__clearItems();
-		__clearRooms();
-		
-		// fill the rooms and items.
-		if(roomArray.length>0)
-		{
-			for(var i = 0;i<roomArray.length;i++)
-			{
-				var jroom = roomArray[i];
-				var room = new GIMLroom();
-				room.parseGML(jroom);
-				m_roomsLoaded.push(room);
-			}
-		}else{
-			log("No rooms defined in the given GML file.", LOG_WARN);
-		}
-		
-		// load in the items.
-		if(__defined(json['ITEMS']))
-		{
-			var itemArray = json['ITEMS'];
-			for(var i = 0;i<itemArray.length;i++)
-			{
-				var jitem = itemArray[i];
-				var item = new GIMLitem();
-				item.parseGML(jitem);
-				m_itemsLoaded.push(item);
-				item.debug();
-			}
-		}else{
-			log("No items defined in the given GML file.", LOG_WARN);
-		}
-		log(__roomCount()+ " rooms loaded.",LOG_USER);
-		log(__itemCount()+" items loaded.", LOG_USER);
-	};
-
-// ENDOF GML PARSER
 		
 	// make all the array names in a json object upper case.
 	var __jsonUpperCase=function(obj) {
@@ -675,9 +726,10 @@ var GIMLI = function()
     	xhr.send();
 	}
 	
-	// get the main window
+	// get the main window and outer window.
 	var __getMainWindow = function() {return $('#gimli-main-window');};
-	
+	var __getOuterWindow = function() {return $('#gimli-outer-window');};
+
 	// create the div where the action goes. :)
 	var __createMainWindow = function()
 	{

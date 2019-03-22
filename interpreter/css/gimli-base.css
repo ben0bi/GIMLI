@@ -94,6 +94,8 @@ here all images will be appended and other stuff. */
 	image-rendering: pixelated; /* Chrome 41+ and Opera 26+ */
 }
 
+.gimli-item {position: absolute;}
+
 /* make something pixel perfect (same as image without size) */
 .gimli-pixelperfect
 {

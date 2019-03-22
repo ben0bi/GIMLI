@@ -1,29 +1,33 @@
-0.0.1a -> 0.0.3a: Outer screen setup, file structure definition.
-0.0.4a -> 0.0.5a: Included a console (jBash from github.com/ben0bi)
-0.0.6a -> other fonts choosen.
-0.0.7a -> trying to load a gml file.
-0.0.8a -> GIML-Rooms and Items (prototype)
-0.0.9a -> loading GML file and making all the array names uppercase.
-0.0.10a -> new console font, console scrolling bug fixed.
-0.0.11a -> 2 new console buttons for cmd and cls.
-0.0.12a -> Console focus now on click in console, console scrollbar color (FireFox only)
-0.0.13a -> First GML loading into structure.
-0.0.14a -> Loading rooms but not yet the items. Two new console commands: "rooms" and "items", show debug info about them.
+0.0.1 -> 0.0.3a: Outer screen setup, file structure definition.
+0.0.4 -> 0.0.5a: Included a console (jBash from github.com/ben0bi)
+0.0.6 -> other fonts choosen.
+0.0.7 -> trying to load a gml file.
+0.0.8 -> GIML-Rooms and Items (prototype)
+0.0.9 -> loading GML file and making all the array names uppercase.
+0.0.10 -> new console font, console scrolling bug fixed.
+0.0.11 -> 2 new console buttons for cmd and cls.
+0.0.12 -> Console focus now on click in console, console scrollbar color (FireFox only)
+0.0.13 -> First GML loading into structure.
+0.0.14 -> Loading rooms but not yet the items. Two new console commands: "rooms" and "items", show debug info about them.
 	Uh, huh...the log-to-console call is on line 42, what to say more... :)
-0.0.15a -> First background image loaded, yay.
-0.0.16a -> Scrolling works halfway.
-0.0.17a -> Better scrolling mechanism. But size of background is not in account yet.
-0.0.18a -> Scrolling boundaries set by bg in onload function. General SCALEFACTOR in the GML files.
-0.0.19a -> You can now use STARTROOM or STARTLOCATION and LOCATIONS or ROOMS in the GML file, ROOM is preferred over LOCATION.
-0.0.20a -> JUMP command for the console. (Not really working right with the params, but almost.)
-0.0.21a -> Put all the stuff into middle of screen when it is smaller than the screen.
-0.0.22a -> Local scale factor for rooms. (If not set, the global one applies.)
+0.0.15 -> First background image loaded, yay.
+0.0.16 -> Scrolling works halfway.
+0.0.17 -> Better scrolling mechanism. But size of background is not in account yet.
+0.0.18 -> Scrolling boundaries set by bg in onload function. General SCALEFACTOR in the GML files.
+0.0.19 -> You can now use STARTROOM or STARTLOCATION and LOCATIONS or ROOMS in the GML file, ROOM is preferred over LOCATION.
+0.0.20 -> JUMP command for the console. (Not really working right with the params, but almost.)
+0.0.21 -> Put all the stuff into middle of screen when it is smaller than the screen.
+0.0.22 -> Local scale factor for rooms. (If not set, the global one applies.)
 			You can now use SCALEFACTOR or SCALE in the GML file, global and local for rooms. SCALE is preferred over SCALEFACTOR.
-0.0.23a -> Intern names from rooms cannot contain spaces, which will be replaced by underscore character.
-0.0.24a -> The man command is again in the console, with the jbash_manuals-directory in the js-directory as manual-pageserver. :)
-0.0.25a -> New room image which will be the main image for benis-bastelschuppen.github.io
-0.0.26a -> donation page and man and jBash command: I would appreciate it if you give me some money. Thank you.
-0.0.27a -> Better console show and hide mechanism.
-0.0.28a -> Loading items. (into console)
-0.0.29a -> setting new scaling: globalscale*roomscale*itemscale instead of globalscale OR (roomscale OR itemscale)
-0.0.30a -> Parsing room gml in room class. Setting folder name properly in items and rooms.
+0.0.23 -> Intern names from rooms cannot contain spaces, which will be replaced by underscore character.
+0.0.24 -> The man command is again in the console, with the jbash_manuals-directory in the js-directory as manual-pageserver. :)
+0.0.25 -> New room image which will be the main image for benis-bastelschuppen.github.io
+0.0.26 -> donation page and man and jBash command: I would appreciate it if you give me some money. Thank you.
+0.0.27 -> Better console show and hide mechanism.
+0.0.28 -> Loading items. (into console)
+0.0.29 -> setting new scaling: globalscale*roomscale*itemscale instead of globalscale OR (roomscale OR itemscale)
+0.0.30 -> Parsing room gml in room class. Setting folder name properly in items and rooms.
+0.0.31 -> Checking if location name matches intern name rules in items.
+0.0.32 -> can use "ROOM" instead of "LOCATION" in an item.
+0.0.33 -> Creating the main window in the right size, updated setposition function.
+0.0.34 -> Loading items in a room. Setting them to the right position but not scaling them right now.

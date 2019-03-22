@@ -44,7 +44,7 @@
 			"FOLDER": "entities/nsa",
 			"IMAGE": "nsa.png",
 			"OVERIMAGE": "nsa_mouseover.png",
-			"LOCATION": ["living_room", 100, 100]
+			"LOCATION": ["werkstatt", 100, 100]
 		}
 	]
 }
