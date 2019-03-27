@@ -31,3 +31,4 @@
 0.0.32 -> can use "ROOM" instead of "LOCATION" in an item.
 0.0.33 -> Creating the main window in the right size, updated setposition function.
 0.0.34 -> Loading items in a room. Setting them to the right position but not scaling them right now.
+0.0.35 -> Mouseover on an item changes the image.

@@ -15,7 +15,7 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.34";
+const GIMLIVERSION = "0.0.35";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -73,6 +73,7 @@ log.loglevel = LOG_DEBUG;
 var GIMLitem = function()
 {
 	var me = this;
+	var m_id = GIMLitem.getNewID(); // unique ID used for DOM processing.
 	var m_isPickable = false;
 	this.setPickable = function(pickable) {m_isPickable = pickable;};
 	var m_posX = 0;
@@ -90,15 +91,60 @@ var GIMLitem = function()
 	var m_scaleFactor = 1.0;
 	
 	// get world scale factor.
-	this.getScaleFactor=function(outerscaleFactor=1.0) {return m_scaleFactor*m_outerScaleFactor;}
+	this.getScaleFactor=function(outerScaleFactor=1.0) {return m_scaleFactor*outerScaleFactor;}
 	
 	this.setImage=function(imageName) {m_imageFile = imageName;}
-	this.getInitialHTML = function(rootdirectory="") 
+	this.getDOMElement = function(rootdirectory="", outerscalefactor = 1.0) 
 	{
+		var sc = me.getScaleFactor(outerscalefactor);
+
 		rootdirectory=__addSlashIfNot(rootdirectory);
 		var path = rootdirectory+m_folder+m_imageFile;
-		log("item path: "+path+" pos:"+m_posX+" "+m_posY);
-		return '<div class="gimli-item" style="top: '+m_posY+'px; left: '+m_posX+'px; z-index: '+m_posZ+';"><img src="'+path+'" class="gimli-image"></div>';
+		var overpath = rootdirectory+m_folder+m_overImageFile;
+		var divel = jQuery.getNewDiv('','item_'+m_id,'gimli-item');
+		
+		var txt ='<img src="'+path+'" id="item_image_'+m_id+'" class="gimli-image" />';
+		txt+='<img src="'+overpath+'" id="item_image_over_'+m_id+'" class="gimli-image" style="display:none;">';
+
+		divel.css('top', m_posY+'px');
+		divel.css('left', m_posX+'px');
+		divel.css('z-index', m_posZ);
+		//divel.css('border', '1px solid #FF0000');
+		divel.html(txt);
+
+		// show mouseover image.
+		divel.mouseover(function(el) 
+		{
+			$('#item_image_'+m_id).hide();
+			$('#item_image_over_'+m_id).show();
+		});
+		divel.mouseout(function(el) 
+		{
+			$('#item_image_over_'+m_id).hide();
+			$('#item_image_'+m_id).show();
+		});
+
+		// get the size of the main image and set the divs size to it.
+		var mainimg = new Image();
+		mainimg.onload = function()
+		{
+			// width and height.
+			var width = this.width;
+			var height = this.height;
+			
+			// scale the image.
+			//var scaledwidth = parseInt(bgwidth*room.getScaleFactor(m_scaleFactor));
+			//var scaledheight = parseInt(bgheight*room.getScaleFactor(m_scaleFactor));
+			log(sc);
+			// TODO: include room scale factor.
+			divel.width(width*sc);
+			divel.height(height*sc);
+		}
+		mainimg.src = path;
+
+//		log("item path: "+path+" pos:"+m_posX+" "+m_posY);
+		
+		return divel;
 	};
 	
 	this.debug=function(loglevel=LOG_DEBUG) {
@@ -169,13 +215,22 @@ var GIMLitem = function()
 	}
 	
 	// add this item to a room div.
-	this.addToRoomDiv=function(div, rootdirectory="")
+	this.addToRoomDiv=function(div, rootdirectory="", outerscalefactor = 1.0)
 	{
 		log("Placing the item '"+m_internName+"' in the room...", LOG_DEBUG);
-		var myElement = me.getInitialHTML(rootdirectory);
-		div.html(div.html()+myElement);		
+		var myElement = me.getDOMElement(rootdirectory, me.getScaleFactor(outerscalefactor));
+		div.append(myElement);		
 	}
 };
+// get an unique id for each item.
+GIMLitem.g_nextItemID = 0;
+GIMLitem.getNewID = function()
+{
+	var id = GIMLitem.g_nextItemID;
+	GIMLitem.g_nextItemID+=1;
+	return id;
+}
+
 
 // a room in the giml system.
 var GIMLroom = function()
@@ -497,8 +552,7 @@ var GIMLI = function()
 			if(room.getIntern() == itm.getLocationIntern())
 			{
 				count++;
-				itm.addToRoomDiv(main,m_GMURL_initpage.getDirectory());
-				// TODO: add items to room.
+				itm.addToRoomDiv(main,m_GMURL_initpage.getDirectory(), m_scaleFactor);
 			}
 		}
 		log(count+" items are placed in this room.", LOG_USER);
