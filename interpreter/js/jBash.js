@@ -7,14 +7,16 @@
 // the directory to the manuals seen from the loading page.
 const JBASH_MANUAL_DIR = "js/jbash_manuals/";
 
-jBashObject = function(name, desc, func)
+jBashObject = function(name, desc, func, isHidden = false)
 {
 	var _name = name;
 	var _func = func;
 	var _desc = desc;
+	var _hidden = isHidden;
 	this.Name = function() {return _name;};
 	this.Description = function() {return _desc;};
 	this.Func = function(params) {return _func(params);};
+	this.isHidden = function() {return _hidden;};
 };
 
 jBash = function()
@@ -76,6 +78,7 @@ _finishInitialize(startpage);
 			}
 		});
 		
+		// focus on the input line.
 		_screen.click(function(e)
 		{
 			me.focus();
@@ -345,11 +348,11 @@ _finishInitialize(startpage);
 	};
 
 	// register a command.
-	this.registerCommand = function(name, description, func)
+	this.registerCommand = function(name, description, func, isHidden = false)
 	{
 		name=name.replace(/</g, "&lt;");
 		name=name.replace(/>/g, "&gt;");
-		var cmd = new jBashObject(name, description, func);
+		var cmd = new jBashObject(name, description, func, isHidden);
 		_commands.push(cmd);
 	};
 
@@ -361,13 +364,16 @@ _finishInitialize(startpage);
 		txt+="<tr><td colspan='3'>Registered jBash commands:<hr></td></tr>";
 		for(var i=0;i<_commands.length;i++)
 		{
-			txt+="<tr><td class='jBashCmd' valign='top'>";
-			txt+=_commands[i].Name();
-			txt+="</td><td valign='top'>";
-			txt+=": ";
-			txt+="</td><td valign='top'>";
-			txt+=_commands[i].Description();
-			txt+="</td></tr>";
+			if(_commands[i].isHidden()==false)
+			{
+				txt+="<tr><td class='jBashCmd' valign='top'>";
+				txt+=_commands[i].Name();
+				txt+="</td><td valign='top'>";
+				txt+=": ";
+				txt+="</td><td valign='top'>";
+				txt+=_commands[i].Description();
+				txt+="</td></tr>";
+			}
 		};
 		txt+="<tr><td colspan='3'><hr></td></tr>";
 		txt+="</table>";
@@ -502,9 +508,24 @@ jBash.ShellText = ">";
 jBash.ShellCharacterWidth = 10;
 
 jBash.initialize = function(screenID, inputID) {jBash.instance.initialize(screenID,inputID);};
-jBash.registerCommand = function(name, description, func) {jBash.instance.registerCommand(name, description, func);};
+jBash.registerCommand = function(name, description, func, isHidden) {jBash.instance.registerCommand(name, description, func, isHidden);};
 jBash.Parse = function(text) {jBash.instance.Parse(text);};
 jBash.GP = function(p) {return jBash.instance.getParams(p);}
+
+// jump to an external link.
+jBash.LINK = function(params)
+{
+	p = jBash.GP(params);
+	var target = "";
+	if(p.length>0)
+	{
+		target = p[0];
+		if(p[0].toLowerCase()=="to" && p.length>1)
+			target = p[1];
+	}
+	window.location.href = target;
+}
+
 
 // register some commands.
 jBash.registerCommand("donate", "Please donate my work. Thank you.", function(params) {jBash.Parse("man donate");});
@@ -522,8 +543,9 @@ jBash.registerCommand("man", "Show manual for a command. E.g. {<span class='jBas
 	});
 jBash.registerCommand("cls", "Clear the screen.", function(params)
 	{jBash.instance.cls();});
-//jBash.registerCommand("ls", "Linux style for {<span class='jBashCmd'>dir</span>}.", function(params)
-//	{jBash.instance.loadPage(jBash._dir_php,'filelist.php', false);});
+jBash.registerCommand("link", "A link to an external website.<br />E.g. {<span class='jBashCmd'>link to https://github.com</span>}", jBash.LINK,true);
+jBash.registerCommand("l", "Short for the <span class='jBashCmd'>link</span> command.", jBash.LINK,true);
+
 //jBash.registerCommand("dir", "Show public file list.", function(params) 
 //	{jBash.instance.loadPage(jBash._dir_php,'filelist.php', false);});
 //jBash.registerCommand("l", "Short for {<span class='jBashCmd'>load</span>}.",function(params)

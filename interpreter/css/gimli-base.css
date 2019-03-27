@@ -55,7 +55,7 @@ a:hover
 /* the gimli main window (INNER PART) where all the action happens,
 here all images will be appended and other stuff. */
 /* Desktop only at this time. */
-#gimli-main-window
+#gimli-main-window, #gimli-middle-window
 {
 	position: absolute;
 	width: 100%;

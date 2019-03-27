@@ -1,7 +1,7 @@
  /*
 
  ..............................................
- .                          GIMLI INTERPRETER .
+ .                           GIML-INTERPRETER .
  ..............................................
  . VERSION A : CLIENT JS                      .
  . by Benedict Jäggi                          .
@@ -10,12 +10,15 @@
  . (see LICENSE file)                         .
  . NOT copying this work is prohibited :)     .
  ..............................................
- 
+ . GIML[I] stands for:                        .
+ . Game Induced Markup Language [Interpreter] .
+ ..............................................
+
  needs jQuery, BeJQuery and jBash.
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.35";
+const GIMLIVERSION = "0.0.40";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -89,11 +92,14 @@ var GIMLitem = function()
 	var m_description = "";
 	var m_folder = "";
 	var m_scaleFactor = 1.0;
+	var m_script_click = "";
 	
 	// get world scale factor.
 	this.getScaleFactor=function(outerScaleFactor=1.0) {return m_scaleFactor*outerScaleFactor;}
 	
 	this.setImage=function(imageName) {m_imageFile = imageName;}
+	
+	// get the dom element for this item.
 	this.getDOMElement = function(rootdirectory="", outerscalefactor = 1.0) 
 	{
 		var sc = me.getScaleFactor(outerscalefactor);
@@ -109,6 +115,7 @@ var GIMLitem = function()
 		divel.css('top', m_posY+'px');
 		divel.css('left', m_posX+'px');
 		divel.css('z-index', m_posZ);
+		
 		//divel.css('border', '1px solid #FF0000');
 		divel.html(txt);
 
@@ -123,6 +130,11 @@ var GIMLitem = function()
 			$('#item_image_over_'+m_id).hide();
 			$('#item_image_'+m_id).show();
 		});
+		// do something when the item is clicked.
+		divel.click(function(el) {
+			if(m_script_click.length>0 && m_script_click!=parseInt(m_script_click))
+				jBash.Parse(m_script_click);
+		});
 
 		// get the size of the main image and set the divs size to it.
 		var mainimg = new Image();
@@ -132,17 +144,12 @@ var GIMLitem = function()
 			var width = this.width;
 			var height = this.height;
 			
-			// scale the image.
-			//var scaledwidth = parseInt(bgwidth*room.getScaleFactor(m_scaleFactor));
-			//var scaledheight = parseInt(bgheight*room.getScaleFactor(m_scaleFactor));
-			log(sc);
+			// scale the div.
 			// TODO: include room scale factor.
 			divel.width(width*sc);
 			divel.height(height*sc);
 		}
 		mainimg.src = path;
-
-//		log("item path: "+path+" pos:"+m_posX+" "+m_posY);
 		
 		return divel;
 	};
@@ -156,6 +163,7 @@ var GIMLitem = function()
 		log(" ", loglevel);
 	};
 	
+	// load in the values from the json array.
 	this.parseGML=function(gmlItem)
 	{
 		m_itemName = gmlItem['NAME'];
@@ -165,6 +173,7 @@ var GIMLitem = function()
 		m_imageFile = gmlItem['IMAGE'];
 		m_overImageFile = gmlItem['OVERIMAGE'];
 		m_posLocation = "";
+		m_script_click = "";
 		
 		// get the location.
 		var location = [];
@@ -211,7 +220,12 @@ var GIMLitem = function()
 		if(__defined(gmlItem['SCALEFACTOR']))	// get item scale.
 			m_scaleFactor=parseFloat(jroom['SCALEFACTOR']);
 		if(__defined(gmlItem['SCALE']))	// get item scale 2.
-			m_scaleFactor=parseFloat(jroom['SCALE']);		
+			m_scaleFactor=parseFloat(jroom['SCALE']);
+		// get the click event.
+		if(__defined(gmlItem['SCRIPT'])) // script happens on click, but onclick is preferred.
+			m_script_click = gmlItem['SCRIPT'];
+		if(__defined(gmlItem['ONCLICK']))
+			m_script_click = gmlItem['ONCLICK'];
 	}
 	
 	// add this item to a room div.
@@ -469,16 +483,31 @@ var GIMLI = function()
 		log("Jumping to room '"+roomInternName+"'", LOG_USER);
 		
 		// get the divs with the size and the content.
-		var outer = __getOuterWindow();
-		var main = __getMainWindow();
+		var outer = __getMiddleWindow();
+		//var main = __getMainWindow();
+		var newroom = jQuery.getNewDiv('','gimli-main-window','gimli-pixelperfect');
 		
 		// clear the main window.
-		main.html("");
+		//main.html("");
 		// get the background image path.
 		var imgPath = m_GMURL_initpage.getDirectory()+room.getBGimagePath();
 		
 		//log("--> Loading background: "+imgPath,LOG_DEBUG);
 		
+		// Search all items which are associated to this room.
+		var count = 0;
+		for(var i=0; i < __itemCount(); i++)
+		{
+			var itm = m_itemsLoaded[i];
+			var intern = itm.getIntern();
+			if(room.getIntern() == itm.getLocationIntern())
+			{
+				count++;
+				itm.addToRoomDiv(newroom,m_GMURL_initpage.getDirectory(), m_scaleFactor);
+			}
+		}
+		log(count+" items are placed in this room.", LOG_USER);
+
 		// get background size.
 		var bgimg = new Image();
 		bgimg.onload = function()
@@ -525,37 +554,21 @@ var GIMLI = function()
 				m_scrollBoundarY2 = newRoomY;
 			}
 			
-			main.css("background-image", "url('"+imgPath+"')");
-			main.css("background-repeat", "no-repeat");	
+			newroom.css("background-image", "url('"+imgPath+"')");
+			newroom.css("background-repeat", "no-repeat");	
 			/* adjust sizes */
-			main.width(scaledbgwidth);
-			main.height(scaledbgheight);
-			main.css('background-size', ''+scaledbgwidth+'px '+scaledbgheight+'px');
-			var scale = parseInt(m_scaleFactor*100.0);
-			/*$('.gimli-image').each(function(idx) 
-			{
-				$(this).css('width', ''+scale+'%');
-				$(this).css('height', ''+scale+'%');			
-			});*/
+			newroom.width(scaledbgwidth);
+			newroom.height(scaledbgheight);
+			newroom.css('background-size', ''+scaledbgwidth+'px '+scaledbgheight+'px');
 			
 			me.setRoomPosition(newRoomX, newRoomY);
 			log("Background '"+imgPath+"' loaded. [Size: "+scaledbgwidth+" "+scaledbgheight+" from "+bgwidth+" "+bgheight+"]" , LOG_DEBUG);
 		}
 		bgimg.src = imgPath;
 		
-		// Search all items which are associated to this room.
-		var count = 0;
-		for(var i=0; i < __itemCount(); i++)
-		{
-			var itm = m_itemsLoaded[i];
-			var intern = itm.getIntern();
-			if(room.getIntern() == itm.getLocationIntern())
-			{
-				count++;
-				itm.addToRoomDiv(main,m_GMURL_initpage.getDirectory(), m_scaleFactor);
-			}
-		}
-		log(count+" items are placed in this room.", LOG_USER);
+		// switch to the new screen.
+		outer.html("");
+		outer.append(newroom);
 	};
 	
 // ENDOF JUMP FUNCTION *********************************************************************************************************************
@@ -781,8 +794,9 @@ var GIMLI = function()
 	}
 	
 	// get the main window and outer window.
-	var __getMainWindow = function() {return $('#gimli-main-window');};
-	var __getOuterWindow = function() {return $('#gimli-outer-window');};
+	var __getMainWindow = function() {return $('#gimli-main-window');};	// gimli content
+	var __getMiddleWindow = function() {return $('#gimli-middle-window');};	// where the gimli content is put into.
+	var __getOuterWindow = function() {return $('#gimli-outer-window');};	// where console and middle window is put into.
 
 	// create the div where the action goes. :)
 	var __createMainWindow = function()
@@ -794,7 +808,7 @@ var GIMLI = function()
 		var css2= '<link rel="stylesheet" type="text/css" href="'+cssfile2+'">';
 		
 		var outerwindow = jQuery.getNewDiv('', 'gimli-outer-window', 'gimli-pixelperfect');
-		
+		var middlewindow = jQuery.getNewDiv('','gimli-middle-window','gimli-pixelperfect');		
 		var mainwindow = jQuery.getNewDiv('','gimli-main-window', 'gimli-pixelperfect');
 		
 		var elconsole = jQuery.getNewDiv('','gimli-jbash-window', '');
@@ -806,7 +820,8 @@ var GIMLI = function()
 		elconsole_outer.append(elhidebutton);
 		elconsole_outer.append(elclsbutton);
 		elconsole_outer.append(elhelpbutton);
-		outerwindow.append(mainwindow);
+		middlewindow.append(mainwindow);
+		outerwindow.append(middlewindow);
 		outerwindow.append(elconsole_outer);
 
 		var t='<a href="https://github.com/ben0bi/GIMLI/">GIML-Interpreter</a> v'+GIMLIVERSION+' (JS-Version) by Benedict Jäggi in 2019&nbsp;|&nbsp;';

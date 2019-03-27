@@ -35,7 +35,7 @@
 			"FOLDER": "entities/bag_of_grass",
 			"IMAGE": "bag_of_grass.png",
 			"DESCRIPTION": "A delicious bag of weed.",
-			"SCRIPT": 0,
+			"script": "jump to living_room",
 			"LOCATION": ["werkstatt", 50, 200]
 		},
 		{
@@ -43,6 +43,7 @@
 			"INTERN": "item_nsa",
 			"FOLDER": "entities/nsa",
 			"IMAGE": "nsa.png",
+			"onclick": "link to https://benis-bastelschuppen.github.io/NSA",
 			"OVERIMAGE": "nsa_mouseover.png",
 			"LOCATION": ["living_room", 270, 350]
 		}

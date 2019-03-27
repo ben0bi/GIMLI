@@ -18,7 +18,7 @@
 0.0.20 -> JUMP command for the console. (Not really working right with the params, but almost.)
 0.0.21 -> Put all the stuff into middle of screen when it is smaller than the screen.
 0.0.22 -> Local scale factor for rooms. (If not set, the global one applies.)
-			You can now use SCALEFACTOR or SCALE in the GML file, global and local for rooms. SCALE is preferred over SCALEFACTOR.
+		You can now use SCALEFACTOR or SCALE in the GML file, global and local for rooms. SCALE is preferred over SCALEFACTOR.
 0.0.23 -> Intern names from rooms cannot contain spaces, which will be replaced by underscore character.
 0.0.24 -> The man command is again in the console, with the jbash_manuals-directory in the js-directory as manual-pageserver. :)
 0.0.25 -> New room image which will be the main image for benis-bastelschuppen.github.io
@@ -32,3 +32,8 @@
 0.0.33 -> Creating the main window in the right size, updated setposition function.
 0.0.34 -> Loading items in a room. Setting them to the right position but not scaling them right now.
 0.0.35 -> Mouseover on an item changes the image.
+0.0.36 -> ONCLICK / SCRIPT command for items. Triggers a jbash command. ONCLICK is preferred over SCRIPT.
+0.0.37 -> Building room in its own div instead of clearing the main div.
+0.0.38 -> Script "jump to " works with items.
+0.0.39 -> hidden commands in jBash (not visible to the user when using "cmd".)
+0.0.40 -> jBash (hidden) 'link' command for referring to an external website. Including short 'l' command and man page.
