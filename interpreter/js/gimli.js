@@ -18,7 +18,8 @@
  See the GIMLI-JSFILES.json in the config dir.
  
 */
-const GIMLIVERSION = "0.0.40";
+
+const GIMLIVERSION = "0.0.43";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -26,22 +27,6 @@ function __defined(variable)
 	if(typeof(variable)==="undefined")
 		return false;
 	return true;
-}
-
-// add a slash to the folder name if there is none.
-function __addSlashIfNot(directoryName)
-{
-	var d = directoryName;
-	if(d==null)
-		d="";
-	// add ending / if it is not there.
-	if(d.length>=1)
-	{
-		lastChar = d[d.length-1];
-		if(lastChar!='\\' && lastChar!='/')
-			d+='/';
-	}
-	return d;
 }
 
 // log something.
@@ -53,6 +38,7 @@ const LOG_USER = 0;
 const LOG_ERROR = 1;
 const LOG_WARN = 2;
 const LOG_DEBUG = 3;
+
 var log = function(text, loglevel = 0)
 {
 	if(log.loglevel>=loglevel)
@@ -72,6 +58,23 @@ var log = function(text, loglevel = 0)
 };
 log.loglevel = LOG_DEBUG;
 
+// add a slash to the folder name if there is none.
+function __addSlashIfNot(directoryName)
+{
+	var d = directoryName;
+	if(d==null)
+		d="";
+	// add ending / if it is not there.
+	if(d.length>=1)
+	{
+		lastChar = d[d.length-1];
+		if(lastChar!='\\' && lastChar!='/')
+			d+='/';
+	}
+	return d;
+}
+
+
 // an item in the giml system.
 var GIMLitem = function()
 {
@@ -84,8 +87,17 @@ var GIMLitem = function()
 	var m_posZ = 10; // pos z is the z index.
 	var m_posLocation = "";	// the location where the item is placed.
 	this.getLocationIntern = function() {return m_posLocation;}
-	var m_imageFile = "";
+	var m_imageFile = "";	  // the visible image for this item.
+				  // if none is set, it will take the size of the collision image.
 	var m_overImageFile = ""; // mouse over image.
+
+	var m_collisionImageFile = "";	
+	var m_collisionData = null; // the collision image pixel data.
+	var m_collisionWidth = 0;
+	var m_collisionHeight = 0;
+	var m_collisionScaleFactor = 1.0; // scale factor for collision including world factor,
+					  // please reset after each get.
+
 	var m_internName = "";
 	this.getIntern = function() {return m_internName;};
 	var m_itemName = "";
@@ -93,20 +105,29 @@ var GIMLitem = function()
 	var m_folder = "";
 	var m_scaleFactor = 1.0;
 	var m_script_click = "";
+
+	var m_myDiv = null;
 	
 	// get world scale factor.
-	this.getScaleFactor=function(outerScaleFactor=1.0) {return m_scaleFactor*outerScaleFactor;}
+	this.getScaleFactor=function(outerScaleFactor=1.0) 
+	{
+		m_collisionScaleFactor = m_scaleFactor * outerScaleFactor;
+		return m_collisionScaleFactor;
+	}
 	
-	this.setImage=function(imageName) {m_imageFile = imageName;}
+	//this.setImage=function(imageName) {m_imageFile = imageName;}
 	
 	// get the dom element for this item.
 	this.getDOMElement = function(rootdirectory="", outerscalefactor = 1.0) 
 	{
+		m_myDiv = null;
+
 		var sc = me.getScaleFactor(outerscalefactor);
 
 		rootdirectory=__addSlashIfNot(rootdirectory);
 		var path = rootdirectory+m_folder+m_imageFile;
 		var overpath = rootdirectory+m_folder+m_overImageFile;
+		var collisionpath = rootdirectory+m_folder+m_collisionImageFile;
 		var divel = jQuery.getNewDiv('','item_'+m_id,'gimli-item');
 		
 		var txt ='<img src="'+path+'" id="item_image_'+m_id+'" class="gimli-image" />';
@@ -120,48 +141,96 @@ var GIMLitem = function()
 		divel.html(txt);
 
 		// show mouseover image.
-		divel.mouseover(function(el) 
+		divel.mouseover(function(evt) 
 		{
-			$('#item_image_'+m_id).hide();
-			$('#item_image_over_'+m_id).show();
+			__checkMouseOver(evt);
 		});
 		divel.mouseout(function(el) 
 		{
 			$('#item_image_over_'+m_id).hide();
 			$('#item_image_'+m_id).show();
 		});
+		divel.mousemove(function(evt) 
+		{
+			__checkMouseOver(evt);			
+		});
+
 		// do something when the item is clicked.
 		divel.click(function(el) {
 			if(m_script_click.length>0 && m_script_click!=parseInt(m_script_click))
 				jBash.Parse(m_script_click);
 		});
 
-		// get the size of the main image and set the divs size to it.
-		var mainimg = new Image();
-		mainimg.onload = function()
+		// get the size of the collision image and set the divs size to it.
+		var colimg = new Image();
+		colimg.onload = function()
 		{
 			// width and height.
-			var width = this.width;
-			var height = this.height;
+			var width = this.naturalWidth;
+			var height = this.naturalHeight;
 			
 			// scale the div.
-			// TODO: include room scale factor.
 			divel.width(width*sc);
 			divel.height(height*sc);
+
+			// create the canvas for the image and render it to it.
+			var canvas = document.createElement('canvas');
+			var context = canvas.getContext('2d');
+			//var img = document.getElementById('myimg');
+			canvas.width = colimg.naturalWidth+1;
+			canvas.height = colimg.naturalHeight+1;
+			context.drawImage(colimg, 0, 0 );
+			m_collisionData = context.getImageData(0, 0, colimg.width, colimg.height);
+			m_collisionWidth = width;
+			m_collisionHeight = height;
 		}
-		mainimg.src = path;
-		
+		colimg.src = collisionpath;
+		m_myDiv = divel;		
 		return divel;
 	};
 	
+	// show debug information.
 	this.debug=function(loglevel=LOG_DEBUG) {
 		log("* Item '"+m_itemName+"' (intern: '"+m_internName+"')", loglevel);
 		log(" --&gt; resides in '"+m_folder+"'", loglevel);
 		log(" --&gt; Image: '"+m_imageFile+"'", loglevel);
+		log(" --&gt; Collision: '"+m_collisionImageFile+"'", loglevel);
 		log(" --&gt; Mouseover: '"+m_overImageFile+"'", loglevel);
 		log(" --&gt; Loc./Room: ['"+m_posLocation+"', "+m_posX+", "+m_posY+"]", loglevel);
 		log(" ", loglevel);
 	};
+	
+	// check if the mouse is over an item and show the appropiate image.
+	var __checkMouseOver = function(evt)
+	{
+		// if the pixel is set, show the mouseover image.
+		if(__checkForPixel(evt))
+		{
+			$('#item_image_'+m_id).hide();
+			$('#item_image_over_'+m_id).show();
+			return true;
+		}else{
+			$('#item_image_over_'+m_id).hide();
+			$('#item_image_'+m_id).show();
+		}
+		return false;
+	}
+
+	// check if the mouse collides with the image or not.
+	var __checkForPixel=function(evt) 
+	{
+		// get mouse position related to this item.
+		var pos   = m_myDiv.offset();
+      		var elPos = { X:pos.left , Y:pos.top };
+      		var mPos  = { X:evt.clientX-elPos.X, Y:evt.clientY-elPos.Y };
+		var mPosInt = { X:parseInt(mPos.X*1.0/m_collisionScaleFactor), Y:parseInt(mPos.Y*1.0/m_collisionScaleFactor) };
+      		log("Mouse position x:"+ mPosInt.X +" y:"+ mPosInt.Y, LOG_DEBUG);
+      		log("           col w:"+ m_collisionWidth +" y:"+ m_collisionHeight, LOG_DEBUG);
+
+		// TODO: check if pixel on mouse position is set.
+
+		return true;
+	}
 	
 	// load in the values from the json array.
 	this.parseGML=function(gmlItem)
@@ -172,6 +241,7 @@ var GIMLitem = function()
 		m_description = gmlItem['DESCRIPTION'];
 		m_imageFile = gmlItem['IMAGE'];
 		m_overImageFile = gmlItem['OVERIMAGE'];
+		m_collisionImageFile = gmlItem['COLLISIONIMAGE'];
 		m_posLocation = "";
 		m_script_click = "";
 		
@@ -207,6 +277,7 @@ var GIMLitem = function()
 			log("Spaces are not allowed in intern names. ['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
 			m_internName = i2;
 		}
+		// check for the folder.
 		if(!__defined(gmlItem['FOLDER']))
 			m_folder = "";
 		m_folder=__addSlashIfNot(m_folder);
@@ -216,11 +287,16 @@ var GIMLitem = function()
 			m_imageFile = "@ IMAGE not found. @";
 		if(!__defined(gmlItem['OVERIMAGE']))
 			m_overImageFile = m_imageFile;
+		// get the collision image file name.		
+		if(__defined(gmlItem['COLLISION']))
+			m_collisionImageFile = gmlItem['COLLISION'];
+		if(!__defined(gmlItem['COLLISIONIMAGE']) && !__defined(gmlItem['COLLISION']))
+			m_collisionImageFile = m_imageFile;
 
 		if(__defined(gmlItem['SCALEFACTOR']))	// get item scale.
-			m_scaleFactor=parseFloat(jroom['SCALEFACTOR']);
+			m_scaleFactor=parseFloat(gmlItem['SCALEFACTOR']);
 		if(__defined(gmlItem['SCALE']))	// get item scale 2.
-			m_scaleFactor=parseFloat(jroom['SCALE']);
+			m_scaleFactor=parseFloat(gmlItem['SCALE']);
 		// get the click event.
 		if(__defined(gmlItem['SCRIPT'])) // script happens on click, but onclick is preferred.
 			m_script_click = gmlItem['SCRIPT'];
@@ -232,7 +308,7 @@ var GIMLitem = function()
 	this.addToRoomDiv=function(div, rootdirectory="", outerscalefactor = 1.0)
 	{
 		log("Placing the item '"+m_internName+"' in the room...", LOG_DEBUG);
-		var myElement = me.getDOMElement(rootdirectory, me.getScaleFactor(outerscalefactor));
+		var myElement = me.getDOMElement(rootdirectory, outerscalefactor);
 		div.append(myElement);		
 	}
 };
@@ -503,7 +579,7 @@ var GIMLI = function()
 			if(room.getIntern() == itm.getLocationIntern())
 			{
 				count++;
-				itm.addToRoomDiv(newroom,m_GMURL_initpage.getDirectory(), m_scaleFactor);
+				itm.addToRoomDiv(newroom,m_GMURL_initpage.getDirectory(), room.getScaleFactor(m_scaleFactor));
 			}
 		}
 		log(count+" items are placed in this room.", LOG_USER);

@@ -43,8 +43,9 @@
 			"INTERN": "item_nsa",
 			"FOLDER": "entities/nsa",
 			"IMAGE": "nsa.png",
-			"onclick": "link to https://benis-bastelschuppen.github.io/NSA",
+			"scalefactor": "2.0",
 			"OVERIMAGE": "nsa_mouseover.png",
+			"onclick": "link to https://benis-bastelschuppen.github.io/NSA",
 			"LOCATION": ["living_room", 270, 350]
 		}
 	]
