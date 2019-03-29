@@ -1,3 +1,4 @@
+0.0.44 -> "j" command as short for the "jump" command.
 0.0.43 -> Trying to get pixel data for collision check on items.
 	-> scale factor modifications.
 0.0.42 -> Including room scale for item scale factor.

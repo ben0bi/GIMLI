@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.0.43";
+const GIMLIVERSION = "0.0.44";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -232,7 +232,7 @@ var GIMLitem = function()
 		return true;
 	}
 	
-	// load in the values from the json array.
+	// load in the values for the item from the json array.
 	this.parseGML=function(gmlItem)
 	{
 		m_itemName = gmlItem['NAME'];
@@ -942,21 +942,26 @@ jBash.registerCommand("rooms", "Show info about the loaded rooms.", function(par
 	{GIMLI.instance.debugRooms();});
 jBash.registerCommand("items", "Show info about the loaded items.", function(params)
 	{GIMLI.instance.debugItems();});
-jBash.registerCommand("jump", "Jump to a given room (intern name)<br />E.g. {<span class='jBashCmd'>jump to garden</span>}", function(params) 
+jBash.registerCommand("jump", "Jump to a given room (intern name)<br />E.g. {<span class='jBashCmd'>jump to garden</span>}", GIMLI.jump);
+jBash.registerCommand("j", "Short for the <span class='jBashCmd'>jump</span> command.", GIMLI.jump, true);
+
+// jump to another room (console command)
+GIMLI.jump = function(params)
+{
+	var p = jBash.GP(params);
+	var r = "";
+	if(p!="")
 	{
-		var p = jBash.GP(params);
-		var r = "";
-		if(p!="")
-		{
-			r = p[0];
-			if(r.toLowerCase()=="to" && p.length>1)
-				r = p[1];
-		}else{
-			jBash.Parse("man jump");
-			return;
-		}
-		GIMLI.instance.jumpToRoom(r);
-	});
+		r = p[0];
+		if(r.toLowerCase()=="to" && p.length>1)
+			r = p[1];
+	}else{
+		jBash.Parse("man jump");
+		return;
+	}
+	GIMLI.instance.jumpToRoom(r);
+};
+
 /* FUNCTIONS to Show and hide the console. */
 GIMLI.hideConsole = function()  {__hideGIMLIconsole();}
 GIMLI.showConsole = function() {__showGIMLIconsole();}

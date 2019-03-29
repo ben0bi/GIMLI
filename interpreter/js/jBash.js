@@ -89,11 +89,11 @@ _finishInitialize(startpage);
 	var _finishInitialize = function(startpage)
 	{
 		// load the start page if one is given.
-		if(startpage != null && startpage !="")
+		/*if(startpage != null && startpage !="")
 		{
 			_startpage = startpage;
 			_loadPage("",startpage,true);
-		}
+		}*/
 	};
 
 	// set focus on the input.
@@ -543,7 +543,7 @@ jBash.registerCommand("man", "Show manual for a command. E.g. {<span class='jBas
 	});
 jBash.registerCommand("cls", "Clear the screen.", function(params)
 	{jBash.instance.cls();});
-jBash.registerCommand("link", "A link to an external website.<br />E.g. {<span class='jBashCmd'>link to https://github.com</span>}", jBash.LINK,true);
+jBash.registerCommand("link", "A link to an external website.<br />E.g. {<span class='jBashCmd'>link to https://github.com</span>}", jBash.LINK);
 jBash.registerCommand("l", "Short for the <span class='jBashCmd'>link</span> command.", jBash.LINK,true);
 
 //jBash.registerCommand("dir", "Show public file list.", function(params) 

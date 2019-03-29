@@ -48,66 +48,199 @@
 		padding-left: 2px;
 		padding-right: 2px;
 	}
+
+	a, a:visited
+	{
+		text-decoration: none;
+		color: #FFAA33;
+		font-weight: bold;
+		padding-left: 2px;
+		padding-right: 2px;
+	}
+
+	a:hover
+	{
+		color: #FFFFFA;
+		background-color: #6969CC;
+		padding-left: 2px;
+		padding-right: 2px;
+	}
 	</style>
 </head>
 <body>
+	<a name="top"></a>
 	<div class = "maintitle">
 		<div class="maincontent">
 			GIML[i] Documentation
+<!-- DOC VERSION -->	v0.1			<!-- DOC VERSION -->
 		</div>
 	</div>
 	<div class="ubercontent">
-		<div class="maincontent">
-			<h3>CONTENTS:</h3>
-			<ul>
-			<li><a href="#introduction">What is GIML[i]?</a></li>
-			<li>
-				<a href="#gml_structure">The GIML-Structure</a>
-				<ul>
-					<li>It's plain JSON.</li>
-					<li>Global Values</li>
-					<li>Locations</li>
-					<li>Items</li>
-				</ul>
-			</li>
+
+<div class="maincontent">
+<h3>CONTENTS:</h3>
+<ul>
+<li><a href="#introduction">What is GIML[i]?</a></li>
+<li>
+	<a href="#gml_structure">The GIML-Structure</a>
+	<ul>
+		<li><a href="#json_structure_1">It's plain JSON.</a></li>
+		<li><a href="#gml_global_values">Global Values</a></li>
+		<li><a href="#gml_locations">Locations/Rooms</li>
+		<li><a href="#gml_items">Items</a></li>
+		<li><a href="#gml_example_1">Example File</a></li>
+	</ul>
+</li>
 			
-			<li><a href="#script_structure">Scripting with GIML</a></li>
-			<li><a href="#about">About the Author</a></li>
-			</ul>
+<li><a href="#script_structure">Scripting with GIML</a></li>
+<li><a href="#about">About the Author</a></li>
+</ul>
 
-			<a name="introduction"></a>
-			<h1>What is GIML[i]?</h1>
-			<span class="highlight">GIML[i]</span> stands for:<br />
-			<br />
-			<span class="highlight">G</span>ame
-			<span class="highlight">I</span>nduced
-			<span class="highlight">M</span>arkup
-			<span class="highlight">L</span>anguage
-			[<span class="highlight">i</span>nterpreter]<br />
-			<br />
-			..and it is only a coincidence that it resembles the name of the great dwarf Gimli from the Lord Of The Rings. But on the other side, there is no such thing as coincidence and so I believe the name is just right because Gimli visited Moria, 
-			which resembles the internet of modern times. And do not forget that the books were written at times were there was no computer networks, not even public computers.<br />
-			<br />
-			GIML[i] shall be the "new" internet, the one you see in like every movie where there is a computer,
-			from before the year 2000. After 2000, the "real internet" existed and movies resembled that one
-			instead of their own vision of an internet. So, what did you see there?
-			Mostly some 3D-animations of futuristic cities, or something, where the user can fly through.
-			I did not like that vision but it is more...creative than
-			the ad- and cookie-filled internet from today.<br />
-			<br />
-			Then I watched the TV-series "Halt And Catch Fire" which
-			you should watch, too. :) It's setting is in the 1980ties
-			until 1990ties. The first season is about building a new home computer. 
-			In the second and/or third season, they make a gaming community
-			and build their own internet. And that is GIML[i]: 
-			It shall resemble the community system from "Halt And Catch Fire":<br />An Adventure-like, 2D, pixelated but very sweet internet browsing system based on images, 
-			where the end-user [hopefully] can draw into like a child.
+<hr />
 
+<a name="introduction"></a>
+<h1>What is GIML[i]? <a href="#top">^</a></h1>
+<span class="highlight">GIML[i]</span> stands for:<br />
+<br />
+<span class="highlight">G</span>ame
+<span class="highlight">I</span>nduced
+<span class="highlight">M</span>arkup
+<span class="highlight">L</span>anguage
+[<span class="highlight">i</span>nterpreter]<br />
+<br />
+Game Induced means that there are images and the web page is interactive. It is not only text with some images beneath it, like a page of a book,
+but images with images on them which can be interactively used like in a point&click-adventure game.<br />
+<br />
+For that, a GIML-page does not only contain a GML (alike HTML) file but also a file structure with much images put into there.
+The GML file does only describe, how and when those images are loaded and placed, and what the items can do when there is a click.<br />
+<br />
+In short, a GML file contains some global variables, some locations with their own variables and some items with their own variables, which all will be put and linked together by the interpreter to create a view like in an old adventure game (E.g. Monkey Island).<br />
+<br />
+There are no visible user characters included yet but you can browse a GML page somewhat like in the game "Myst".<br />
+<br /><hr /><br />
+It is only a coincidence that the name of this system resembles the name of the great dwarf Gimli from the Lord Of The Rings. But on the other side, there is no such thing as coincidence and so I believe the name is just right because Gimli visited Moria, which resembles the internet of modern times. And do not forget that the books were written at times were there was no computer networks, not even public computers.<br />
+<br />
+GIML[i] shall be the "new" internet, the one you see in like every movie where there is a computer,
+from before the year 2000. After 2000, the "real internet" existed and movies resembled that one
+instead of their own vision of an internet. So, what did you see there?
+Mostly some 3D-animations of futuristic cities, or something, where the user can fly through.
+I did not like that vision but it is more...creative than
+the ad- and cookie-filled internet from today.<br />
+<br />
+Then I watched the TV-series "Halt And Catch Fire" which
+you should watch, too. :) Its setting is in the 1980ties
+until 1990ties. The first season is about building a new home computer. 
+In the second and/or third season, they make a gaming community
+and build their own internet. And then in S3E1, at about 11:30 + 30sec, that is the key scene. She walks her avatar into a new screen and says: "There we are. 64K pixels of new plain grounds, ready to be set up." (alike) Just watch it. :)<br />
+<br />
+And that is GIML[i]: 
+It shall resemble the community system from "Halt And Catch Fire":<br />An Adventure-like, 2D, pixelated but very sweet
+internet browsing system based on images, where the end-user [hopefully] can draw into like a child.<br />
+
+<br /><hr />
+
+<a name="gml_structure"></a>
+<h1>The GIML Structure <a href="#top">^</a></h1>
+The interpreter usually loads some values from a <span class="highlight">.gml</span>-file. It then uses the directory of this file as base directory and loads all the other images and stuff seen from there.<br />
+<br />
+Those commands and values are created as is, when they are needed or could be used, and no warrantries given. ;)<br />
+<br />
+The interpreter makes use of the JavaScript <a href="https://github.com/ben0bi/jBash">jBash console system</a> to call the functions from the GML-items. GIMLI uses jBashs command registering and issuing mechanism for its own needs. Maybe there will be another, own, parser later, which also takes care of the actual (issuing) item. Right now, only global commands can be issued. You can make use of command parameters, though.<br />
+<br />
+The scripts will NOT be loaded right now, you need to load and register them manually. Later there will be a script directory given in the gml file.<br />
+
+<a name="json_structure_1"></a>
+<h2>It's plain JSON <a href="#gml_structure">^</a></h2>
+GML files are written in the <span class="highlight">JSON format</span>, so they can be loaded by just anything and are human readable and easy to edit.<br />
+<br />
+The scripts for the items are written in <span class="highlight">JavaScript</span> which makes them compatible for all browsers. They will be loaded into the <span class="highlight">jBash</span>-command structure to be used with the items. See the built-in <span class="highlight">jump</span> (GIMLI) and <span class="highlight">link</span> (jBash) commands.<br />
+<br />
+All GIML command names will be converted to uppercase. All jBash commands will be converted to lowercase.
+
+<a name="gml_global_values"></a>
+<h2>Global Values <a href="#gml_structure">^</a></h2>
+There are some global values you need to consider. Some values can be set with more than one name but only the primary one will be taken if both are present.<br />
+<br />
+Optional parameters have a default value.<br />
+<br />
+<table>
+<tr><td>Primary</td><td>Secondary</td><td>Default</td><td>Description</td></tr>
+<tr>
+	<td><span class="highlight">STARTROOM</span></td>
+	<td><span class="highlight">STARTLOCATION</span></td>
+	<td>---</td>
+	<td>The intern name of the startup location which is displayed when the page is loaded.</td>
+</tr>
+<tr>
+	<td><span class="highlight">SCALE</span></td>
+	<td><span class="highlight">SCALEFACTOR</span></td>
+	<td><span class="highlight">1.0</span></td>
+	<td>The global scale factor which will be applied to all rooms and items.</td>
+</tr>
+<tr>
+	<td><span class="highlight">ROOMS</span></td>
+	<td><span class="highlight">LOCATIONS</span></td>
+	<td>[empty array]</td>
+	<td>Array containing all rooms with their values. See below.</td>
+</tr>
+<tr>
+	<td><span class="highlight">ITEMS</span></td>
+	<td>---</td>
+	<td>[empty array]</td>
+	<td>Array containing all items with their values. See below.</td>
+</tr>
+</table>
+
+<a name="gml_locations"></a>
+<h2>Locations / Rooms <a href="#gml_structure">^</a></h2>
+In the global <span class="highlight">LOCATIONS</span>/<span class="highlight">ROOMS</span>-Array, you can create
+as much room entries as you want, with the following parameters and values:<br />
+<br />
+<table>
+<tr><td>Primary</td><td>Secondary</td><td>Default</td><td>Description</td></tr>
+<tr>
+	<td><span class="highlight">INTERN</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>The <span class="highlight">intern</span> name of the room, which is used by the interpeter and by scripts. 	This name has to be <span class="highlight">unique</span>.</td>
+</tr>
+<tr>
+	<td><span class="highlight">NAME</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>The name of the room which is displayed to the user.</td>
+</tr>
+<tr>
+	<td><span class="highlight">SCALE</span></td>
+	<td><span class="highlight">SCALEFACTOR</span></td>
+	<td><span class="highlight">1.0</span></td>
+	<td>The scale factor applied to this rooms images and items. Multiplied with the global scale factor.</td>
+</tr>
+</table>
+
+<a name="gml_items"></a>
+<h2>Items <a href="#gml_structure">^</a></h2>
+
+<a name="gml_example_1"></a>
+<h2>Example File <a href="#gml_structure">^</a></h2>
+
+<hr />
+<a name="script_structure"></a>
+<h1>Scripting with GIML</h1>
+<span class="highlight">(TODO)</span> Short: Just make a javascript function, add it to jBash and call the jBash-command for it in the "SCRIPT" tag of your item. Only global functions just now.
+
+<br /><br /><hr />
+
+<a name="about"></a>
+<h1>About the Author</h1>
+<span class="highlight">GIML[i]</span> was invented by <span class="highlight">Benedict Jäggi</span> a.k.a. <span class="highlight">oki wan benobi</span> in the year 19amb (Anno Millenium Bug).
+Benedict visited the <a href="https://www.games-academy.de/">Games Academy</a> in Berlin between 2006 (6amb) to 2008 (8amb) and made a degree in <span class="highlight">3D Programming</span> and <span class="highlight">Game Design</span>. But instead of working in the games industry, he decided to go back to his birth place and try to "make it" from there.<br />
+<br />
+He grew up with computers and used the browser based internet since it was thrown into the world in 1995. He learned to program and use much types of programming languages and computers. Starting with BASICa on the Atari, then on DOS, he advanced to C and C++ and a very very little of Assembler. Then the internet showed up ;) and he learned Java, JavaScript, C# and besides that the web stuff (HTML, CSS, PHP, SQL) and with the Games Academy also all sorts and types of game engines, including the Half-Life 2 engine, the Unity Engine and the Unreal Engine, and as hobbyist also all sorts of mobile devices like the Nintendo Gameboy, Android devices, Nintendo NDS and other stuff. Also he learned to program and assemble Arduino based devices and in the latter he makes very much stuff with Raspberry Pi(e)s. He can say from himself that he can program on almost every device. Maybe not with the best code but...on every device. =)
 <br />
 <br />
 <br />
 
-		</div>
-	</div>
+</div></div>
 </body>
 </html>
