@@ -30,11 +30,23 @@
 		left: 0px;
 	}
 
+	.footer
+	{
+		position: relative;
+		width: 100%;
+		height: 60px;
+		background-color: #6969CC;
+		color: #FFFFFA;
+		text-align: center;
+		font-size: 10pt;
+	}
+
 	.ubercontent
 	{
-		position: absolute;
-		top: 60px;
+		position: relative;
+		top: 0px;
 		width: 100%;
+		margin-top: 20px;
 	}
 
 	.maincontent
@@ -69,14 +81,50 @@
 		padding-left: 2px;
 		padding-right: 2px;
 	}
+
+	.btn, .btn:visited
+	{
+		text-decoration: none;
+		color: #FFAA33;
+		background-color: #6969CC;
+		font-weight: bold;
+		font-size: 12pt;
+		padding: 5px;
+		border: solid 2px #FFAA33;
+		border-radius: 5px;
+	}
+
+	.btn:hover
+	{
+		color: #6969CC;
+		background-color: #FFAA33;
+		border: solid 2px #6969CC;
+		padding: 5px;
+	}
+	
+	#github-btn
+	{
+		position: absolute;
+		right: 10px;
+		top: 10px;
+	}
+
+	.code
+	{
+		padding: 10px;
+		font-family: monospace;
+		font-weight: bold;
+		color: #111169;
+		background-color: #AAAAFF;
+	}
 	</style>
 </head>
 <body>
 	<a name="top"></a>
 	<div class = "maintitle">
+		<a href="https://github.com/ben0bi/GIMLI" id="github-btn" class="btn">GIMLI on Github</a>
 		<div class="maincontent">
 			GIML[i] Documentation
-<!-- DOC VERSION -->	v0.1			<!-- DOC VERSION -->
 		</div>
 	</div>
 	<div class="ubercontent">
@@ -309,7 +357,47 @@ as much (single) item entries as you want. An item has a little more parameters 
 
 <a name="gml_example_1"></a>
 <h2>Example File <a href="#gml_structure">^</a></h2>
-
+This is an example gml file with two rooms and two items:<br />
+<br />
+<div class="code"><pre>{
+	"STARTLOCATION":"start_room",
+	"SCALE": 2.0,
+	"ROOMS": [
+		{
+			"NAME": "Start Room",
+			"INTERN": "start_room",
+			"BGIMAGE": "startroom.png",
+			"FOLDER": "rooms/startroom/",
+		},
+		{
+			"NAME": "Second Room",
+			"INTERN": "second_room",
+			"BGIMAGE": "secondroom.png",
+			"FOLDER": "rooms/secondroom/",
+		}
+	],
+	"ITEMS": [
+		{
+			"NAME": "my item 1",
+			"INTERN": "my_item",
+			"IMAGE": "item.png",
+			"OVERIMAGE": "item_over.png",
+			"FOLDER": "items/myitem/",
+			"LOCATION": ["start_room", 100,100],
+			"SCRIPT": "link to https://github.com/ben0bi"
+		},
+		{
+			"NAME": "A door",
+			"INTERN": "door",
+			"COLLISIONIMAGE": "door.png",
+			"FOLDER": "items/door/",
+			"LOCATION": ["start_room", 200,50],
+			"SCRIPT": "jump to second_room"
+		}
+	]
+}</pre></div><br />
+As you can see, the items are both located in the start room, but the second one has no image. It will only check mouseover on the collision image without displaying anything. The scripts of the items are jBash-commands with some parameters. The parameter "to" could be omitted. ;) The <span class="highlight">link</span> opens a new, external, "normal" web page while the <span class="highlight">jump</span> loads another location from the same gml file.<br />
+<br />
 <hr />
 <a name="script_structure"></a>
 <h1>Scripting with GIML</h1>
@@ -328,5 +416,7 @@ He grew up with computers and used the browser based internet since it was throw
 <br />
 
 </div></div>
+
+<div class="footer"><br /><br />Doc. v1.0 by Benedict Jäggi / Latest change: 30.03.2019</div>
 </body>
 </html>
