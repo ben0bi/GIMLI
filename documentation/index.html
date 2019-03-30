@@ -14,6 +14,8 @@
 		font-family: sans-serif, monospace;
 	}
 
+	tr, td {vertical-align: top; border-bottom: 1px solid #6969CC;}
+
 	.maintitle
 	{
 		position: absolute;
@@ -110,13 +112,15 @@
 <span class="highlight">L</span>anguage
 [<span class="highlight">i</span>nterpreter]<br />
 <br />
-Game Induced means that there are images and the web page is interactive. It is not only text with some images beneath it, like a page of a book,
-but images with images on them which can be interactively used like in a point&click-adventure game.<br />
+So, it is a <span class="highlight">markup language</span> like <span class="highlight">HTML</span>. This JavaScript-interpreter is just a <span class="highlight">prototype</span> to show the functionality of a GIML-page. I would like to have a real GIML-Browser in the end, maybe a fork of the FireFox-Browser which natively understands the GML, so that there has to be no html web page "around" it like now.<br />
+<br />
+<span class="highlight">Game induced</span> means that there are images and the web page is interactive. It is not only text with some images beneath it, like a page of a book,
+but images with images on them which can be interactively used like in a <span class="highlight">point&click-adventure</span> game.<br />
 <br />
 For that, a GIML-page does not only contain a GML (alike HTML) file but also a file structure with much images put into there.
 The GML file does only describe, how and when those images are loaded and placed, and what the items can do when there is a click.<br />
 <br />
-In short, a GML file contains some global variables, some locations with their own variables and some items with their own variables, which all will be put and linked together by the interpreter to create a view like in an old adventure game (E.g. Monkey Island).<br />
+In short, a GML file contains some <span class="highlight">global variables</span>, some <span class="highlight">locations</span> with their own variables and some <span class="highlight">items</span> with their own variables, which all will be put and linked together by the interpreter to create a view like in an old adventure game (E.g. Monkey Island).<br />
 <br />
 There are no visible user characters included yet but you can browse a GML page somewhat like in the game "Myst".<br />
 <br /><hr /><br />
@@ -213,6 +217,18 @@ as much room entries as you want with the following parameters and values:<br />
 	<td>The name of the room which is displayed to the user.</td>
 </tr>
 <tr>
+	<td><span class="highlight">FOLDER</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>The directory with this rooms content images (actually only the background image). Seen from the directory of 		"this" GML-file.</td>
+</tr>
+<tr>
+	<td><span class="highlight">BGIMAGE</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>The rooms background image file name. If it is bigger than the screen (scaled), it will be scrollable. You 		<span class="highlight">absolutely need</span> to specify a background image because all the screen size and 		scale stuff will be done with its size.</td>
+</tr>
+<tr>
 	<td><span class="highlight">SCALE</span></td>
 	<td><span class="highlight">SCALEFACTOR</span></td>
 	<td><span class="highlight">1.0</span></td>
@@ -222,6 +238,74 @@ as much room entries as you want with the following parameters and values:<br />
 
 <a name="gml_items"></a>
 <h2>Items <a href="#gml_structure">^</a></h2>
+In the global <span class="highlight">ITEMS</span>-array, you can create
+as much (single) item entries as you want. An item has a little more parameters than a room, they will be explained below:<br />
+<br />
+<table>
+<tr><td>Primary</td><td>Secondary</td><td>Default</td><td>Description</td></tr>
+<tr>
+	<td><span class="highlight">INTERN</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>The <span class="highlight">intern</span> name of the item, which is used by the interpeter and by scripts. 	This name has to be <span class="highlight">unique</span>.</td>
+</tr>
+<tr>
+	<td><span class="highlight">NAME</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>The name of the item which is displayed to the user.</td>
+</tr>
+<tr>
+	<td><span class="highlight">FOLDER</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>The directory with this items content images. Seen from the directory of "this" GML-file.</td>
+</tr>
+<tr>
+	<td><span class="highlight">IMAGE</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>The <span class="highlight">main image</span> of the item which is visible when there is no mouseover. If no
+	mouseover and/or no collision image is determined, the interpreter will take this one for it.</td>
+</tr>
+<tr>
+	<td><span class="highlight">OVERIMAGE</span></td>
+	<td>---</td>
+	<td>{<span class="highlight">IMAGE</span>}</td>
+	<td>The <span class="highlight">mouse over image</span> of the item which is visible when the mouse is over this 		item. If no mouseover image is determined, the interpreter will take the main image for it.</td>
+</tr>
+<tr>
+	<td><span class="highlight">COLLISIONIMAGE</span></td>
+	<td>---</td>
+	<td>{<span class="highlight">IMAGE</span>}</td>
+	<td>The <span class="highlight">collision image</span> of the item. You can use only the collison image for e.g. 		open doors. Vice-versa, it will take the main image as collision image if none is given. The collision image will 		not be visible, but the interpreter will take its size for the item size and check its pixels for collision on 		mouseover. You do not have to determine one when the collision area is the same as the visible area of the main 	image.</td>
+</tr>
+<tr>
+	<td><span class="highlight">ONCLICK</span></td>
+	<td><span class="highlight">SCRIPT</span></td>
+	<td><span class="highlight">""</span></td>
+	<td>This line will be given to the jBash-parser when the item is clicked.
+	You can issue all registered jBash-commands.</td>
+</tr>
+<tr>
+	<td><span class="highlight">ROOM</span></td>
+	<td><span class="highlight">LOCATION</span></td>
+	<td><span class="highlight">[]</span></td>
+	<td>Array with the exact location of the item: <span class="highlight">["room _name", x, y]</span>. X and Y can 	be omitted.</td>
+</tr>
+<tr>
+	<td><span class="highlight">DESCRIPTION</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>A description of the item.</td>
+</tr>
+<tr>
+	<td><span class="highlight">SCALE</span></td>
+	<td><span class="highlight">SCALEFACTOR</span></td>
+	<td><span class="highlight">1.0</span></td>
+	<td>The scale factor applied to this item. Multiplied with the global and room scale factor.</td>
+</tr>
+</table>
 
 <a name="gml_example_1"></a>
 <h2>Example File <a href="#gml_structure">^</a></h2>
