@@ -1,3 +1,5 @@
+0.0.46 -> Door item for the living room door. Some bugfixes and modifications to show and use it properly without main image.
+0.0.45 -> Pixel perfect collision check on items, yay.
 0.0.44 -> "j" command as short for the "jump" command.
 0.0.43 -> Trying to get pixel data for collision check on items.
 	-> scale factor modifications.

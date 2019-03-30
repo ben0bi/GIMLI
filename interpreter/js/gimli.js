@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.0.44";
+const GIMLIVERSION = "0.0.46";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -92,7 +92,7 @@ var GIMLitem = function()
 	var m_overImageFile = ""; // mouse over image.
 
 	var m_collisionImageFile = "";	
-	var m_collisionData = null; // the collision image pixel data.
+	var m_collisionDataContext = null; // the collision image pixel data.
 	var m_collisionWidth = 0;
 	var m_collisionHeight = 0;
 	var m_collisionScaleFactor = 1.0; // scale factor for collision including world factor,
@@ -130,7 +130,11 @@ var GIMLitem = function()
 		var collisionpath = rootdirectory+m_folder+m_collisionImageFile;
 		var divel = jQuery.getNewDiv('','item_'+m_id,'gimli-item');
 		
-		var txt ='<img src="'+path+'" id="item_image_'+m_id+'" class="gimli-image" />';
+		
+		var txt = '';
+		// maybe there is no main image (transparent, open doors or alike)
+		if(m_imageFile!="@ IMAGE not found. @")
+			txt='<img src="'+path+'" id="item_image_'+m_id+'" class="gimli-image" />';
 		txt+='<img src="'+overpath+'" id="item_image_over_'+m_id+'" class="gimli-image" style="display:none;">';
 
 		divel.css('top', m_posY+'px');
@@ -180,7 +184,7 @@ var GIMLitem = function()
 			canvas.width = colimg.naturalWidth+1;
 			canvas.height = colimg.naturalHeight+1;
 			context.drawImage(colimg, 0, 0 );
-			m_collisionData = context.getImageData(0, 0, colimg.width, colimg.height);
+			m_collisionDataContext = context;
 			m_collisionWidth = width;
 			m_collisionHeight = height;
 		}
@@ -208,10 +212,12 @@ var GIMLitem = function()
 		{
 			$('#item_image_'+m_id).hide();
 			$('#item_image_over_'+m_id).show();
+			$('#item_'+m_id).css('cursor', 'pointer');
 			return true;
 		}else{
 			$('#item_image_over_'+m_id).hide();
 			$('#item_image_'+m_id).show();
+			$('#item_'+m_id).css('cursor', 'auto');
 		}
 		return false;
 	}
@@ -221,15 +227,22 @@ var GIMLitem = function()
 	{
 		// get mouse position related to this item.
 		var pos   = m_myDiv.offset();
-      		var elPos = { X:pos.left , Y:pos.top };
-      		var mPos  = { X:evt.clientX-elPos.X, Y:evt.clientY-elPos.Y };
+      	var elPos = { X:pos.left , Y:pos.top };
+      	var mPos  = { X:evt.clientX-elPos.X, Y:evt.clientY-elPos.Y };
 		var mPosInt = { X:parseInt(mPos.X*1.0/m_collisionScaleFactor), Y:parseInt(mPos.Y*1.0/m_collisionScaleFactor) };
-      		log("Mouse position x:"+ mPosInt.X +" y:"+ mPosInt.Y, LOG_DEBUG);
-      		log("           col w:"+ m_collisionWidth +" y:"+ m_collisionHeight, LOG_DEBUG);
-
-		// TODO: check if pixel on mouse position is set.
-
-		return true;
+      	
+		//log("Mouse position x:"+ mPosInt.X +" y:"+ mPosInt.Y, LOG_DEBUG);
+      	//log("           col w:"+ m_collisionWidth +" y:"+ m_collisionHeight, LOG_DEBUG);
+		
+		// it does not collide when it is not on the area.
+		if(mPosInt.X>=0 && mPosInt.Y>=0 && mPosInt.X<m_collisionWidth && mPosInt.Y<m_collisionHeight)
+		{
+			var pixelData=m_collisionDataContext.getImageData(mPosInt.X,mPosInt.Y,1,1).data;
+			// check if the alpha value is > 0. Alpha is the third entry.
+			if(pixelData[3]>0)
+				return true;
+		}
+		return false;
 	}
 	
 	// load in the values for the item from the json array.
@@ -937,14 +950,6 @@ GIMLI.instance = new GIMLI();
 // Initialize the GIMLI engine.
 GIMLI.init = function(gmurl) {GIMLI.instance.init(gmurl);};
 
-// Hooks for the jBash instance.
-jBash.registerCommand("rooms", "Show info about the loaded rooms.", function(params)
-	{GIMLI.instance.debugRooms();});
-jBash.registerCommand("items", "Show info about the loaded items.", function(params)
-	{GIMLI.instance.debugItems();});
-jBash.registerCommand("jump", "Jump to a given room (intern name)<br />E.g. {<span class='jBashCmd'>jump to garden</span>}", GIMLI.jump);
-jBash.registerCommand("j", "Short for the <span class='jBashCmd'>jump</span> command.", GIMLI.jump, true);
-
 // jump to another room (console command)
 GIMLI.jump = function(params)
 {
@@ -961,6 +966,14 @@ GIMLI.jump = function(params)
 	}
 	GIMLI.instance.jumpToRoom(r);
 };
+
+// Hooks for the jBash instance.
+jBash.registerCommand("rooms", "Show info about the loaded rooms.", function(params)
+	{GIMLI.instance.debugRooms();});
+jBash.registerCommand("items", "Show info about the loaded items.", function(params)
+	{GIMLI.instance.debugItems();});
+jBash.registerCommand("jump", "Jump to a given room (intern name)<br />E.g. {<span class='jBashCmd'>jump to garden</span>}", GIMLI.jump);
+jBash.registerCommand("j", "Short for the <span class='jBashCmd'>jump</span> command.", GIMLI.jump, true);
 
 /* FUNCTIONS to Show and hide the console. */
 GIMLI.hideConsole = function()  {__hideGIMLIconsole();}

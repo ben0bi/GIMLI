@@ -6,8 +6,7 @@
 			"NAME": "Living Room",
 			"INTERN": "living_room",
 			"FOLDER": "locations/living_room",
-			"BGIMAGE": "DSC_4229_living_room.png",
-			"ScaleFactor": "0.5"
+			"BGIMAGE": "living_room.png"
 		},
 		{
 			"NAME": "Computer Room",
@@ -30,6 +29,15 @@
 	],
 	"ITEMS": [
 		{
+			"NAME": "To the floor.",
+			"INTERN": "door_living_room",
+			"FOLDER": "locations/living_room",
+			"COLLISIONIMAGE": "living_room_door_collision.png",
+			"OVERIMAGE": "living_room_door_mouseover.png",
+			"onclick": "jump to floor",
+			"LOCATION": ["living_room", 380, 0]
+		},
+		{
 			"NAME": "Bag of Weed",
 			"INTERN": "item_bow",
 			"FOLDER": "entities/bag_of_grass",
@@ -43,10 +51,9 @@
 			"INTERN": "item_nsa",
 			"FOLDER": "entities/nsa",
 			"IMAGE": "nsa.png",
-			"scalefactor": "2.0",
 			"OVERIMAGE": "nsa_mouseover.png",
 			"onclick": "link to https://benis-bastelschuppen.github.io/NSA",
-			"LOCATION": ["living_room", 270, 350]
+			"LOCATION": ["living_room", 215, 370]
 		}
 	]
 }
