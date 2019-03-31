@@ -1,3 +1,5 @@
+0.0.50 -> First visible name of items. Not yet fully functional.
+0.0.49 -> Item click function outside the function where it was.
 0.0.48 -> Same as 0.0.47 for the clicks and for the cursor change.
 0.0.47 -> New mousemove/mouseover code which takes into account overlaying items (with transparent pixels).
 0.0.46 -> Door item for the living room door. Some bugfixes and modifications to show and use it properly without main image.
