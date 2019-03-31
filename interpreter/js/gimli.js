@@ -116,6 +116,14 @@ var GIMLitem = function()
 	}
 	
 	//this.setImage=function(imageName) {m_imageFile = imageName;}
+	this.showName = function(evt)
+	{
+		var d=$('#gimli-text-description');
+		d.css('top', evt.clientY);
+		d.css('left', '0px');
+		d.html(m_itemName);
+		d.show();
+	}
 	
 	// get the dom element for this item.
 	this.getDOMElement = function(rootdirectory="", outerscalefactor = 1.0) 
@@ -130,7 +138,6 @@ var GIMLitem = function()
 		var collisionpath = rootdirectory+m_folder+m_collisionImageFile;
 		var divel = jQuery.getNewDiv('','item_'+m_id,'gimli-item');
 		
-		
 		var txt = '';
 		// maybe there is no main image (transparent, open doors or alike)
 		if(m_imageFile!="@ IMAGE not found. @")
@@ -143,28 +150,6 @@ var GIMLitem = function()
 		
 		//divel.css('border', '1px solid #FF0000');
 		divel.html(txt);
-
-		// show mouseover image.
-/*		divel.mouseover(function(evt) 
-		{
-			__checkMouseOver(evt);
-		});
-		divel.mouseout(function(el) 
-		{
-			$('#item_image_over_'+m_id).hide();
-			$('#item_image_'+m_id).show();
-		});
-		divel.mousemove(function(evt) 
-		{
-			__checkMouseOver(evt);			
-		});
-*/
-		// do something when the item is clicked.
-		this.click=function(evt) 
-		{
-			if(m_script_click.length>0 && m_script_click!=parseInt(m_script_click))
-				jBash.Parse(m_script_click);
-		};
 
 		// get the size of the collision image and set the divs size to it.
 		var colimg = new Image();
@@ -194,6 +179,13 @@ var GIMLitem = function()
 		return divel;
 	};
 	
+	// do something when the item is clicked.
+	this.click=function(evt) 
+	{
+		if(m_script_click.length>0 && m_script_click!=parseInt(m_script_click))
+			jBash.Parse(m_script_click);
+	};
+
 	// show debug information.
 	this.debug=function(loglevel=LOG_DEBUG) {
 		log("* Item '"+m_itemName+"' (intern: '"+m_internName+"')", loglevel);
@@ -338,7 +330,6 @@ GIMLitem.getNewID = function()
 	GIMLitem.g_nextItemID+=1;
 	return id;
 }
-
 
 // a room in the giml system.
 var GIMLroom = function()
@@ -910,6 +901,7 @@ var GIMLI = function()
 		var outerwindow = jQuery.getNewDiv('', 'gimli-outer-window', 'gimli-pixelperfect');
 		var middlewindow = jQuery.getNewDiv('','gimli-middle-window','gimli-pixelperfect');		
 		var mainwindow = jQuery.getNewDiv('','gimli-main-window', 'gimli-pixelperfect');
+		var descriptionwindow = jQuery.getNewDiv('','gimli-text-description','gimli-text');
 		
 		var elconsole = jQuery.getNewDiv('','gimli-jbash-window', '');
 		var elconsole_outer = jQuery.getNewDiv('', 'gimli-jbash-outer-window', '');
@@ -923,23 +915,26 @@ var GIMLI = function()
 		middlewindow.append(mainwindow);
 		outerwindow.append(middlewindow);
 		outerwindow.append(elconsole_outer);
+		outerwindow.append(descriptionwindow);		
 		
 		// go through all items and check if there is a mouse over.
 		outerwindow.mousemove(function(evt) 
 		{
-			var isover = false;
+			var isover = null;
 			for(var i = 0; i<m_actualRoomItems.length;i++)
 			{
 				var itm = m_actualRoomItems[i];
 				if(itm.isMouseOver(evt))
-					isover=true;
+					isover=itm;
 			}
 			// maybe set another cursor.
-			if(isover)
+			if(isover!=null)
 			{
 				outerwindow.css('cursor','pointer');
+				isover.showName(evt);
 			}else{
 				outerwindow.css('cursor','auto');
+				$('#gimli-text-description').hide();
 			}
 		});
 		// go through all items and check if there is a click.

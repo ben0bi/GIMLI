@@ -133,6 +133,7 @@
 <h3>CONTENTS:</h3>
 <ul>
 <li><a href="#introduction">What is GIML[i]?</a></li>
+<li><a href="#interpreter">The GIML-Interpreter</a></li>
 <li>
 	<a href="#gml_structure">The GIML-Structure</a>
 	<ul>
@@ -171,6 +172,8 @@ The GML file does only describe, how and when those images are loaded and placed
 In short, a GML file contains some <span class="highlight">global variables</span>, some <span class="highlight">locations</span> with their own variables and some <span class="highlight">items</span> with their own variables, which all will be put and linked together by the interpreter to create a view like in an old adventure game (E.g. Monkey Island).<br />
 <br />
 There are no visible user characters included yet but you can browse a GML page somewhat like in the game "Myst".<br />
+<br />
+Note that a GIML page runs on the client side. It does not need any PHP or NodeJS server stuff (right now) and no complex framework like Symfony is needed. Also, NO cookies are involved and no user login or other database stuff is needed on the core system.<br />
 <br /><hr /><br />
 It is only a coincidence that the name of this system resembles the name of the great dwarf Gimli from the Lord Of The Rings. But on the other side, there is no such thing as coincidence and so I believe the name is just right because Gimli visited Moria, which resembles the internet of modern times. And do not forget that the books were written at times were there was no computer networks, not even public computers.<br />
 <br />
@@ -190,6 +193,16 @@ and build their own internet. And then in S3E1, at about 11:30 + 30sec, that is 
 And that is GIML[i]: 
 It shall resemble the community system from "Halt And Catch Fire":<br />An Adventure-like, 2D, pixelated but very sweet
 internet browsing system based on images, where the end-user [hopefully] can draw into like a child.<br />
+
+<br /><hr />
+
+<a name="interpreter"></a>
+<h1>The GIML-Interpreter <a href="#top">^</a></h1>
+For this particular interpreter here, you can just put all the files in any directory and run the <span class="highlight">interpreter/index.html</span>. All GIML stuff is in the <span class="highlight">testsite</span> folder inside the <span class="highlight">interpreter</span> folder.<br />
+<br />
+The GIML-page will be loaded with a function call in the index.html. Later, the browser itself shall do that. You can change the directory and page there. Keep in mind that this is just a prototype.<br />
+<br />
+The <span class="highlight">testsite</span> folder or any other folder with a GIML-page should reside OUTSIDE of the interpreter core directory. But because of CORS, there are to much security measures to make such stuff happen "as is", without setting up complex server stuff and so on. I mean, I just want to edit a file and test it out locally. I don't want to set up a whole server infrastructure just to see how a freaking "Markup Language"-file looks on the browser. Damn CORS. So, I just put the GIML-folders into the interpreter folder. Sorry for that. No, not sorry: Damn and curse CORS for that. It made the internet a whole lot more complicated and I don't want to see it on "my" internet. <br />
 
 <br /><hr />
 
@@ -367,13 +380,13 @@ This is an example gml file with two rooms and two items:<br />
 			"NAME": "Start Room",
 			"INTERN": "start_room",
 			"BGIMAGE": "startroom.png",
-			"FOLDER": "rooms/startroom/",
+			"FOLDER": "rooms/startroom/"
 		},
 		{
 			"NAME": "Second Room",
 			"INTERN": "second_room",
 			"BGIMAGE": "secondroom.png",
-			"FOLDER": "rooms/secondroom/",
+			"FOLDER": "rooms/secondroom/"
 		}
 	],
 	"ITEMS": [
@@ -401,7 +414,7 @@ As you can see, the items are both located in the start room, but the second one
 <hr />
 <a name="script_structure"></a>
 <h1>Scripting with GIML</h1>
-<span class="highlight">(TODO)</span> Short: Just make a javascript function, add it to jBash and call the jBash-command for it in the "SCRIPT" tag of your item. Only global functions just now.
+<span class="highlight">(TODO)</span> Short: Just make a javascript function, add it to jBash and call the jBash-command for it in the "SCRIPT" tag of your item. Only global functions just right now.
 
 <br /><br /><hr />
 
@@ -417,6 +430,6 @@ He grew up with computers and used the browser based internet since it was throw
 
 </div></div>
 
-<div class="footer"><br /><br />Doc. v1.0 by Benedict Jäggi / Latest change: 30.03.2019</div>
+<div class="footer"><br /><br />Doc. v1.01 by Benedict Jäggi / Latest change: 31.03.2019</div>
 </body>
 </html>
