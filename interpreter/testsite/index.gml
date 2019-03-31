@@ -10,9 +10,9 @@
 		},
 		{
 			"NAME": "Computer Room",
-			"INTERN": "computer room",
+			"INTERN": "computer_room",
 			"FOLDER": "locations/computer_room",
-			"BGIMAGE": "DSC_4228_computer_room.png"
+			"BGIMAGE": "computer_room.png"
 		},
 		{
 			"NAME": "Floor",
@@ -56,6 +56,16 @@
 			"onclick": "jump to computer_room",
 			"LOCATION": ["floor", 0, 0]
 		},
+		{
+			"NAME": "To the floor.",
+			"INTERN": "door_floor_to_computer_room",
+			"FOLDER": "locations/computer_room/",
+			"COLLISIONIMAGE": "computer_room_collision_door.png",
+			"OVERIMAGE": "computer_room_door.png",
+			"onclick": "jump to floor",
+			"LOCATION": ["computer_room", 0, 0]
+		},
+		
 		
 		{
 			"NAME": "Bag of Weed",
