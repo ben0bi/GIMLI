@@ -1,3 +1,5 @@
+0.0.52 -> Don't show description div if there is no name.
+0.0.51 -> Description text shown over mouse (globally).
 0.0.50 -> First visible name of items. Not yet fully functional.
 0.0.49 -> Item click function outside the function where it was.
 0.0.48 -> Same as 0.0.47 for the clicks and for the cursor change.

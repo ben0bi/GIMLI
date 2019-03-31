@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.0.49";
+const GIMLIVERSION = "0.0.52";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -119,10 +119,14 @@ var GIMLitem = function()
 	this.showName = function(evt)
 	{
 		var d=$('#gimli-text-description');
-		d.css('top', evt.clientY);
-		d.css('left', '0px');
+		d.css('top', evt.clientY-20);
+		d.css('left', evt.clientX-(d.width()*0.5));
+		d.css('pointer-events', 'none');
 		d.html(m_itemName);
-		d.show();
+		if(m_itemName.length>0)
+			d.show();
+		else
+			d.hide();
 	}
 	
 	// get the dom element for this item.
@@ -568,6 +572,9 @@ var GIMLI = function()
 		// clear the actual room items.
 		m_actualRoomItems = [];
 		
+		// hide the text above the mouse.
+		$('#gimli-text-description').hide();
+		
 		m_actualRoomX = 0;
 		m_actualRoomY = 0;
 		log("Jumping to room '"+roomInternName+"'", LOG_USER);
@@ -915,7 +922,7 @@ var GIMLI = function()
 		middlewindow.append(mainwindow);
 		outerwindow.append(middlewindow);
 		outerwindow.append(elconsole_outer);
-		outerwindow.append(descriptionwindow);		
+		//outerwindow.append(descriptionwindow);		
 		
 		// go through all items and check if there is a mouse over.
 		outerwindow.mousemove(function(evt) 
@@ -959,6 +966,7 @@ var GIMLI = function()
 		jQuery.appendElementTo('head', css);
 		
 		jQuery.appendElementTo('body', outerwindow);
+		jQuery.appendElementTo('body', descriptionwindow); //description is on body for making it visible "everywhere".
 		jQuery.appendElementTo('body', el2);
 		
 		// initialize the console.

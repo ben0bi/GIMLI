@@ -56,6 +56,7 @@
 			"onclick": "jump to computer_room",
 			"LOCATION": ["floor", 0, 0]
 		},
+		
 		{
 			"NAME": "To the floor.",
 			"INTERN": "door_floor_to_computer_room",
@@ -65,7 +66,26 @@
 			"onclick": "jump to floor",
 			"LOCATION": ["computer_room", 0, 0]
 		},
+
+		{
+			"NAME": "",
+			"INTERN": "computer_room_github_link",
+			"FOLDER": "locations/computer_room/",
+			"COLLISIONIMAGE": "computer_room_screen_github.png",
+			"OVERIMAGE": "computer_room_screen_github.png",
+			"onclick": "link to https://github.com/ben0bi",
+			"LOCATION": ["computer_room", 0, 0]
+		},
 		
+		{
+			"NAME": "",
+			"INTERN": "computer_room_gimli_link",
+			"FOLDER": "locations/computer_room/",
+			"COLLISIONIMAGE": "computer_room_screen_gimli.png",
+			"OVERIMAGE": "computer_room_screen_gimli.png",
+			"onclick": "link to ../documentation/index.html",
+			"LOCATION": ["computer_room", 0, 0]
+		},
 		
 		{
 			"NAME": "Bag of Weed",

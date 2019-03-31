@@ -107,14 +107,20 @@ here all images will be appended and other stuff. */
 {
 	position: absolute;
 	min-width: 100px;
-	height: 30px;
+/*	height: 30px;*/
 	z-index: 10000;
 	font-family: "gimli_text", monospace;
 	font-size: 8pt;
 	max-width: 100%;
+	padding: 5px;
 }
 
-#gimli-text-description {color: #33AA33;}
+#gimli-text-description 
+{
+	color: #33AA33;
+	background-image: url('../images/GIMLI_TEXT_BACKGROUND.png');
+	border-radius: 4px;
+}
 
 /* make something pixel perfect (same as image without size) */
 .gimli-pixelperfect
