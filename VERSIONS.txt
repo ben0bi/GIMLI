@@ -1,3 +1,5 @@
+0.0.48 -> Same as 0.0.47 for the clicks and for the cursor change.
+0.0.47 -> New mousemove/mouseover code which takes into account overlaying items (with transparent pixels).
 0.0.46 -> Door item for the living room door. Some bugfixes and modifications to show and use it properly without main image.
 0.0.45 -> Pixel perfect collision check on items, yay.
 0.0.44 -> "j" command as short for the "jump" command.

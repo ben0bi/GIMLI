@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.0.46";
+const GIMLIVERSION = "0.0.48";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -145,7 +145,7 @@ var GIMLitem = function()
 		divel.html(txt);
 
 		// show mouseover image.
-		divel.mouseover(function(evt) 
+/*		divel.mouseover(function(evt) 
 		{
 			__checkMouseOver(evt);
 		});
@@ -158,12 +158,13 @@ var GIMLitem = function()
 		{
 			__checkMouseOver(evt);			
 		});
-
+*/
 		// do something when the item is clicked.
-		divel.click(function(el) {
+		this.click=function(evt) 
+		{
 			if(m_script_click.length>0 && m_script_click!=parseInt(m_script_click))
 				jBash.Parse(m_script_click);
-		});
+		};
 
 		// get the size of the collision image and set the divs size to it.
 		var colimg = new Image();
@@ -212,15 +213,16 @@ var GIMLitem = function()
 		{
 			$('#item_image_'+m_id).hide();
 			$('#item_image_over_'+m_id).show();
-			$('#item_'+m_id).css('cursor', 'pointer');
+			//$('#item_'+m_id).css('cursor', 'pointer');
 			return true;
 		}else{
 			$('#item_image_over_'+m_id).hide();
 			$('#item_image_'+m_id).show();
-			$('#item_'+m_id).css('cursor', 'auto');
+			//$('#item_'+m_id).css('cursor', 'auto');
+			//evt.preventDefault();
 		}
 		return false;
-	}
+	};
 
 	// check if the mouse collides with the image or not.
 	var __checkForPixel=function(evt) 
@@ -243,7 +245,7 @@ var GIMLitem = function()
 				return true;
 		}
 		return false;
-	}
+	};
 	
 	// load in the values for the item from the json array.
 	this.parseGML=function(gmlItem)
@@ -315,7 +317,7 @@ var GIMLitem = function()
 			m_script_click = gmlItem['SCRIPT'];
 		if(__defined(gmlItem['ONCLICK']))
 			m_script_click = gmlItem['ONCLICK'];
-	}
+	};
 	
 	// add this item to a room div.
 	this.addToRoomDiv=function(div, rootdirectory="", outerscalefactor = 1.0)
@@ -323,8 +325,11 @@ var GIMLitem = function()
 		log("Placing the item '"+m_internName+"' in the room...", LOG_DEBUG);
 		var myElement = me.getDOMElement(rootdirectory, outerscalefactor);
 		div.append(myElement);		
-	}
+	};
+	
+	this.isMouseOver = function(evt) {return __checkMouseOver(evt);};
 };
+
 // get an unique id for each item.
 GIMLitem.g_nextItemID = 0;
 GIMLitem.getNewID = function()
@@ -559,6 +564,7 @@ var GIMLI = function()
 // JUMP FUNCTION *********************************************************************************************************************
 
 // this is the second main function:  It loads a room and its items and shows it in the window.
+	var m_actualRoomItems = [];	// all the items in the actual room, used for mouseover processing.
 	this.jumpToRoom=function(roomInternName)
 	{
 		var room = __findRoom(roomInternName);
@@ -567,6 +573,10 @@ var GIMLI = function()
 			log("Room '"+roomInternName+"' not found. No jump done.", LOG_ERROR);
 			return;
 		}
+		
+		// clear the actual room items.
+		m_actualRoomItems = [];
+		
 		m_actualRoomX = 0;
 		m_actualRoomY = 0;
 		log("Jumping to room '"+roomInternName+"'", LOG_USER);
@@ -593,6 +603,7 @@ var GIMLI = function()
 			{
 				count++;
 				itm.addToRoomDiv(newroom,m_GMURL_initpage.getDirectory(), room.getScaleFactor(m_scaleFactor));
+				m_actualRoomItems.push(itm);
 			}
 		}
 		log(count+" items are placed in this room.", LOG_USER);
@@ -912,6 +923,38 @@ var GIMLI = function()
 		middlewindow.append(mainwindow);
 		outerwindow.append(middlewindow);
 		outerwindow.append(elconsole_outer);
+		
+		// go through all items and check if there is a mouse over.
+		outerwindow.mousemove(function(evt) 
+		{
+			var isover = false;
+			for(var i = 0; i<m_actualRoomItems.length;i++)
+			{
+				var itm = m_actualRoomItems[i];
+				if(itm.isMouseOver(evt))
+					isover=true;
+			}
+			// maybe set another cursor.
+			if(isover)
+			{
+				outerwindow.css('cursor','pointer');
+			}else{
+				outerwindow.css('cursor','auto');
+			}
+		});
+		// go through all items and check if there is a click.
+		outerwindow.click(function(evt)
+		{
+			var clickedItem = null;
+			for(var i = 0; i<m_actualRoomItems.length;i++)
+			{
+				var itm = m_actualRoomItems[i];
+				if(itm.isMouseOver(evt))
+					clickedItem = itm;
+			}
+			if(clickedItem!=null)
+				clickedItem.click(evt);
+		});
 
 		var t='<a href="https://github.com/ben0bi/GIMLI/">GIML-Interpreter</a> v'+GIMLIVERSION+' (JS-Version) by Benedict Jäggi in 2019&nbsp;|&nbsp;';
 		t+='<a href="javascript:" onclick="GIMLI.showConsole();">console</a>&nbsp;|&nbsp;';

@@ -18,7 +18,7 @@
 			"NAME": "Floor",
 			"INTERN": "floor",
 			"FOLDER": "locations/floor",
-			"BGIMAGE": "DSC_4230_floor.png"
+			"BGIMAGE": "floor.png"
 		},
 		{
 			"NAME": "Benis Bastelschuppen",
@@ -30,13 +30,33 @@
 	"ITEMS": [
 		{
 			"NAME": "To the floor.",
-			"INTERN": "door_living_room",
+			"INTERN": "door_living_room_to_floor",
 			"FOLDER": "locations/living_room",
 			"COLLISIONIMAGE": "living_room_door_collision.png",
 			"OVERIMAGE": "living_room_door_mouseover.png",
 			"onclick": "jump to floor",
 			"LOCATION": ["living_room", 380, 0]
 		},
+		
+		{
+			"NAME": "To the living room.",
+			"INTERN": "door_floor_to_living_room",
+			"FOLDER": "locations/floor",
+			"COLLISIONIMAGE": "floor_collision_to_living_room.png",
+			"OVERIMAGE": "floor_to_living_room.png",
+			"onclick": "jump to living_room",
+			"LOCATION": ["floor", 0, 0]
+		},
+		{
+			"NAME": "To the computer room.",
+			"INTERN": "door_floor_to_computer_room",
+			"FOLDER": "locations/floor",
+			"COLLISIONIMAGE": "floor_collision_to_computer_room.png",
+			"OVERIMAGE": "floor_to_computer_room.png",
+			"onclick": "jump to computer_room",
+			"LOCATION": ["floor", 0, 0]
+		},
+		
 		{
 			"NAME": "Bag of Weed",
 			"INTERN": "item_bow",
