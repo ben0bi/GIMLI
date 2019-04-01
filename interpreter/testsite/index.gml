@@ -86,7 +86,15 @@
 			"onclick": "link to ../documentation/index.html",
 			"LOCATION": ["computer_room", 0, 0]
 		},
-		
+		{
+			"NAME": "",
+			"INTERN": "computer_room_netrunner_link",
+			"FOLDER": "locations/computer_room/",
+			"COLLISIONIMAGE": "computer_room_screen_netrunner.png",
+			"OVERIMAGE": "computer_room_screen_netrunner.png",
+			"onclick": "",
+			"LOCATION": ["computer_room", 0, 0]
+		},		
 		{
 			"NAME": "Bag of Weed",
 			"INTERN": "item_bow",
