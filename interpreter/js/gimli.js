@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.1.0";
+const GIMLIVERSION = "0.1.02";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -775,8 +775,6 @@ var GIMLI = function()
 		log("Loading "+checkurl.getCombined()+"...");
 		me.loadJSONFile(checkurl.getCombined(), function(json) {
 			m_GMURL_initpage = checkurl;
-			// set root directory for jBash.
-			jBash.rootDirectory = checkurl.getDirectory();
 			// clear all preloaded stuff.
 			__clearItems();
 			__clearRooms();

@@ -494,8 +494,6 @@ jBash._dir_manuals = JBASH_MANUAL_DIR;
 
 jBash.instance = new jBash();
 
-jBash.rootDirectory = ""; // set the directory when the website is on the server.
-
 // relative path to the config file, seen from index.html."
 //jBash.configFile ="jBash_config.json";
 
@@ -529,13 +527,7 @@ jBash.LINK = function(params)
 			target = p[1];
 		}
 	}
-	var h="";
-	if(target.length>4)
-		h=target.charAt(0)+target.charAt(1)+target.charAt(2)+target.charAt(3);
-	if(h.toUpperCase()=="HTTP")
-		window.location.href = target;
-	else
-		window.location.href = jBash.rootDirectory+target;
+	window.location.href = target;
 }
 
 // register some commands.
