@@ -38,7 +38,7 @@
 			"LOCATION": ["computer_room", 0, 0]
 		},
 		{
-			"NAME": "",
+			"NAME": "NetRunner Game<br /><span class='jBashError' style='text-align:centered;'>- not yet functional -</span><br />Sorry.",
 			"INTERN": "computer_room_netrunner_link",
 			"FOLDER": "locations/computer_room/",
 			"COLLISIONIMAGE": "computer_room_screen_netrunner.png",
