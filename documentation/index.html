@@ -233,6 +233,12 @@ Optional parameters have a default value.<br />
 <table>
 <tr><td>Primary</td><td>Secondary</td><td>Default</td><td>Description</td></tr>
 <tr>
+	<td><span class="highlight">GMLS</span></td>
+	<td><span class="highlight">---</span></td>
+	<td>[empty array]</td>
+	<td>Array with the names of additional GML files to load. You can use this tag in the additional files, too,  to load even more additional files.</td>
+</tr>
+<tr>
 	<td><span class="highlight">STARTROOM</span></td>
 	<td><span class="highlight">STARTLOCATION</span></td>
 	<td>---</td>
@@ -333,13 +339,18 @@ as much (single) item entries as you want. An item has a little more parameters 
 	<td><span class="highlight">OVERIMAGE</span></td>
 	<td>---</td>
 	<td>{<span class="highlight">IMAGE</span>}</td>
-	<td>The <span class="highlight">mouse over image</span> of the item which is visible when the mouse is over this 		item. If no mouseover image is determined, the interpreter will take the main image for it.</td>
+	<td>The <span class="highlight">mouse over image</span> of the item which is visible when the mouse is over this 
+	item. If no mouseover image is determined, the interpreter will take the main image for it.</td>
 </tr>
 <tr>
-	<td><span class="highlight">COLLISIONIMAGE</span></td>
-	<td>---</td>
-	<td>{<span class="highlight">IMAGE</span>}</td>
-	<td>The <span class="highlight">collision image</span> of the item. You can use only the collison image for e.g. 		open doors. Vice-versa, it will take the main image as collision image if none is given. The collision image will 		not be visible, but the interpreter will take its size for the item size and check its pixels for collision on 		mouseover. You do not have to determine one when the collision area is the same as the visible area of the main 	image.</td>
+	<td><span class="highlight">COLLISION</span></td>
+	<td>COLLISIONIMAGE</td>
+	<td>{<span class="highlight">IMAGE</span> or <span class="highlight">OVERIMAGE</span>}</td>
+	<td>The <span class="highlight">collision image</span> of the item. You can use only the collison image for e.g. 
+	open doors. Vice-versa, it will take the main image as collision image if none is given. The collision image will 
+	not be visible, but the interpreter will take its size for the item size and check its pixels for collision on 
+	mouseover. You do not have to determine one when the collision area is the same as the visible area of the main image.
+	If no collision image and no main image is present, it will take the mouseover image as collision image.</td>
 </tr>
 <tr>
 	<td><span class="highlight">ONCLICK</span></td>

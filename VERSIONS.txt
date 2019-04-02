@@ -1,3 +1,8 @@
+
+0.1.0 -> Recursive loading of GMLs (in the base directory) works. Happy Easter, this is the "first" version. :)
+
+0.0.54 -> Added command GMLS to load multiple GML files.
+0.0.53 -> ITEMS: If there is no collision image and no main image, take the mouseover image as collision image.
 0.0.52 -> Don't show description div if there is no name.
 0.0.51 -> Description text shown over mouse (globally).
 0.0.50 -> First visible name of items. Not yet fully functional.
@@ -50,6 +55,6 @@
 0.0.8 -> GIML-Rooms and Items (prototype)
 0.0.7 -> trying to load a gml file.
 0.0.6 -> other fonts choosen.
-0.0.4 -> 0.0.5a: Included a console (jBash from github.com/ben0bi)
-0.0.1 -> 0.0.3a: Outer screen setup, file structure definition.
+0.0.4 -> 0.0.5: Included a console (jBash from github.com/ben0bi)
+0.0.1 -> 0.0.3: Outer screen setup, file structure definition.
 

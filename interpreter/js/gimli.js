@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.0.52";
+const GIMLIVERSION = "0.1.0";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -38,6 +38,7 @@ const LOG_USER = 0;
 const LOG_ERROR = 1;
 const LOG_WARN = 2;
 const LOG_DEBUG = 3;
+const LOG_DEBUG_VERBOSE = 4
 
 var log = function(text, loglevel = 0)
 {
@@ -49,7 +50,9 @@ var log = function(text, loglevel = 0)
 			//case LOG_USER: ll="";break;
 			case LOG_ERROR: ll='[<span class="jBashError">ERROR</span>]&gt; ';break;
 			case LOG_WARN: ll='[<span class="jBashWarning">WARNING</span>]&gt; ';break;
-			case LOG_DEBUG: ll='[<span class="jBashCmd">DEBUG</span>]&gt; ';break;
+			case LOG_DEBUG:
+			case LOG_DEBUG_VERBOSE:
+				ll='[<span class="jBashCmd">DEBUG</span>]&gt; ';break;
 			default: break;
 		}
 		console.log("> "+text);
@@ -298,11 +301,17 @@ var GIMLitem = function()
 			m_imageFile = "@ IMAGE not found. @";
 		if(!__defined(gmlItem['OVERIMAGE']))
 			m_overImageFile = m_imageFile;
-		// get the collision image file name.		
+		// get the collision image file name. it could also be named COLLISIONIMAGE, see above.	
 		if(__defined(gmlItem['COLLISION']))
 			m_collisionImageFile = gmlItem['COLLISION'];
+		// if there is no collision image, take another one.
 		if(!__defined(gmlItem['COLLISIONIMAGE']) && !__defined(gmlItem['COLLISION']))
-			m_collisionImageFile = m_imageFile;
+		{
+			if(m_imageFile!="@ IMAGE not found. @") // take the main image if there is one
+				m_collisionImageFile = m_imageFile;
+			else
+				m_collisionImageFile = m_overImageFile;	// as last solution, take the mouseover image.
+		}
 
 		if(__defined(gmlItem['SCALEFACTOR']))	// get item scale.
 			m_scaleFactor=parseFloat(gmlItem['SCALEFACTOR']);
@@ -438,8 +447,8 @@ var GMLurl = function(filename)
 		m_filename = r.replace(/^.*[\\\/]/, '');
 
 		log("MakeGMLUrl: "+gmurl,LOG_DEBUG)
-		log(" --&gt; Directory: "+m_directory, LOG_DEBUG);
-		log(" --&gt; Filename : "+m_filename, LOG_DEBUG);
+		log(" --&gt; Directory: "+m_directory, LOG_DEBUG_VERBOSE);
+		log(" --&gt; Filename : "+m_filename, LOG_DEBUG_VERBOSE);
 		return me;
 	};
 	
@@ -466,6 +475,8 @@ var GIMLI = function()
 	var m_actualRoomY = 0;
 	var m_roomsLoaded = [];		// the rooms (locations) loaded with the gml file.
 	var m_itemsLoaded = [];		// the items loaaded with the gml file.
+	var m_loadedGMLFiles = [];	// list with all the GML files which were loaeded.
+//	var m_gmlFilesToLoad = [];	// list with additional gml files to load.
 	
 	// scrolling variables.
 	var m_scrollXDir = 0;
@@ -493,16 +504,19 @@ var GIMLI = function()
 		var json2 = __jsonUpperCase(json);
 		json = json2;
 		
+		// get additional gml files.
+		var gmlArray = [];
+		if(__defined(json['GMLS']))
+			gmlArray = json['GMLS'];
+		
 		// get the start room. (StartLocation or StartRoom)
 		m_actualRoomIntern = m_startRoomIntern = "@ STARTLOCATION/STARTROOM not found. @";
-		
 		if(__defined(json['STARTLOCATION']))
 			m_actualRoomIntern = m_startRoomIntern = json['STARTLOCATION'];
 		if(__defined(json['STARTROOM']))
 			m_actualRoomIntern = m_startRoomIntern = json['STARTROOM'];
 		
 		// get the global scale factor.
-		m_scaleFactor=1.0;
 		if(__defined(json['SCALEFACTOR']))
 			m_scaleFactor = parseFloat(json['SCALEFACTOR']);
 		if(__defined(json['SCALE']))
@@ -517,10 +531,6 @@ var GIMLI = function()
 		
 		log("GML start room: "+m_startRoomIntern, LOG_DEBUG);
 		log("General GML scale factor: "+parseFloat(m_scaleFactor));
-		
-		// clear the rooms and items.
-		__clearItems();
-		__clearRooms();
 		
 		// load in the rooms.
 		if(roomArray.length>0)
@@ -553,7 +563,34 @@ var GIMLI = function()
 		}
 		log(__roomCount()+ " rooms loaded.",LOG_USER);
 		log(__itemCount()+" items loaded.", LOG_USER);
+		
+		// load the additional gml files recursively and one after each other.
+		__recursiveload(gmlArray,0);
 	};
+
+	// load all the gml files recursively.
+	var __recursiveload = function(gmlArray, actual_i)
+	{
+		if(gmlArray.length>actual_i)
+		{
+			var path = GMLurl.makeGMURL(m_GMURL_initpage.getDirectory()+gmlArray[actual_i]).getCombined();
+			if(!__isGMLFileLoaded(path))
+			{
+				log("Additional GIML file to load: "+path);
+				// file is not laoded, get it and then load the next one.
+				me.loadJSONFile(path, function(json) 
+				{
+					m_loadedGMLFiles.push(path);
+					me.parseGML(json);
+					__recursiveload(gmlArray,actual_i+1);
+				});
+			}else{
+				// file is already loaded, get the next one.
+				__recursiveload(gmlArray,actual_i+1);
+			}
+		}
+		
+	}
 
 // ENDOF GML PARSER
 // JUMP FUNCTION *********************************************************************************************************************
@@ -688,6 +725,15 @@ var GIMLI = function()
 	var __clearItems = function() {m_itemsLoaded = [];};
 	var __roomCount = function() {return m_roomsLoaded.length;}
 	var __itemCount = function() {return m_itemsLoaded.length;}
+	var __isGMLFileLoaded = function(filepath)
+	{
+		for(var i=0;i<m_loadedGMLFiles.length;i++)
+		{
+			if(m_loadedGMLFiles[i] == filepath)
+				return true;
+		}
+		return false;
+	}
 	
 	// show debug info about the rooms.
 	this.debugRooms = function()
@@ -729,6 +775,14 @@ var GIMLI = function()
 		log("Loading "+checkurl.getCombined()+"...");
 		me.loadJSONFile(checkurl.getCombined(), function(json) {
 			m_GMURL_initpage = checkurl;
+			// clear all preloaded stuff.
+			__clearItems();
+			__clearRooms();
+			m_scaleFactor=1.0;
+
+			// clear the loaded files array and push this filename.
+			m_loadedGMLFiles = [];
+			m_loadedGMLFiles.push(checkurl.getCombined());
 			me.parseGML(json);
 			me.jumpToStartRoom();
 			// hide the console in front of the user. :)
