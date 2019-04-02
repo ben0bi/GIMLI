@@ -775,6 +775,8 @@ var GIMLI = function()
 		log("Loading "+checkurl.getCombined()+"...");
 		me.loadJSONFile(checkurl.getCombined(), function(json) {
 			m_GMURL_initpage = checkurl;
+			// set root directory for jBash.
+			jBash.rootDirectory = checkurl.getDirectory();
 			// clear all preloaded stuff.
 			__clearItems();
 			__clearRooms();

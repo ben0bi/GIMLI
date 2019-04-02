@@ -494,8 +494,10 @@ jBash._dir_manuals = JBASH_MANUAL_DIR;
 
 jBash.instance = new jBash();
 
+jBash.rootDirectory = ""; // set the directory when the website is on the server.
+
 // relative path to the config file, seen from index.html."
-jBash.configFile ="jBash_config.json";
+//jBash.configFile ="jBash_config.json";
 
 // If this is true, it scrolls the whole body, else it scrolls the div. Div must have specific height then.
 // Div can NOT have specific height when scrolling with the body.
@@ -517,15 +519,24 @@ jBash.LINK = function(params)
 {
 	p = jBash.GP(params);
 	var target = "";
+	var mydir = "";
 	if(p.length>0)
 	{
 		target = p[0];
+		mydir = p[1];
 		if(p[0].toLowerCase()=="to" && p.length>1)
+		{
 			target = p[1];
+		}
 	}
-	window.location.href = target;
+	var h="";
+	if(target.length>4)
+		h=target.charAt(0)+target.charAt(1)+target.charAt(2)+target.charAt(3);
+	if(h.toUpperCase()=="HTTP")
+		window.location.href = target;
+	else
+		window.location.href = jBash.rootDirectory+target;
 }
-
 
 // register some commands.
 jBash.registerCommand("donate", "Please donate my work. Thank you.", function(params) {jBash.Parse("man donate");});
