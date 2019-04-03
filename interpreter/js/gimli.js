@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.1.04";
+const GIMLIVERSION = "0.1.05";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -987,7 +987,7 @@ var GIMLI = function()
 		//outerwindow.append(descriptionwindow);		
 		
 		// go through all items and check if there is a mouse over.
-		outerwindow.mousemove(function(evt) 
+		var mtouchover = function(evt)
 		{
 			var isover = null;
 			for(var i = 0; i<m_actualRoomItems.length;i++)
@@ -1004,8 +1004,13 @@ var GIMLI = function()
 			}else{
 				outerwindow.css('cursor','auto');
 				$('#gimli-text-description').hide();
-			}
-		});
+			}			
+		};
+		
+		outerwindow.mousemove(mtouchover);
+		outerwindow.on('touchstart',mtouchover);
+		outerwindow.on('touchmove',mtouchover);
+		
 		// go through all items and check if there is a click.
 		outerwindow.click(function(evt)
 		{
