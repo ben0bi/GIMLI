@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.1.05";
+const GIMLIVERSION = "0.1.06";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -1008,8 +1008,8 @@ var GIMLI = function()
 		};
 		
 		outerwindow.mousemove(mtouchover);
-		outerwindow.on('touchstart',mtouchover);
-		outerwindow.on('touchmove',mtouchover);
+		outerwindow.on('touchstart',function(evt) {evt.preventDefault();mtouchover(evt);});
+		outerwindow.on('touchmove',function(evt) {evt.preventDefault();mtouchover(evt);});
 		
 		// go through all items and check if there is a click.
 		outerwindow.click(function(evt)
