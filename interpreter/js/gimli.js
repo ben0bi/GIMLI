@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.1.03";
+const GIMLIVERSION = "0.1.04";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -228,12 +228,9 @@ var GIMLitem = function()
 	{
 		// get mouse position related to this item.
 		var pos   = m_myDiv.offset();
-      	var elPos = { X:pos.left , Y:pos.top };
-      	var mPos  = { X:evt.clientX-elPos.X, Y:evt.clientY-elPos.Y };
+	      	var elPos = { X:pos.left , Y:pos.top };
+	      	var mPos  = { X:evt.clientX-elPos.X, Y:evt.clientY-elPos.Y };
 		var mPosInt = { X:parseInt(mPos.X*1.0/m_collisionScaleFactor), Y:parseInt(mPos.Y*1.0/m_collisionScaleFactor) };
-      	
-		//log("Mouse position x:"+ mPosInt.X +" y:"+ mPosInt.Y, LOG_DEBUG);
-      	//log("           col w:"+ m_collisionWidth +" y:"+ m_collisionHeight, LOG_DEBUG);
 		
 		// it does not collide when it is not on the area.
 		if(mPosInt.X>=0 && mPosInt.Y>=0 && mPosInt.X<m_collisionWidth && mPosInt.Y<m_collisionHeight)
@@ -247,17 +244,27 @@ var GIMLitem = function()
 	};
 	
 	// load in the values for the item from the json array.
-	this.parseGML=function(gmlItem)
+	this.parseGML=function(gmlItem, rootPath="")
 	{
 		m_itemName = gmlItem['NAME'];
 		m_internName = gmlItem['INTERN'];
-		m_folder = gmlItem['FOLDER'];
+		m_folder = rootPath;//gmlItem['FOLDER'];
 		m_description = gmlItem['DESCRIPTION'];
-		m_imageFile = gmlItem['IMAGE'];
-		m_overImageFile = gmlItem['OVERIMAGE'];
-		m_collisionImageFile = gmlItem['COLLISIONIMAGE'];
+		m_imageFile = "@ IMAGE not found. @";//gmlItem['IMAGE'];
+		m_overImageFile = "";//gmlItem['OVERIMAGE'];
+		m_collisionImageFile = "";// gmlItem['COLLISIONIMAGE'];
 		m_posLocation = "";
 		m_script_click = "";
+
+		if(!__defined(gmlItem['INTERN']))
+			m_internName = "@_INTERN_not_found_@";
+		// replace spaces from intern name.
+		var i2 = m_internName.split(' ').join('_');
+		if(m_internName!=i2)
+		{
+			log("Spaces are not allowed in intern names. ['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
+			m_internName = i2;
+		}
 		
 		// get the location.
 		var location = [];
@@ -265,9 +272,6 @@ var GIMLitem = function()
 			location = gmlItem['LOCATION'];
 		if(__defined(gmlItem['ROOM']))
 			location = gmlItem['ROOM'];
-		
-		if(!__defined(gmlItem['INTERN']))
-			m_internName = "@_INTERN_not_found_@";
 		if(location.length>0)
 		{
 			var loc = location[0];
@@ -284,24 +288,22 @@ var GIMLitem = function()
 		// check if the json has the entries.
 		if(!__defined(gmlItem['NAME']))
 			m_itemName = "@ NAME not found @";
-		// replace spaces from intern name.
-		var i2 = m_internName.split(' ').join('_');
-		if(m_internName!=i2)
-		{
-			log("Spaces are not allowed in intern names. ['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
-			m_internName = i2;
-		}
 		// check for the folder.
-		if(!__defined(gmlItem['FOLDER']))
-			m_folder = "";
+		if(__defined(gmlItem['FOLDER']))
+			m_folder = rootPath+gmlItem['FOLDER'];
 		m_folder=__addSlashIfNot(m_folder);
+
 		if(!__defined(gmlItem['DESCRIPTION']))
 			m_description = "";
-		if(!__defined(gmlItem['IMAGE']))
-			m_imageFile = "@ IMAGE not found. @";
-		if(!__defined(gmlItem['OVERIMAGE']))
+		if(__defined(gmlItem['IMAGE']))
+			m_imageFile = gmlItem['IMAGE'];
+		if(__defined(gmlItem['OVERIMAGE']))
+			m_overImageFile = gmlItem['OVERIMAGE'];
+		else
 			m_overImageFile = m_imageFile;
-		// get the collision image file name. it could also be named COLLISIONIMAGE, see above.	
+		// get the collision image file name.	
+		if(__defined(gmlItem['COLLISIONIMAGE']))
+			m_collisionImageFile = gmlItem['COLLISIONIMAGE'];
 		if(__defined(gmlItem['COLLISION']))
 			m_collisionImageFile = gmlItem['COLLISION'];
 		// if there is no collision image, take another one.
@@ -361,13 +363,13 @@ var GIMLroom = function()
 	this.getBGimagePath=function() {return m_folder+m_bgImageFile;};
 	
 	// parse the gml of a room.
-	this.parseGML=function(gmlRoom)
+	this.parseGML=function(gmlRoom, rootPath="")
 	{
 		me.setScaleFactor(1.0);
 		m_roomName = gmlRoom['NAME'];
 		m_internName = gmlRoom['INTERN'];
-		m_bgImageFile = gmlRoom['BGIMAGE'];
-		m_folder = gmlRoom['FOLDER'];
+		m_bgImageFile = "@ BGIMAGE not found. @";
+		m_folder = rootPath;// gmlRoom['FOLDER'];
 		// check if the json has the entries.
 		if(!__defined(m_roomName))
 			m_roomName = "@ NAME not found @";
@@ -380,12 +382,13 @@ var GIMLroom = function()
 			log("Spaces are not allowed in intern names. ['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
 			m_internName = i2;
 		}
-		if(!__defined(m_folder))
-			m_folder = "";
+
+		if(__defined(gmlRoom['FOLDER']))
+			m_folder = rootPath+gmlRoom['FOLDER'];
 		m_folder=__addSlashIfNot(m_folder);
 		
-		if(!__defined(m_bgImageFile))
-			m_bgImageFile = "@ BGIMAGE not found @";
+		if(__defined(gmlRoom['BGIMAGE']))
+			m_bgImageFile = gmlRoom['BGIMAGE'];
 		// set the room scale factor.
 		//room.setScaleFactor(m_scaleFactor); // set global scale. 0.0.29: multiply instead of or-ing.
 		if(__defined(gmlRoom['SCALEFACTOR']))	// get room scale.
@@ -469,8 +472,8 @@ var GIMLI = function()
 	var me = this; // protect this from be this'ed from something other inside some brackets.
 	
 	var m_GMURL_initpage = "";  // the gml file which was called on the init function.
-	var m_actualRoomIntern = ""; // the actual room intern name.
-	var m_startRoomIntern = ""; // the start room intern name.
+	var m_actualRoomIntern = "@ STARTLOCATION/STARTROOM not found. @"; // the actual room intern name.
+	var m_startRoomIntern = "@ STARTLOCATION/STARTROOM not found. @"; // the start room intern name.
 	var m_actualRoomX = 0;
 	var m_actualRoomY = 0;
 	var m_roomsLoaded = [];		// the rooms (locations) loaded with the gml file.
@@ -496,11 +499,11 @@ var GIMLI = function()
 // THIS IS THE MAIN GML FUNCTION SO FAR
 	
 	// load a gml json file.
-	this.parseGML = function(json)
+	this.parseGML = function(json, rootPath = "")
 	{
-		log("Parsing GML: "/*+JSON.stringify(json)*/, LOG_DEBUG);
+		log("Parsing GML [Path: "+rootPath+"]:"/*+JSON.stringify(json)*/, LOG_DEBUG);
 		
-		log("Converting array names to uppercase..", LOG_DEBUG);
+		log("Converting array names to uppercase..", LOG_DEBUG_VERBOSE);
 		var json2 = __jsonUpperCase(json);
 		json = json2;
 		
@@ -510,7 +513,8 @@ var GIMLI = function()
 			gmlArray = json['GMLS'];
 		
 		// get the start room. (StartLocation or StartRoom)
-		m_actualRoomIntern = m_startRoomIntern = "@ STARTLOCATION/STARTROOM not found. @";
+//TODO: remove that line below.
+//		m_actualRoomIntern = m_startRoomIntern = "@ STARTLOCATION/STARTROOM not found. @";
 		if(__defined(json['STARTLOCATION']))
 			m_actualRoomIntern = m_startRoomIntern = json['STARTLOCATION'];
 		if(__defined(json['STARTROOM']))
@@ -529,8 +533,8 @@ var GIMLI = function()
 		if(__defined(json['ROOMS']))
 			roomArray = json['ROOMS'];
 		
-		log("GML start room: "+m_startRoomIntern, LOG_DEBUG);
-		log("General GML scale factor: "+parseFloat(m_scaleFactor));
+		log("GML start room: "+m_startRoomIntern, LOG_USER);
+		log("General GML scale factor: "+parseFloat(m_scaleFactor), LOG_USER);
 		
 		// load in the rooms.
 		if(roomArray.length>0)
@@ -539,7 +543,7 @@ var GIMLI = function()
 			{
 				var jroom = roomArray[i];
 				var room = new GIMLroom();
-				room.parseGML(jroom);
+				room.parseGML(jroom, rootPath);
 				m_roomsLoaded.push(room);
 			}
 		}else{
@@ -554,9 +558,9 @@ var GIMLI = function()
 			{
 				var jitem = itemArray[i];
 				var item = new GIMLitem();
-				item.parseGML(jitem);
+				item.parseGML(jitem, rootPath);
 				m_itemsLoaded.push(item);
-				item.debug();
+				//item.debug();
 			}
 		}else{
 			log("No items defined in the given GML file.", LOG_WARN);
@@ -565,31 +569,34 @@ var GIMLI = function()
 		log(__itemCount()+" items loaded.", LOG_USER);
 		
 		// load the additional gml files recursively and one after each other.
-		__recursiveload(gmlArray,0);
+		__recursiveload(gmlArray,0, rootPath);
 	};
 
 	// load all the gml files recursively.
-	var __recursiveload = function(gmlArray, actual_i)
+	var __recursiveload = function(gmlArray, actual_i, rootPath ="")
 	{
 		if(gmlArray.length>actual_i)
 		{
-			var path = GMLurl.makeGMURL(m_GMURL_initpage.getDirectory()+gmlArray[actual_i]).getCombined();
-			if(!__isGMLFileLoaded(path))
+			var url = GMLurl.makeGMURL(m_GMURL_initpage.getDirectory()+rootPath+gmlArray[actual_i]);
+			var all = url.getCombined();
+			//var path = url.getDirectory();
+			// get the relative path to add to the json entries.			
+			var relativePath = GMLurl.makeGMURL(rootPath+gmlArray[actual_i]).getDirectory();
+			if(!__isGMLFileLoaded(all))
 			{
-				log("Additional GIML file to load: "+path);
+				log("Additional GIML file to load: "+all);
 				// file is not laoded, get it and then load the next one.
-				me.loadJSONFile(path, function(json) 
+				me.loadJSONFile(all, function(json) 
 				{
-					m_loadedGMLFiles.push(path);
-					me.parseGML(json);
-					__recursiveload(gmlArray,actual_i+1);
+					m_loadedGMLFiles.push(all);
+					me.parseGML(json, relativePath);
+					__recursiveload(gmlArray,actual_i+1,rootPath);
 				});
 			}else{
 				// file is already loaded, get the next one.
-				__recursiveload(gmlArray,actual_i+1);
+				__recursiveload(gmlArray,actual_i+1, rootPath);
 			}
-		}
-		
+		}		
 	}
 
 // ENDOF GML PARSER
@@ -625,7 +632,8 @@ var GIMLI = function()
 		//main.html("");
 		// get the background image path.
 		var imgPath = m_GMURL_initpage.getDirectory()+room.getBGimagePath();
-		
+		log("BG IMG PATH: "+imgPath);
+
 		//log("--> Loading background: "+imgPath,LOG_DEBUG);
 		
 		// Search all items which are associated to this room.
