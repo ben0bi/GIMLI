@@ -1008,8 +1008,8 @@ var GIMLI = function()
 		};
 		
 		outerwindow.mousemove(mtouchover);
-		outerwindow.on('touchstart',function(evt) {evt.preventDefault();evt.stopImmediatePropagation(); mtouchover(evt);});
-		outerwindow.on('touchmove',function(evt) {evt.preventDefault();evt.stopImmediatePropagation(); mtouchover(evt);});
+		outerwindow.on('touchstart',mtouchover);
+		outerwindow.on('touchmove',mtouchover);
 		
 		// go through all items and check if there is a click.
 		outerwindow.click(function(evt)
