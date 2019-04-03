@@ -101,7 +101,7 @@ here all images will be appended and other stuff. */
 }
 
 /* a giml item */
-.gimli-item {position: absolute; touch-action: none;}
+.gimli-item {position: absolute;}
 
 /* a giml description or name text. */
 .gimli-text 
