@@ -97,10 +97,11 @@ here all images will be appended and other stuff. */
 	image-rendering: -moz-crisp-edges; /* Firefox 3.6+ */
 	image-rendering: -o-crisp-edges; /* Opera 12 */
 	image-rendering: pixelated; /* Chrome 41+ and Opera 26+ */
+	touch-action: none;
 }
 
 /* a giml item */
-.gimli-item {position: absolute;}
+.gimli-item {position: absolute; touch-action: none;}
 
 /* a giml description or name text. */
 .gimli-text 

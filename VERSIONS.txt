@@ -1,5 +1,4 @@
-0.1.06 -> prevention of default touch events.
-0.1.05 -> added touch events for supporting mobiles, not tested yet.
+0.1.05-0.1.07 -> added touch events for supporting mobiles.
 0.1.04 -> can now load gmls from sub-directories. The entries in the gml can be relative. "FOLDER" tag can be omitted.
 0.1.03 -> Trying to load GMLs from sub-directories. Not done yet. Upload for working on another computer.
 0.1.01 - 0.1.2 -> added and removed a directory fix which aint working.
