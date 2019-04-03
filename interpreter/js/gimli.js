@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.1.02";
+const GIMLIVERSION = "0.1.03";
 
 // check if a variable is defined or not.
 function __defined(variable)

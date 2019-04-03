@@ -1,3 +1,4 @@
+0.1.3 -> Trying to load GMLs from sub-directories. Not done yet. Upload for working on another computer.
 0.1.1 - 0.1.2 -> added and removed a directory fix which aint working.
 
 0.1.0 -> Recursive loading of GMLs (in the base directory) works. Happy Easter, this is the "first" version. :)

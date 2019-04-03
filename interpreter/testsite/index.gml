@@ -1,7 +1,7 @@
 {
 	"STARtLOCATION": "living_room",
 	"ScaleFactor": "2.0",
-	"GMLS": ["floor.gml"],
+	"GMLS": ["locations/floor/floor.gml"],
 	"LOCATIONS": [
 		{
 			"NAME": "Living Room",
