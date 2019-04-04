@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.1.07";
+const GIMLIVERSION = "0.1.10";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -334,6 +334,7 @@ var GIMLitem = function()
 		div.append(myElement);		
 	};
 	
+	// check if the mouse is over this item.
 	this.isMouseOver = function(evt) {return __checkMouseOver(evt);};
 };
 
@@ -545,6 +546,7 @@ var GIMLI = function()
 				var room = new GIMLroom();
 				room.parseGML(jroom, rootPath);
 				m_roomsLoaded.push(room);
+				room.debug(LOG_DEBUG_VERBOSE);
 			}
 		}else{
 			log("No rooms defined in the given GML file.", LOG_WARN);
@@ -560,7 +562,7 @@ var GIMLI = function()
 				var item = new GIMLitem();
 				item.parseGML(jitem, rootPath);
 				m_itemsLoaded.push(item);
-				//item.debug();
+				item.debug(LOG_DEBUG_VERBOSE);
 			}
 		}else{
 			log("No items defined in the given GML file.", LOG_WARN);
@@ -588,12 +590,14 @@ var GIMLI = function()
 				// file is not laoded, get it and then load the next one.
 				me.loadJSONFile(all, function(json) 
 				{
+					// TODO: remove ../ and predessing dir from all so that different dirs to the same file will be the same.
 					m_loadedGMLFiles.push(all);
 					me.parseGML(json, relativePath);
 					__recursiveload(gmlArray,actual_i+1,rootPath);
 				});
 			}else{
 				// file is already loaded, get the next one.
+				log("File "+gmlArray[actual_i]+" already loaded.", LOG_WARN);
 				__recursiveload(gmlArray,actual_i+1, rootPath);
 			}
 		}		
@@ -632,7 +636,7 @@ var GIMLI = function()
 		//main.html("");
 		// get the background image path.
 		var imgPath = m_GMURL_initpage.getDirectory()+room.getBGimagePath();
-		log("BG IMG PATH: "+imgPath);
+		log("BG IMAGE PATH: "+imgPath, LOG_DEBUG);
 
 		//log("--> Loading background: "+imgPath,LOG_DEBUG);
 		
@@ -1089,22 +1093,44 @@ jBash.registerCommand("items", "Show info about the loaded items.", function(par
 jBash.registerCommand("jump", "Jump to a given room (intern name)<br />E.g. {<span class='jBashCmd'>jump to garden</span>}", GIMLI.jump);
 jBash.registerCommand("j", "Short for the <span class='jBashCmd'>jump</span> command.", GIMLI.jump, true);
 
+// set or get the log level.
+jBash.registerCommand("loglevel","Set or get the log level. The bigger, the more verbose. From 0 to 4. USER, ERROR, WARNING, DEBUG, VERBOSE.<br />E.g. {<span class='jBashCmd'>loglevel 3</span>}",
+function(params)
+{
+	if(__defined(params[1]))
+	{
+		if(""+parseInt(params[1])!=params[1])
+			log("<span class='jBashWarning'>Wrong parameter given.</span> Please use a number between 0 and 4 or nothing.", LOG_USER);
+		log.loglevel = parseInt(params[1]);
+		if(log.loglevel>LOG_DEBUG_VERBOSE)
+			log.loglevel = LOG_DEBUG_VERBOSE;
+		if(log.loglevel < 0)
+			log.loglevel = 0;
+		log("Log level set to <span class='jBashCmd'>"+log.loglevel+"</span>.", LOG_USER);
+	}else{
+		log("Log level is <span class='jBashCmd'>"+log.loglevel+"</span>",LOG_USER);
+	}
+});
+
 /* FUNCTIONS to Show and hide the console. */
 GIMLI.hideConsole = function()  {__hideGIMLIconsole();}
 GIMLI.showConsole = function() {__showGIMLIconsole();}
 
+// hide the gimli console.
 function __hideGIMLIconsole()
 {
 	m___consoleDirection = -1;
 	m___consoleInterval=setInterval(__GIMLIconsoleMover,15);
 }
 
+// show the gimli console.
 function __showGIMLIconsole()
 {
 	m___consoleDirection=2; // 2 to show window, 1 for moving only.
 	m___consoleInterval=setInterval(__GIMLIconsoleMover,15);
 }
 
+// animation to show or hide the console.
 var m___consoleDirection = 0;
 var m___consoleInterval = null;
 function __GIMLIconsoleMover()

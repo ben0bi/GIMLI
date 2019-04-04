@@ -236,7 +236,8 @@ Optional parameters have a default value.<br />
 	<td><span class="highlight">GMLS</span></td>
 	<td><span class="highlight">---</span></td>
 	<td>[empty array]</td>
-	<td>Array with the names of additional GML files to load. You can use this tag in the additional files, too,  to load even more additional files.</td>
+	<td>Array with the paths and names of additional GML files to load. You can use this tag in the additional files, too,  to load even more additional files.
+	It will include the directory of the file so you don't need to use the <span class="highlight">FOLDER</span> tag everywhere.</td>
 </tr>
 <tr>
 	<td><span class="highlight">STARTROOM</span></td>
@@ -344,7 +345,7 @@ as much (single) item entries as you want. An item has a little more parameters 
 </tr>
 <tr>
 	<td><span class="highlight">COLLISION</span></td>
-	<td>COLLISIONIMAGE</td>
+	<td><span class="highlight">COLLISIONIMAGE</span></td>
 	<td>{<span class="highlight">IMAGE</span> or <span class="highlight">OVERIMAGE</span>}</td>
 	<td>The <span class="highlight">collision image</span> of the item. You can use only the collison image for e.g. 
 	open doors. Vice-versa, it will take the main image as collision image if none is given. The collision image will 
@@ -386,6 +387,7 @@ This is an example gml file with two rooms and two items:<br />
 <div class="code"><pre>{
 	"STARTLOCATION":"start_room",
 	"SCALE": 2.0,
+	"GMLS": ["cellar.gml", "backhouse/garden.gml"],
 	"ROOMS": [
 		{
 			"NAME": "Start Room",
@@ -420,18 +422,46 @@ This is an example gml file with two rooms and two items:<br />
 		}
 	]
 }</pre></div><br />
-As you can see, the items are both located in the start room, but the second one has no image. It will only check mouseover on the collision image without displaying anything. The scripts of the items are jBash-commands with some parameters. The parameter "to" could be omitted. ;) The <span class="highlight">link</span> opens a new, external, "normal" web page while the <span class="highlight">jump</span> loads another location from the same gml file.<br />
+First we set the start room. The start room is the one loaded with the last loaded gml file, where it is set. So if there is a start room in cellar.gml, it will take this one.<br />
+<br />
+Second there is a global scale factor which will be applied to all images. I use 2.0 to get some nice pixelated view.<br />
+<br />
+In the GMLs-Array, there are two file names. It will use the directory of this files (the second one) for loading stuff from that files.
+So you can forget about the FOLDER tag, which you see everywhere below.<br />
+<br />
+As you can see, the items are both located in the start room, but the second one has no image. It will only check mouseover on the collision image without displaying anything.
+The scripts of the items are jBash-commands with some parameters. The parameter "to" could be omitted. ;) The <span class="highlight">link</span> opens a new, external, "normal"
+web page while the <span class="highlight">jump</span> loads another location from the same gml file.<br />
 <br />
 <hr />
+
 <a name="script_structure"></a>
 <h1>Scripting with GIML</h1>
-<span class="highlight">(TODO)</span> Short: Just make a javascript function, add it to jBash and call the jBash-command for it in the "SCRIPT" tag of your item. Only global functions just right now.
-
-<br /><br /><hr />
+<span class="highlight">(TODO)</span> Short: Just make a javascript function with one parameter, add it to jBash and call the jBash-command for it in the "SCRIPT" tag of your item. Only global functions just right now.
+jBash commands can have several parameters separated by space. All parameters are given as a whole string to your function.<br />
+<br />
+Those are the predefined commands exclusively made for GML, where Secondary is the same command in another word:<br />
+<br />
+<table>
+<tr><td>Command</td><td>Secondary</td><td>Parameters</td><td>Description</td></tr>
+<tr>
+	<td><span class="highlight">jump</td>
+	<td><span class="highlight">j</td>
+	<td>[<span class="highlight">to</span>] <span class="highlight">target</span></td>
+	<td>Loads the <span class="highlight">target</span> room (<span class="highlight">intern name</span>) from the same gml page. <span class="highlight">to</span> can be omitted.</td>
+</tr>
+<tr>
+	<td><span class="highlight">link</td>
+	<td><span class="highlight">l</td>
+	<td>[<span class="highlight">to</span>] <span class="highlight">url</span></td>
+	<td>Loads the <span class="highlight">url</span> as normal website in the same window. <span class="highlight">to</span> can be omitted.</td>
+</tr>
+</table>
+<br /><hr />
 
 <a name="about"></a>
 <h1>About the Author</h1>
-<span class="highlight">GIML[i]</span> was invented by <span class="highlight">Benedict Jäggi</span> a.k.a. <span class="highlight">oki wan benobi</span> in the year 19amb (Anno Millenium Bug).
+<span class="highlight">GIML[i]</span> - and prior to that <a href="https://github.com/ben0bi/jBash">jBash</a> - were invented by <span class="highlight">Benedict Jäggi</span> a.k.a. <span class="highlight">oki wan benobi</span> in the year 19amb (Anno Millenium Bug).
 Benedict visited the <a href="https://www.games-academy.de/">Games Academy</a> in Berlin between 2006 (6amb) to 2008 (8amb) and made a degree in <span class="highlight">3D Programming</span> and <span class="highlight">Game Design</span>. But instead of working in the games industry, he decided to go back to his birth place and try to "make it" from there.<br />
 <br />
 He grew up with computers and used the browser based internet since it was thrown into the world in 1995. He learned to program and use much types of programming languages and computers. Starting with BASICa on the Atari, then on DOS, he advanced to C and C++ and a very very little of Assembler. Then the internet showed up ;) and he learned Java, JavaScript, C# and besides that the web stuff (HTML, CSS, PHP, SQL) and with the Games Academy also all sorts and types of game engines, including the Half-Life 2 engine, the Unity Engine and the Unreal Engine, and as hobbyist also all sorts of mobile devices like the Nintendo Gameboy, Android devices, Nintendo NDS and other stuff. Also he learned to program and assemble Arduino based devices and in the latter he makes very much stuff with Raspberry Pi(e)s. He can say from himself that he can program on almost every device. Maybe not with the best code but...on every device. =)
@@ -441,6 +471,6 @@ He grew up with computers and used the browser based internet since it was throw
 
 </div></div>
 
-<div class="footer"><br /><br />Doc. v1.02 by Benedict Jäggi / Latest change: 02.04.2019</div>
+<div class="footer"><br /><br />Doc. v1.03 by Benedict Jäggi / Latest change: 02.04.2019</div>
 </body>
 </html>

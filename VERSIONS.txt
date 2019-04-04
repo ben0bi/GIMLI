@@ -1,4 +1,7 @@
-0.1.05-0.1.08 -> added touch events for supporting mobiles.
+0.1.10 -> new jBash command "loglevel" to set or get the actual log level.
+0.1.09 -> show warning when the same gml file loads twice. But it does NOT show the warning if the files are accessed from different directories.
+			TODO: set up code to make unique directory names. (change e.g. rootdir/my_pre_dir/../my_new_dir to rootdir/my_new_dir)
+0.1.05-0.1.08 -> added touch events for supporting mobiles. Not really working but....it's something.
 0.1.04 -> can now load gmls from sub-directories. The entries in the gml can be relative. "FOLDER" tag can be omitted.
 0.1.03 -> Trying to load GMLs from sub-directories. Not done yet. Upload for working on another computer.
 0.1.01 - 0.1.2 -> added and removed a directory fix which aint working.
