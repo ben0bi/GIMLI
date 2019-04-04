@@ -27,22 +27,12 @@ like a ball to play with. If you click an Item, a script would be loaded and do 
 the screws into your bag ("Warenkorb") or moving the ball a little on the screen. Or it could open
 a customized GIMLI-Window, like for paying the screws on the "real market".
 
-IT IS halfway RUNNING. But please look at the file structure in the "testsite" folder.
+Refer to the documentation folder for more information.
 
-This are the defined words for GML right now. All array indexes (names) will be converted to uppercase letters.    
-Preferred means, if both words appear in the GML file at the same "location", the preferred word stuff will be loaded over the other one.
-
-STARTLOCATION, STARTROOM  	// This is the starting point for the user. It is the intern name of a room.    
-							// ROOM is preferred over LOCATION.    
-SCALEFACTOR, SCALE			// the scalefactor can be set globally, per room and per item. It will scale like that: Global->Room->Item.    
-							// SCALE is preferred over SCALEFACTOR.    
-							// So, if the item has no scale factor, it will take the rooms one.    
-							// If the room has none, it will take the global one.    
-NAME						// the display name of a room or item.    
-INTERN						// the internal name of a room or item, which is used by the program code.    
-FOLDER						// the folder where the images and other stuff of the item or room resides in. Seen from the directory with the gml-file.    
-BGIMAGE						// the rooms background image. From that one we take the size to calculate scrolling constraints and screen centering.    
-LOCATIONS, ROOMS			// Array with the room specs in it. ROOMS is preferred over LOCATIONS.    
-ITEMS						// Array with the items in it. Not yet supported.    
+A GIML-Page is running on http://ben0bi.dlinkddns.com
     
 Look at the testsite/index.gml file for the basic structure.
+
+Newest Additions:
+Load GML files from GML files with relative directories in them.
+You can omit the "FOLDER" tag by putting the file into the right folder.
