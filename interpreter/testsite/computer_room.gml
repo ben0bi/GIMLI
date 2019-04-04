@@ -1,4 +1,5 @@
 {
+	"GMLS": ["locations/floor/floor.gml"],
 	"LOCATIONS": [
 		{
 			"NAME": "Computer Room",

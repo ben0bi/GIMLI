@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.1.10";
+const GIMLIVERSION = "0.1.12";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -28,6 +28,102 @@ function __defined(variable)
 		return false;
 	return true;
 }
+
+// remove all "dir/../" combinations to get "unique" directories from each subfolder.
+function __shortenDirectory(longdir)
+{
+	var dir = "";
+	var arr = [];
+	for(var i=0;i<longdir.length;i++)
+	{
+		var lc = longdir[i];
+		var ret =0;
+		// put all directory names into an array.
+		if(lc=="/" || lc=="\\" || i==longdir.length-1)
+		{
+			if(lc=="/" || lc=="\\")
+				dir=dir+"/";	// set same slash everywhere.
+			else
+				dir=dir+lc;
+			
+			arr.push(dir);
+			dir="";
+		}else{
+			dir=dir+lc;
+		}
+	}
+	
+	var done = false;
+	while(!done)
+	{
+		var arr2=[];
+		var dirpushed = false;
+		var firstdirpushed = false;
+		//console.log("turn");
+		done = true;
+		for(var i=0;i<arr.length;i++)
+		{
+			var a1=arr[i];
+			if(a1!="../")
+			{
+				arr2.push(a1);
+				dirpushed = true;
+				firstdirpushed = true;
+			}else{
+				// it's ../, go one dir back.
+				// but only if there is a dir before.
+				//console.log("a1: "+a1+" P: "+dirpushed+firstdirpushed);
+				if(dirpushed && firstdirpushed)
+				{
+					arr2.pop();
+					done = false;
+				}else{
+					// push it anyway if it is at first position or if there are more of them.
+					arr2.push(a1);
+				}
+				dirpushed=false;
+			}
+		}
+		arr=arr2;
+	}
+	
+	dir="";
+	for(var i=0;i<arr.length;i++)
+		dir+=arr[i];
+	
+	if(dir!=longdir)
+		log("Directory shortened: "+longdir+" to "+dir, LOG_DEBUG_VERBOSE);
+	
+	return dir;
+}
+
+// add a slash to the folder name if there is none.
+function __addSlashIfNot(directoryName)
+{
+	var d = directoryName;
+	if(d==null)
+		d="";
+	// add ending / if it is not there.
+	if(d.length>=1)
+	{
+		lastChar = d[d.length-1];
+		if(lastChar!='\\' && lastChar!='/')
+			d+='/';
+	}
+	return d;
+}
+
+// test directory shortener.
+/*console.log(" ");
+console.log(__shortenDirectory("test/bla/blu"));
+console.log(__shortenDirectory("test/bla/nope/../blu"));
+console.log(__shortenDirectory("test/nope/../nope2/../bla/blu"));
+console.log(__shortenDirectory("test/nope/nope2/../../bla/blu"));
+console.log(__shortenDirectory("../b_test/nope/nope2/../../bla/blu"));
+console.log(__shortenDirectory("../../b_test/nope/nope2/../../bla/blu"));
+console.log(__shortenDirectory("../../c_test/nope/nope2/../../bla/blu/nope3/../blub.glm"));
+console.log(" ");
+*/
 
 // log something.
 // loglevels: 0: only user related stuff like crash errors and user information and such.
@@ -60,23 +156,6 @@ var log = function(text, loglevel = 0)
 	}
 };
 log.loglevel = LOG_DEBUG;
-
-// add a slash to the folder name if there is none.
-function __addSlashIfNot(directoryName)
-{
-	var d = directoryName;
-	if(d==null)
-		d="";
-	// add ending / if it is not there.
-	if(d.length>=1)
-	{
-		lastChar = d[d.length-1];
-		if(lastChar!='\\' && lastChar!='/')
-			d+='/';
-	}
-	return d;
-}
-
 
 // an item in the giml system.
 var GIMLitem = function()
@@ -140,9 +219,9 @@ var GIMLitem = function()
 		var sc = me.getScaleFactor(outerscalefactor);
 
 		rootdirectory=__addSlashIfNot(rootdirectory);
-		var path = rootdirectory+m_folder+m_imageFile;
-		var overpath = rootdirectory+m_folder+m_overImageFile;
-		var collisionpath = rootdirectory+m_folder+m_collisionImageFile;
+		var path = __shortenDirectory(rootdirectory+m_folder+m_imageFile);
+		var overpath = __shortenDirectory(rootdirectory+m_folder+m_overImageFile);
+		var collisionpath = __shortenDirectory(rootdirectory+m_folder+m_collisionImageFile);
 		var divel = jQuery.getNewDiv('','item_'+m_id,'gimli-item');
 		
 		var txt = '';
@@ -290,7 +369,7 @@ var GIMLitem = function()
 			m_itemName = "@ NAME not found @";
 		// check for the folder.
 		if(__defined(gmlItem['FOLDER']))
-			m_folder = rootPath+gmlItem['FOLDER'];
+			m_folder = __shortenDirectory(rootPath+gmlItem['FOLDER']);
 		m_folder=__addSlashIfNot(m_folder);
 
 		if(!__defined(gmlItem['DESCRIPTION']))
@@ -385,7 +464,7 @@ var GIMLroom = function()
 		}
 
 		if(__defined(gmlRoom['FOLDER']))
-			m_folder = rootPath+gmlRoom['FOLDER'];
+			m_folder = __shortenDirectory(rootPath+gmlRoom['FOLDER']);
 		m_folder=__addSlashIfNot(m_folder);
 		
 		if(__defined(gmlRoom['BGIMAGE']))
@@ -580,10 +659,10 @@ var GIMLI = function()
 		if(gmlArray.length>actual_i)
 		{
 			var url = GMLurl.makeGMURL(m_GMURL_initpage.getDirectory()+rootPath+gmlArray[actual_i]);
-			var all = url.getCombined();
+			var all = __shortenDirectory(url.getCombined());
 			//var path = url.getDirectory();
 			// get the relative path to add to the json entries.			
-			var relativePath = GMLurl.makeGMURL(rootPath+gmlArray[actual_i]).getDirectory();
+			var relativePath = __shortenDirectory(GMLurl.makeGMURL(rootPath+gmlArray[actual_i]).getDirectory());
 			if(!__isGMLFileLoaded(all))
 			{
 				log("Additional GIML file to load: "+all);
@@ -635,9 +714,7 @@ var GIMLI = function()
 		// clear the main window.
 		//main.html("");
 		// get the background image path.
-		var imgPath = m_GMURL_initpage.getDirectory()+room.getBGimagePath();
-		log("BG IMAGE PATH: "+imgPath, LOG_DEBUG);
-
+		var imgPath = __shortenDirectory(m_GMURL_initpage.getDirectory()+room.getBGimagePath());
 		//log("--> Loading background: "+imgPath,LOG_DEBUG);
 		
 		// Search all items which are associated to this room.

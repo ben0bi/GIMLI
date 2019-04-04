@@ -1,3 +1,5 @@
+0.1.12 -> use of the __shortenDirectory function for comparing gml file paths for double entries.
+0.1.11 -> new function __shortenDirectory(longdir) to remove all "dir/../" combinations from a directory.
 0.1.10 -> new jBash command "loglevel" to set or get the actual log level.
 0.1.09 -> show warning when the same gml file loads twice. But it does NOT show the warning if the files are accessed from different directories.
 			TODO: set up code to make unique directory names. (change e.g. rootdir/my_pre_dir/../my_new_dir to rootdir/my_new_dir)
