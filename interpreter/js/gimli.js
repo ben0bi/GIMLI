@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.1.12";
+const GIMLIVERSION = "0.1.14";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -189,6 +189,10 @@ var GIMLitem = function()
 	var m_script_click = "";
 
 	var m_myDiv = null;
+
+	// if this is false, no further processing will be done on mouseover.
+	var m_CollisionLoaded = false;
+	this.isCollisionLoaded =function() {return m_CollisionLoaded;};
 	
 	// get world scale factor.
 	this.getScaleFactor=function(outerScaleFactor=1.0) 
@@ -215,6 +219,7 @@ var GIMLitem = function()
 	this.getDOMElement = function(rootdirectory="", outerscalefactor = 1.0) 
 	{
 		m_myDiv = null;
+		m_CollisionLoaded = false;
 
 		var sc = me.getScaleFactor(outerscalefactor);
 
@@ -228,7 +233,9 @@ var GIMLitem = function()
 		// maybe there is no main image (transparent, open doors or alike)
 		if(m_imageFile!="@ IMAGE not found. @")
 			txt='<img src="'+path+'" id="item_image_'+m_id+'" class="gimli-image" />';
-		txt+='<img src="'+overpath+'" id="item_image_over_'+m_id+'" class="gimli-image" style="display:none;">';
+		// maybe there is no mouseover image (hidden items only need a collision image.)
+		if(m_overImageFile!="@ IMAGE not found. @")
+			txt+='<img src="'+overpath+'" id="item_image_over_'+m_id+'" class="gimli-image" style="display:none;">';
 
 		divel.css('top', m_posY+'px');
 		divel.css('left', m_posX+'px');
@@ -259,6 +266,7 @@ var GIMLitem = function()
 			m_collisionDataContext = context;
 			m_collisionWidth = width;
 			m_collisionHeight = height;
+			m_CollisionLoaded = true;
 		}
 		colimg.src = collisionpath;
 		m_myDiv = divel;		
@@ -269,7 +277,9 @@ var GIMLitem = function()
 	this.click=function(evt) 
 	{
 		if(m_script_click.length>0 && m_script_click!=parseInt(m_script_click))
+		{
 			jBash.Parse(m_script_click);
+		}
 	};
 
 	// show debug information.
@@ -322,7 +332,7 @@ var GIMLitem = function()
 		return false;
 	};
 	
-	// load in the values for the item from the json array.
+	// load in the values for the ITEM from the json array.
 	this.parseGML=function(gmlItem, rootPath="")
 	{
 		m_itemName = gmlItem['NAME'];
@@ -442,7 +452,7 @@ var GIMLroom = function()
 	// return the image file including the path.
 	this.getBGimagePath=function() {return m_folder+m_bgImageFile;};
 	
-	// parse the gml of a room.
+	// parse the gml of a ROOM.
 	this.parseGML=function(gmlRoom, rootPath="")
 	{
 		me.setScaleFactor(1.0);
@@ -609,9 +619,17 @@ var GIMLI = function()
 		// get locations (LOCATIONS or ROOMS)
 		var roomArray = [];
 		if(__defined(json['LOCATIONS']))
-			roomArray = json['LOCATIONS'];
+		{
+			var a = json['LOCATIONS'];
+			for(var i=0;i<a.length;i++)
+				roomArray.push(a[i]);
+		}		
 		if(__defined(json['ROOMS']))
-			roomArray = json['ROOMS'];
+		{
+			var b = json['ROOMS'];
+			for(var i=0;i<b.length;i++)
+				roomArray.push(b[i]);
+		}		
 		
 		log("GML start room: "+m_startRoomIntern, LOG_USER);
 		log("General GML scale factor: "+parseFloat(m_scaleFactor), LOG_USER);
@@ -1066,8 +1084,8 @@ var GIMLI = function()
 		outerwindow.append(middlewindow);
 		outerwindow.append(elconsole_outer);
 		//outerwindow.append(descriptionwindow);		
-		
-		// go through all items and check if there is a mouse over.
+
+		// event function to go through all items and check if there is a mouse over.
 		var mtouchover = function(evt)
 		{
 			var isover = null;
@@ -1087,7 +1105,7 @@ var GIMLI = function()
 				$('#gimli-text-description').hide();
 			}			
 		};
-		
+				
 		outerwindow.mousemove(mtouchover);
 		outerwindow.on('touchstart',mtouchover);
 		outerwindow.on('touchmove',mtouchover);
@@ -1104,7 +1122,11 @@ var GIMLI = function()
 					clickedItem = itm;
 			}
 			if(clickedItem!=null)
+			{
 				clickedItem.click(evt);
+			}
+			// TODO: Wait for loading of images.
+			mtouchover(evt);
 		});
 
 		var t='<a href="https://github.com/ben0bi/GIMLI/">GIML-Interpreter</a> v'+GIMLIVERSION+' (JS-Version) by Benedict Jäggi in 2019&nbsp;|&nbsp;';

@@ -8,7 +8,8 @@
 			"INTERN": "living_room",
 			"FOLDER": "locations/living_room",
 			"BGIMAGE": "living_room.png"
-		},
+		}],
+	"ROOMS": [
 		{
 			"NAME": "Benis Bastelschuppen",
 			"INTERN": "werkstatt",
