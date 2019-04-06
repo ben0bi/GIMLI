@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.1.14";
+const GIMLIVERSION = "0.1.15";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -1089,9 +1089,12 @@ var GIMLI = function()
 		var mtouchover = function(evt)
 		{
 			var isover = null;
+			var isloaded = true;
 			for(var i = 0; i<m_actualRoomItems.length;i++)
 			{
 				var itm = m_actualRoomItems[i];
+				if(!itm.isCollisionLoaded())
+					isloaded = false;
 				if(itm.isMouseOver(evt))
 					isover=itm;
 			}
@@ -1103,7 +1106,11 @@ var GIMLI = function()
 			}else{
 				outerwindow.css('cursor','auto');
 				$('#gimli-text-description').hide();
-			}			
+			}
+			
+			// wait 50ms and redo if not all images are loaded.
+			if(!isloaded)
+				window.setTimeout(function() {mtouchover(evt);}, 50);
 		};
 				
 		outerwindow.mousemove(mtouchover);

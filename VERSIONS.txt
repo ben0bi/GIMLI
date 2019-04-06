@@ -1,3 +1,4 @@
+0.1.15 -> calling mtouchover each 50ms until all images are loaded. (see bathroom location ;) )
 0.1.14 -> added m_CollisionLoaded to the items to determine if mouse check should be done or...not. Not yet functional.
 0.1.13 -> can now use (one) ROOMS AND (one) LOCATIONS array instead of "or".
 0.1.12 -> use of the __shortenDirectory function for comparing gml file paths for double entries.
