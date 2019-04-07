@@ -25,6 +25,14 @@
 			"LOCATION": ["floor", 0, 0]
 		},
 		{
+			"NAME": "Benis Museum",
+			"INTERN": "door_floor_to_museum",
+			"OVERIMAGE": "floor_to_sleep_room.png",
+			"COLLISION": "floor_collision_to_sleep_room.png",
+			"onclick": "jump to photo_museum",
+			"LOCATION": ["floor", 0, 0]
+		},
+		{
 			"NAME": "To the bath room.",
 			"INTERN": "door_floor_to_toilet",
 			"OVERIMAGE": "floor_to_closet.png",
