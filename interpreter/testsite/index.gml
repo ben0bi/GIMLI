@@ -1,19 +1,17 @@
 {
 	"STARtLOCATION": "living_room",
 	"ScaleFactor": "2.0",
-	"GMLS": ["locations/floor/floor.gml", "locations/toilet/toilet.gml"],
+	"GMLS": [
+		"locations/floor/floor.gml",
+		"locations/toilet/toilet.gml",
+		"locations/museum/museum.gml"
+		],
 	"LOCATIONS": [
 		{
 			"NAME": "Living Room",
 			"INTERN": "living_room",
 			"FOLDER": "locations/living_room",
 			"BGIMAGE": "living_room.png"
-		},
-		{
-			"NAME": "Museum",
-			"INTERN": "photo_museum",
-			"FOLDER": "locations/museum",
-			"BGIMAGE": "museum.png"
 		}],
 	"ROOMS": [
 		{
@@ -33,16 +31,6 @@
 			"onclick": "jump to floor",
 			"LOCATION": ["living_room", 380, 0]
 		},
-		{
-			"NAME": "Teleport to my floor.",
-			"INTERN": "door_sleeping_room_to_floor",
-			"FOLDER": "locations/museum",
-			"COLLISIONIMAGE": "museum_door_collision.png",
-			"OVERIMAGE": "museum_door.png",
-			"onclick": "jump to floor",
-			"LOCATION": ["photo_museum", 0, 0]
-		},
-		
 		{
 			"NAME": "Bag of Weed",
 			"INTERN": "item_bow",

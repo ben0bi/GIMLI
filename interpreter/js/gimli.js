@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.1.15";
+const GIMLIVERSION = "0.2.0";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -113,23 +113,12 @@ function __addSlashIfNot(directoryName)
 	return d;
 }
 
-// test directory shortener.
-/*console.log(" ");
-console.log(__shortenDirectory("test/bla/blu"));
-console.log(__shortenDirectory("test/bla/nope/../blu"));
-console.log(__shortenDirectory("test/nope/../nope2/../bla/blu"));
-console.log(__shortenDirectory("test/nope/nope2/../../bla/blu"));
-console.log(__shortenDirectory("../b_test/nope/nope2/../../bla/blu"));
-console.log(__shortenDirectory("../../b_test/nope/nope2/../../bla/blu"));
-console.log(__shortenDirectory("../../c_test/nope/nope2/../../bla/blu/nope3/../blub.glm"));
-console.log(" ");
-*/
-
 // log something.
 // loglevels: 0: only user related stuff like crash errors and user information and such.
 // 1 = 0 with errors
 // 2 = 1 with warnings
 // 3 = 2 with debug
+// 4 = very much output, be aware.
 const LOG_USER = 0;
 const LOG_ERROR = 1;
 const LOG_WARN = 2;
@@ -157,12 +146,70 @@ var log = function(text, loglevel = 0)
 };
 log.loglevel = LOG_DEBUG;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// a sound file in the giml system.
+var GIMLsound = function()
+{
+	var me = this;
+	var m_soundFile ="";
+	var m_internName = "";
+	var m_folder = "";
+	var m_audio = null;
+	
+	this.getIntern = function() {return m_internName;};
+	this.parseGML=function(gmlSound, rootPath="")
+	{
+		m_folder=__addSlashIfNot(rootPath);
+				
+		if(__defined(gmlSound['FILE']))
+			m_soundFile=gmlSound['FILE'];
+		if(__defined(gmlSound['FOLDER']))
+			m_folder=__shortenDirectory(m_folder+gmlSound['FOLDER']);
+		m_folder=__addSlashIfNot(m_folder);
+		if(__defined(gmlSound['INTERN']))
+			m_internName = gmlSound['INTERN'];
+		var i2 =m_internName.split(' ').join('_');
+		if(i2!=m_internName)
+		{
+			log("Spaces are not allowed in intern names. [Sound]['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
+			m_internName = i2;
+		}
+		
+		log("SND PATH: "+m_folder+m_soundFile);
+	};
+	
+	// play the sound. if it is not loaded yet, load it before.
+	this.playSound = function()
+	{
+		if(m_audio==null)
+		{
+			m_audio=new Audio(m_folder+m_soundFile);
+			log("Audio loaded for '"+m_internName+"' ==&gt; "+m_folder+m_soundFile);
+		}
+		
+		if(m_audio!=null)
+		{
+			m_audio.pause();
+			m_audio.currentTime = 0;
+			m_audio.play();
+		}
+	};
+	
+	this.debug = function(loglevel = LOG_DEBUG)
+	{
+		log("SOUND: "+m_internName+" --> "+m_soundFile, loglevel);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // an item in the giml system.
 var GIMLitem = function()
 {
 	var me = this;
 	var m_id = GIMLitem.getNewID(); // unique ID used for DOM processing.
-	var m_isPickable = false;
+	var m_isPickable = false;		// pickable not used yet.
 	this.setPickable = function(pickable) {m_isPickable = pickable;};
 	var m_posX = 0;
 	var m_posY = 0;
@@ -172,6 +219,7 @@ var GIMLitem = function()
 	var m_imageFile = "";	  // the visible image for this item.
 				  // if none is set, it will take the size of the collision image.
 	var m_overImageFile = ""; // mouse over image.
+	var m_clickSound = "";		// intern name of the sound to play when clicked.
 
 	var m_collisionImageFile = "";	
 	var m_collisionDataContext = null; // the collision image pixel data.
@@ -276,6 +324,7 @@ var GIMLitem = function()
 	// do something when the item is clicked.
 	this.click=function(evt) 
 	{
+		GIMLI.playSound(m_clickSound);
 		if(m_script_click.length>0 && m_script_click!=parseInt(m_script_click))
 		{
 			jBash.Parse(m_script_click);
@@ -289,6 +338,7 @@ var GIMLitem = function()
 		log(" --&gt; Image: '"+m_imageFile+"'", loglevel);
 		log(" --&gt; Collision: '"+m_collisionImageFile+"'", loglevel);
 		log(" --&gt; Mouseover: '"+m_overImageFile+"'", loglevel);
+		log(" --&gt; Clicksound: '"+m_clickSound+"'", loglevel);
 		log(" --&gt; Loc./Room: ['"+m_posLocation+"', "+m_posX+", "+m_posY+"]", loglevel);
 		log(" ", loglevel);
 	};
@@ -337,8 +387,8 @@ var GIMLitem = function()
 	{
 		m_itemName = gmlItem['NAME'];
 		m_internName = gmlItem['INTERN'];
-		m_folder = rootPath;//gmlItem['FOLDER'];
-		m_description = gmlItem['DESCRIPTION'];
+		m_folder = __addSlashIfNot(rootPath);
+		m_description = gmlItem['DESCRIPTION'];	// description not used yet.
 		m_imageFile = "@ IMAGE not found. @";//gmlItem['IMAGE'];
 		m_overImageFile = "";//gmlItem['OVERIMAGE'];
 		m_collisionImageFile = "";// gmlItem['COLLISIONIMAGE'];
@@ -351,7 +401,7 @@ var GIMLitem = function()
 		var i2 = m_internName.split(' ').join('_');
 		if(m_internName!=i2)
 		{
-			log("Spaces are not allowed in intern names. ['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
+			log("Spaces are not allowed in intern names.[Item]['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
 			m_internName = i2;
 		}
 		
@@ -366,7 +416,7 @@ var GIMLitem = function()
 			var loc = location[0];
 			var loc2 =loc.split(' ').join('_');
 			if(loc!=loc2)
-				log("Spaces are not allowed in intern names. ['"+loc+"' ==&gt; '"+loc2+"'] in location for item '"+m_internName+"'.", LOG_WARN);
+				log("Spaces are not allowed in intern names. [Item-Location]['"+loc+"' ==&gt; '"+loc2+"'] in location for item '"+m_internName+"'.", LOG_WARN);
 			m_posLocation = loc2;
 		}
 		if(location.length>1)
@@ -379,7 +429,7 @@ var GIMLitem = function()
 			m_itemName = "@ NAME not found @";
 		// check for the folder.
 		if(__defined(gmlItem['FOLDER']))
-			m_folder = __shortenDirectory(rootPath+gmlItem['FOLDER']);
+			m_folder = __shortenDirectory(m_folder+gmlItem['FOLDER']);
 		m_folder=__addSlashIfNot(m_folder);
 
 		if(!__defined(gmlItem['DESCRIPTION']))
@@ -413,6 +463,15 @@ var GIMLitem = function()
 			m_script_click = gmlItem['SCRIPT'];
 		if(__defined(gmlItem['ONCLICK']))
 			m_script_click = gmlItem['ONCLICK'];
+		// get the sound to play when the item is clicked.
+		if(__defined(gmlItem['SOUND']))
+			m_clickSound = gmlItem['SOUND'];
+		var cs2 = m_clickSound.split(' ').join('_');
+		if(m_clickSound!=cs2)
+		{
+			log("Spaces are not allowed in intern names. [Item-Clicksound]['"+m_clickSound+"' ==&gt; '"+cs2+"']", LOG_WARN);
+			m_clickSound = cs2;
+		}
 	};
 	
 	// add this item to a room div.
@@ -435,6 +494,8 @@ GIMLitem.getNewID = function()
 	GIMLitem.g_nextItemID+=1;
 	return id;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // a room in the giml system.
 var GIMLroom = function()
@@ -459,7 +520,8 @@ var GIMLroom = function()
 		m_roomName = gmlRoom['NAME'];
 		m_internName = gmlRoom['INTERN'];
 		m_bgImageFile = "@ BGIMAGE not found. @";
-		m_folder = rootPath;// gmlRoom['FOLDER'];
+		m_folder = __addSlashIfNot(rootPath);
+		
 		// check if the json has the entries.
 		if(!__defined(m_roomName))
 			m_roomName = "@ NAME not found @";
@@ -469,12 +531,12 @@ var GIMLroom = function()
 		var i2 = m_internName.split(' ').join('_');
 		if(m_internName!=i2)
 		{
-			log("Spaces are not allowed in intern names. ['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
+			log("Spaces are not allowed in intern names. [Location]['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
 			m_internName = i2;
 		}
 
 		if(__defined(gmlRoom['FOLDER']))
-			m_folder = __shortenDirectory(rootPath+gmlRoom['FOLDER']);
+			m_folder = __shortenDirectory(m_folder+gmlRoom['FOLDER']);
 		m_folder=__addSlashIfNot(m_folder);
 		
 		if(__defined(gmlRoom['BGIMAGE']))
@@ -494,6 +556,8 @@ var GIMLroom = function()
 		log(" ", loglevel);
 	};
 };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // a GML url has a forepart with the initial directory (all images will be loaded from that point)
 // and a back part with the actual site filename.
@@ -555,9 +619,10 @@ GMLurl.makeGMURL = function(filename)
 	return gmurl;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*******************************************************************************************************************************************************************/
 // The GIML-Interpreter
-var GIMLI = function()                       
+var GIMLI = function()
 {
 	var me = this; // protect this from be this'ed from something other inside some brackets.
 	
@@ -569,7 +634,7 @@ var GIMLI = function()
 	var m_roomsLoaded = [];		// the rooms (locations) loaded with the gml file.
 	var m_itemsLoaded = [];		// the items loaaded with the gml file.
 	var m_loadedGMLFiles = [];	// list with all the GML files which were loaeded.
-//	var m_gmlFilesToLoad = [];	// list with additional gml files to load.
+	var m_soundsLoaded = [];
 	
 	// scrolling variables.
 	var m_scrollXDir = 0;
@@ -629,10 +694,10 @@ var GIMLI = function()
 			var b = json['ROOMS'];
 			for(var i=0;i<b.length;i++)
 				roomArray.push(b[i]);
-		}		
+		}
 		
-		log("GML start room: "+m_startRoomIntern, LOG_USER);
-		log("General GML scale factor: "+parseFloat(m_scaleFactor), LOG_USER);
+		//log("GML start room: "+m_startRoomIntern, LOG_USER);
+		//log("General GML scale factor: "+parseFloat(m_scaleFactor), LOG_USER);
 		
 		// load in the rooms.
 		if(roomArray.length>0)
@@ -664,8 +729,25 @@ var GIMLI = function()
 		}else{
 			log("No items defined in the given GML file.", LOG_WARN);
 		}
-		log(__roomCount()+ " rooms loaded.",LOG_USER);
-		log(__itemCount()+" items loaded.", LOG_USER);
+		
+		// load in sounds.
+		if(__defined(json['SOUNDS']))
+		{
+			var soundArray = json['SOUNDS'];
+			for(var i=0;i<soundArray.length;i++)
+			{
+				var sound=soundArray[i];
+				var snd = new GIMLsound();
+				// we need to include the project path here instead of "jump to room".
+				snd.parseGML(sound, __shortenDirectory(__addSlashIfNot(m_GMURL_initpage.getDirectory())+rootPath));
+				m_soundsLoaded.push(snd);
+				snd.debug(LOG_DEBUG_VERBOSE);
+			}
+		}
+		
+		//log(__roomCount()+ " rooms loaded.",LOG_USER);
+		//log(__itemCount()+" items loaded.", LOG_USER);
+		//log(__soundCount()+" sounds loaded.",LOG_USER);
 		
 		// load the additional gml files recursively and one after each other.
 		__recursiveload(gmlArray,0, rootPath);
@@ -678,7 +760,8 @@ var GIMLI = function()
 		{
 			var url = GMLurl.makeGMURL(m_GMURL_initpage.getDirectory()+rootPath+gmlArray[actual_i]);
 			var all = __shortenDirectory(url.getCombined());
-			//var path = url.getDirectory();
+			var path = __shortenDirectory(url.getDirectory());
+			
 			// get the relative path to add to the json entries.			
 			var relativePath = __shortenDirectory(GMLurl.makeGMURL(rootPath+gmlArray[actual_i]).getDirectory());
 			if(!__isGMLFileLoaded(all))
@@ -832,6 +915,8 @@ var GIMLI = function()
 	var __clearItems = function() {m_itemsLoaded = [];};
 	var __roomCount = function() {return m_roomsLoaded.length;}
 	var __itemCount = function() {return m_itemsLoaded.length;}
+	var __soundCount = function() {return m_soundsLoaded.length;}
+	
 	var __isGMLFileLoaded = function(filepath)
 	{
 		for(var i=0;i<m_loadedGMLFiles.length;i++)
@@ -1071,6 +1156,9 @@ var GIMLI = function()
 		var mainwindow = jQuery.getNewDiv('','gimli-main-window', 'gimli-pixelperfect');
 		var descriptionwindow = jQuery.getNewDiv('','gimli-text-description','gimli-text');
 		
+		// new, v0.2.x: diashow window.
+		var diashowwindow = jQuery.getNewDiv('','gimli-diashow-window', 'gimli-pixelperfect');
+		
 		var elconsole = jQuery.getNewDiv('','gimli-jbash-window', '');
 		var elconsole_outer = jQuery.getNewDiv('', 'gimli-jbash-outer-window', '');
 		var elhidebutton = jQuery.getNewJSButton('&#9049;', "GIMLI.hideConsole();", 'gimli-button-hide-console', 'gimli-jbash-button');
@@ -1144,7 +1232,8 @@ var GIMLI = function()
 		jQuery.appendElementTo('head', css);
 		
 		jQuery.appendElementTo('body', outerwindow);
-		jQuery.appendElementTo('body', descriptionwindow); //description is on body for making it visible "everywhere".
+		jQuery.appendElementTo('body', descriptionwindow); // description is on body for making it visible "everywhere".
+		jQuery.appendElementTo('body', diashowwindow); // the dia show window.		
 		jQuery.appendElementTo('body', el2);
 		
 		// initialize the console.
@@ -1168,11 +1257,46 @@ var GIMLI = function()
 		jb.mouseover(function(evt) {m_scrollingEnabled=false;});
 		jb.mouseout(function(evt) {m_scrollingEnabled=true;});
 	}
+	
+	// show or hide the image view / main window.
+	var __showDiashowWindow=function(show=true)
+	{
+		if(show)
+		{
+			$('#gimli-outer-window').hide();
+			$('#gimli-diashow-window').show();
+		}else{
+			$('#gimli-diashow-window').hide();
+			$('#gimli-outer-window').show();
+		}
+	}
+	
+	// play a sound from the sound bank.
+	this.playSound = function(internName)
+	{
+		if(internName=='' || internName==null)
+			return;
+		
+		for(var i=0;i<m_soundsLoaded.length;i++)
+		{
+			var s = m_soundsLoaded[i];
+			if(s.getIntern()==internName)
+			{
+				s.playSound();
+				return;
+			}
+		}
+		log("Could not play sound '"+internName+"': Entry not found.", LOG_WARN); 
+	}
 };
 GIMLI.instance = new GIMLI();
 
 // Initialize the GIMLI engine.
 GIMLI.init = function(gmurl) {GIMLI.instance.init(gmurl);};
+GIMLI.playSound = function(soundname)
+{
+	GIMLI.instance.playSound(soundname);
+}
 
 // jump to another room (console command)
 GIMLI.jump = function(params)

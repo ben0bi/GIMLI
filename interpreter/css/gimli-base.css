@@ -73,6 +73,19 @@ here all images will be appended and other stuff. */
 	/*background-size: 200% 200%;*/ /* BG should have the same size like the gimli-image */
 }
 
+/* Dia show window. */
+#gimli-diashow-window
+{
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+	background-color: #333369;
+	display: none;
+	z-index: 10000;
+}
+
 #gimli-footer-window
 {
 	position: absolute;

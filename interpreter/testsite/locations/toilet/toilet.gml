@@ -26,8 +26,14 @@
 			"NAME": "",
 			"INTERN": "toilet_closet",
 			"OVERIMAGE": "toilet_closet.png",
+			"SOUND": "sound_toilet_flushing",
 			"LOCATION": ["toilet", 0, 0]
 		}
-
+	],
+	"SOUNDS": [
+		{
+			"INTERN": "sound_toilet_flushing",
+			"FILE": "toilet-flushing.wav"
+		}
 	]
 }

@@ -1,3 +1,12 @@
+0.2.0  -> You can now make a sound bank with the SOUNDS-Array including "INTERN" and "FILE" per sound 
+			and play those sounds on click on an item with the "SOUND" tag.
+
+0.1.21 -> Sound call works, sound play not yet.
+0.1.20 -> Almost everything preparated for playing sounds, except parseGML in the sound-item and playing it.
+0.1.19 -> Loading SOUND (intern name) from GML into item for playing on click.
+0.1.18 -> loading SOUNDS from GML into sound array.
+0.1.17 -> SOUND structure prototype.
+0.1.16 -> Window for creating "photo sessions" in createMainWindow eingebaut.
 0.1.15 -> calling mtouchover each 50ms until all images are loaded. (see bathroom location ;) )
 0.1.14 -> added m_CollisionLoaded to the items to determine if mouse check should be done or...not. Not yet functional.
 0.1.13 -> can now use (one) ROOMS AND (one) LOCATIONS array instead of "or".
