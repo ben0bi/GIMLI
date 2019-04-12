@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.2.0";
+const GIMLIVERSION = "0.2.07";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -59,7 +59,6 @@ function __shortenDirectory(longdir)
 		var arr2=[];
 		var dirpushed = false;
 		var firstdirpushed = false;
-		//console.log("turn");
 		done = true;
 		for(var i=0;i<arr.length;i++)
 		{
@@ -72,7 +71,6 @@ function __shortenDirectory(longdir)
 			}else{
 				// it's ../, go one dir back.
 				// but only if there is a dir before.
-				//console.log("a1: "+a1+" P: "+dirpushed+firstdirpushed);
 				if(dirpushed && firstdirpushed)
 				{
 					arr2.pop();
@@ -156,8 +154,40 @@ var GIMLsound = function()
 	var m_internName = "";
 	var m_folder = "";
 	var m_audio = null;
+	var m_duration = 0.0;
 	
 	this.getIntern = function() {return m_internName;};
+	
+	var __load = function()
+	{
+		if(m_audio==null)
+		{
+			m_audio=new Audio();
+			m_audio.preload = "metadata";
+			m_audio.addEventListener("loadedmetadata", function() {m_duration = m_audio.duration;});
+			m_audio.src=m_folder+m_soundFile;
+			log("Audio loaded for '"+m_internName+"' ==&gt; "+m_folder+m_soundFile);
+			return;
+		}
+	}
+	
+	// play the sound. if it is not loaded yet, load it before.
+	this.playSound = function()
+	{
+		if(m_audio!=null)
+		{
+			m_audio.pause();
+			m_audio.currentTime = 0;
+			m_audio.play();
+		}
+	};
+
+	// THIS FUNCTION DOES RETURN NaN NO MATTER WHAT I DO, FUCK THAT SHIT.
+	this.getDuration=function() 
+	{
+		return m_duration;
+	}
+	
 	this.parseGML=function(gmlSound, rootPath="")
 	{
 		m_folder=__addSlashIfNot(rootPath);
@@ -176,26 +206,10 @@ var GIMLsound = function()
 			m_internName = i2;
 		}
 		
-		log("SND PATH: "+m_folder+m_soundFile);
+		//log("SND PATH: "+m_folder+m_soundFile);
+		__load(); // preload the sound.
 	};
-	
-	// play the sound. if it is not loaded yet, load it before.
-	this.playSound = function()
-	{
-		if(m_audio==null)
-		{
-			m_audio=new Audio(m_folder+m_soundFile);
-			log("Audio loaded for '"+m_internName+"' ==&gt; "+m_folder+m_soundFile);
-		}
 		
-		if(m_audio!=null)
-		{
-			m_audio.pause();
-			m_audio.currentTime = 0;
-			m_audio.play();
-		}
-	};
-	
 	this.debug = function(loglevel = LOG_DEBUG)
 	{
 		log("SOUND: "+m_internName+" --> "+m_soundFile, loglevel);
@@ -324,12 +338,21 @@ var GIMLitem = function()
 	// do something when the item is clicked.
 	this.click=function(evt) 
 	{
+		var duration = GIMLI.getSoundDuration(m_clickSound);
+		log("SOUND DURATION: "+duration);
+		duration = duration*1000+1; // get in ms and add one ms.
+		// (maybe) play the sound.
 		GIMLI.playSound(m_clickSound);
+		// click after the sound has played.
+		setTimeout(__realClick,duration);
+	};
+	var __realClick = function()
+	{
 		if(m_script_click.length>0 && m_script_click!=parseInt(m_script_click))
 		{
 			jBash.Parse(m_script_click);
-		}
-	};
+		}		
+	}
 
 	// show debug information.
 	this.debug=function(loglevel=LOG_DEBUG) {
@@ -346,6 +369,10 @@ var GIMLitem = function()
 	// check if the mouse is over an item and show the appropiate image.
 	var __checkMouseOver = function(evt)
 	{
+		// do nothing if the mouse is inactive.
+		if(GIMLI.stopMouse)
+			return false;
+		
 		// if the pixel is set, show the mouseover image.
 		if(__checkForPixel(evt))
 		{
@@ -576,7 +603,6 @@ var GMLurl = function(filename)
 	{
 		var r = gmurl;
 		var addending = ".gml";
-		console.log(r);
 		// if length is < 4 it does not have the right endings at all.
 		if(r.length<=4)
 		{
@@ -1288,15 +1314,30 @@ var GIMLI = function()
 		}
 		log("Could not play sound '"+internName+"': Entry not found.", LOG_WARN); 
 	}
+	
+	// get the duration of a sound.
+	this.getSoundDuration = function(internName)
+	{
+		if(internName=='' || internName==null)
+			return 0;
+		
+		for(var i=0;i<m_soundsLoaded.length;i++)
+		{
+			var s = m_soundsLoaded[i];
+			if(s.getIntern()==internName)
+			{
+				return s.getDuration();
+			}
+		}
+		return 0;
+	}
 };
 GIMLI.instance = new GIMLI();
 
 // Initialize the GIMLI engine.
 GIMLI.init = function(gmurl) {GIMLI.instance.init(gmurl);};
-GIMLI.playSound = function(soundname)
-{
-	GIMLI.instance.playSound(soundname);
-}
+GIMLI.playSound = function(soundname) {GIMLI.instance.playSound(soundname);}
+GIMLI.getSoundDuration = function(soundname) {return GIMLI.instance.getSoundDuration(soundname);}
 
 // jump to another room (console command)
 GIMLI.jump = function(params)
@@ -1343,6 +1384,7 @@ function(params)
 });
 
 /* FUNCTIONS to Show and hide the console. */
+GIMLI.stopMouse = false; // can we use the mouse?
 GIMLI.hideConsole = function()  {__hideGIMLIconsole();}
 GIMLI.showConsole = function() {__showGIMLIconsole();}
 
@@ -1380,6 +1422,7 @@ function __GIMLIconsoleMover()
 	if(m___consoleDirection==2)
 	{
 		c.show();
+		GIMLI.stopMouse = true;
 		jBash.instance.focus();
 		m___consoleDirection = 1;
 	}
@@ -1391,9 +1434,12 @@ function __GIMLIconsoleMover()
 		t = 0;
 		m___consoleDirection=0;
 	}
-	if(t < -c.height()-10 && m___consoleDirection<0)
+	
+	// maybe hide the window.
+	if(t < -c.height()-10 && m___consoleDirection<=0)
 	{
 		c.hide();
+		GIMLI.stopMouse = false;
 		m___consoleDirection = 0;
 	}
 	c.css('top', t+'px');

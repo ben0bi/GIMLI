@@ -1,4 +1,8 @@
-0.2.0  -> You can now make a sound bank with the SOUNDS-Array including "INTERN" and "FILE" per sound 
+0.2.07 -> now the sounds play and AFTER that the item click function is done.
+0.2.02 -> 0.2.06 : deliberately trying to get the duration of this frikkin sound files...
+0.2.01 -> prevent mouseover check if console is on.
+
+0.2.00 -> You can now make a sound bank with the SOUNDS-Array including "INTERN" and "FILE" per sound 
 			and play those sounds on click on an item with the "SOUND" tag.
 
 0.1.21 -> Sound call works, sound play not yet.

@@ -38,6 +38,20 @@
 			"OVERIMAGE": "floor_to_closet.png",
 			"onclick": "jump to toilet",
 			"LOCATION": ["floor", 0, 0]
+		},
+		{
+			"NAME": "Lexikon des Schwindels",
+			"INTERN": "floor_typewriter",
+			"OVERIMAGE": "typewriter.png",
+			"onclick": "link to https://benis-bastelschuppen.github.io/Lexikon_des_Schwindels/",
+			"SOUND": "sound_typewriter",
+			"LOCATION": ["floor", 0, 0]
+		}
+	],
+	"SOUNDS": [
+		{
+			"INTERN": "sound_typewriter",
+			"FILE":	"typewriter.wav"
 		}
 	]
 }
