@@ -34,5 +34,6 @@ A GIML-Page is running on http://ben0bi.dlinkddns.com
 Look at the testsite/index.gml file for the basic structure.
 
 Newest Additions:
+Sounds. Play a sound when an item is clicked. Sound makes 80% of the experience I learned, so use that functionality. ;)    
 Load GML files from GML files with relative directories in them.
 You can omit the "FOLDER" tag by putting the file into the right folder.

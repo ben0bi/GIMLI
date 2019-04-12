@@ -139,6 +139,7 @@
 	<ul>
 		<li><a href="#json_structure_1">It's plain JSON.</a></li>
 		<li><a href="#gml_global_values">Global Values</a></li>
+		<li><a href="#gml_sounds">Sounds</a></li>
 		<li><a href="#gml_locations">Locations/Rooms</a></li>
 		<li><a href="#gml_items">Items</a></li>
 		<li><a href="#gml_example_1">Example File</a></li>
@@ -147,6 +148,7 @@
 			
 <li><a href="#script_structure">Scripting with GIML</a></li>
 <li><a href="#about">About the Author</a></li>
+<li><a href="#changelog">Changelog (Documentation)</a></li>
 </ul>
 
 <hr />
@@ -169,7 +171,9 @@ but images with images on them which can be interactively used like in a <span c
 For that, a GIML-page does not only contain a GML (alike HTML) file but also a file structure with much images put into there.
 The GML file does only describe, how and when those images are loaded and placed, and what the items can do when there is a click.<br />
 <br />
-In short, a GML file contains some <span class="highlight">global variables</span>, some <span class="highlight">locations</span> with their own variables and some <span class="highlight">items</span> with their own variables, which all will be put and linked together by the interpreter to create a view like in an old adventure game (E.g. Monkey Island).<br />
+In short, a GML file contains some <span class="highlight">global variables</span>, some <span class="highlight">locations</span> with their own variables and some <span class="highlight">items</span>
+with their own variables, which all will be put and linked together by the interpreter to create a view like in an old adventure game (E.g. Monkey Island). Also, since v0.2.x, there is a
+<span class="highlight">sound</span>-bank for playing sounds after a click on an item, and more.<br />
 <br />
 There are no visible user characters included yet but you can browse a GML page somewhat like in the game "Myst".<br />
 <br />
@@ -216,6 +220,15 @@ folder. Sorry for that. No, not sorry: Damn and curse CORS for that. It made the
 
 <a name="gml_structure"></a>
 <h1>The GIML Structure <a href="#top">^</a></h1>
+	<ul>
+		<li><a href="#json_structure_1">It's plain JSON.</a></li>
+		<li><a href="#gml_global_values">Global Values</a></li>
+		<li><a href="#gml_sounds">Sounds</a></li>
+		<li><a href="#gml_locations">Locations/Rooms</a></li>
+		<li><a href="#gml_items">Items</a></li>
+		<li><a href="#gml_example_1">Example File</a></li>
+	</ul>
+	
 The interpreter usually loads some values from a <span class="highlight">.gml</span>-file. It then uses the directory of this file as base directory and loads all the other images and stuff seen from there.<br />
 <br />
 Those commands and values are created as is, when they are needed or could be used, and no warrantries given. ;)<br />
@@ -271,6 +284,41 @@ Optional parameters have a default value.<br />
 	<td>[empty array]</td>
 	<td>Array containing all items with their values. See below.</td>
 </tr>
+<tr>
+	<td><span class="highlight">SOUNDS</span></td>
+	<td>---</td>
+	<td>[empty array]</td>
+	<td>Array containing all sound-files.</td>
+</tr>
+</table>
+
+<a name="gml_sounds"></a>
+<h2>Sounds <a href="#gml_structure">^</a></h2>
+The sound structure is the most easy one, so I put it first.<br />
+<br />
+In the global <span class="highlight">SOUNDS</span>-array, you can create
+as much sound entries as you want with the following parameters and values:<br />
+<br />
+<table>
+<tr><td>Primary</td><td>Secondary</td><td>Default</td><td>Description</td></tr>
+<tr>
+	<td><span class="highlight">INTERN</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>The <span class="highlight">intern</span> name of the sound, which is used by the interpeter and by scripts. This name has to be <span class="highlight">unique</span>.</td>
+</tr>
+<tr>
+	<td><span class="highlight">FILE</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>The name of the file which should be played.</td>
+</tr>
+<tr>
+	<td><span class="highlight">FOLDER</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>The directory containing the sound file. Seen from the directory of "this" GML-file.</td>
+</tr>
 </table>
 
 <a name="gml_locations"></a>
@@ -290,7 +338,7 @@ as much room entries as you want with the following parameters and values:<br />
 	<td><span class="highlight">NAME</span></td>
 	<td>---</td>
 	<td>---</td>
-	<td>The name of the room which is displayed to the user.</td>
+	<td>The name of the room which is displayed to the user. Not used yet.</td>
 </tr>
 <tr>
 	<td><span class="highlight">FOLDER</span></td>
@@ -329,7 +377,7 @@ as much (single) item entries as you want. An item has a little more parameters 
 	<td><span class="highlight">NAME</span></td>
 	<td>---</td>
 	<td>---</td>
-	<td>The name of the item which is displayed to the user.</td>
+	<td>The name of the item which is displayed to the user. This is the text which is displayed above the mouse when the user moves the mouse over the item.</td>
 </tr>
 <tr>
 	<td><span class="highlight">FOLDER</span></td>
@@ -364,21 +412,27 @@ as much (single) item entries as you want. An item has a little more parameters 
 <tr>
 	<td><span class="highlight">ONCLICK</span></td>
 	<td><span class="highlight">SCRIPT</span></td>
-	<td><span class="highlight">""</span></td>
+	<td>---</td>
 	<td>This line will be given to the jBash-parser when the item is clicked.
 	You can issue all registered jBash-commands.</td>
 </tr>
 <tr>
+	<td><span class="highlight">SOUND</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>The intern name of the sound to play when the item was clicked. The sound must be loaded into the <span class="highlight">SOUNDS</span>-array, see above.</td>
+</tr>
+<tr>
 	<td><span class="highlight">ROOM</span></td>
 	<td><span class="highlight">LOCATION</span></td>
-	<td><span class="highlight">[]</span></td>
+	<td>[empty array]</td>
 	<td>Array with the exact location of the item: <span class="highlight">["room _name", x, y]</span>. X and Y can 	be omitted.</td>
 </tr>
 <tr>
 	<td><span class="highlight">DESCRIPTION</span></td>
 	<td>---</td>
 	<td>---</td>
-	<td>A description of the item.</td>
+	<td>A description of the item. Not used yet.</td>
 </tr>
 <tr>
 	<td><span class="highlight">SCALE</span></td>
@@ -418,7 +472,8 @@ This is an example gml file with two rooms and two items:<br />
 			"OVERIMAGE": "item_over.png",
 			"FOLDER": "items/myitem/",
 			"LOCATION": ["start_room", 100,100],
-			"SCRIPT": "link to https://github.com/ben0bi"
+			"SCRIPT": "link to https://github.com/ben0bi",
+			"SOUND": "sound_of_glory"
 		},
 		{
 			"NAME": "A door",
@@ -428,8 +483,17 @@ This is an example gml file with two rooms and two items:<br />
 			"LOCATION": ["start_room", 200,50],
 			"SCRIPT": "jump to second_room"
 		}
+	],
+	"SOUNDS": [
+		{
+			"INTERN": "sound_of_glory",
+			"FILE": "sound_of_glory.mp3",
+			"FOLDER": "sounds"
+		}
 	]
 }</pre></div><br />
+I do not check for json bugs right now. If it does not work, look at the debugger. If it says "json is null" somewhere, your json is faulty. Check for commas. ;)<br />
+<br />
 First we set the start room. The start room is the one loaded with the last loaded gml file, where it is set. So if there is a start room in cellar.gml, it will take this one.<br />
 <br />
 Second there is a global scale factor which will be applied to all images. I use 2.0 to get some nice pixelated view.<br />
@@ -441,10 +505,16 @@ As you can see, the items are both located in the start room, but the second one
 The scripts of the items are jBash-commands with some parameters. The parameter "to" could be omitted. ;) The <span class="highlight">link</span> opens a new, external, "normal"
 web page while the <span class="highlight">jump</span> loads another location from the same gml file.<br />
 <br />
+{You won't get out of the second room with this file. There needs to be another door... ;) }<br />
+<br />
+The first item plays the loaded sound when it is clicked. It will wait for the sound to finish before it executes the scripted link. Whereelse, the sound would not play because the external page
+would be loaded instantly and overwrite the actual GIMLI-framework and thus the sound engine.<br />
+<br />
+
 <hr />
 
 <a name="script_structure"></a>
-<h1>Scripting with GIML</h1>
+<h1>Scripting with GIML <a href="#top">^</a></h1></h1>
 <span class="highlight">(TODO)</span> Short: Just make a javascript function with one parameter, add it to jBash and call the jBash-command for it in the "SCRIPT" tag of your item. Only global functions just right now.
 jBash commands can have several parameters separated by space. All parameters are given as a whole string to your function.<br />
 <br />
@@ -468,17 +538,25 @@ Those are the predefined commands exclusively made for GML, where Secondary is t
 <br /><hr />
 
 <a name="about"></a>
-<h1>About the Author</h1>
+<h1>About the Author <a href="#top">^</a></h1></h1>
 <span class="highlight">GIML[i]</span> - and prior to that <a href="https://github.com/ben0bi/jBash">jBash</a> - were invented by <span class="highlight">Benedict Jäggi</span> a.k.a. <span class="highlight">oki wan benobi</span> in the year 19amb (Anno Millenium Bug).
 Benedict visited the <a href="https://www.games-academy.de/">Games Academy</a> in Berlin between 2006 (6amb) to 2008 (8amb) and made a degree in <span class="highlight">3D Programming</span> and <span class="highlight">Game Design</span>. But instead of working in the games industry, he decided to go back to his birth place and try to "make it" from there.<br />
 <br />
 He grew up with computers and used the browser based internet since it was thrown into the world in 1995. He learned to program and use much types of programming languages and computers. Starting with BASICa on the Atari, then on DOS, he advanced to C and C++ and a very very little of Assembler. Then the internet showed up ;) and he learned Java, JavaScript, C# and besides that the web stuff (HTML, CSS, PHP, SQL) and with the Games Academy also all sorts and types of game engines, including the Half-Life 2 engine, the Unity Engine and the Unreal Engine, and as hobbyist also all sorts of mobile devices like the Nintendo Gameboy, Android devices, Nintendo NDS and other stuff. Also he learned to program and assemble Arduino based devices and in the latter he makes very much stuff with Raspberry Pi(e)s. He can say from himself that he can program on almost every device. Maybe not with the best code but...on every device. =)
 <br />
-<br />
-<br />
 
+<hr />
+<a name="changelog"></a>
+<h1>Documentation Changelog <a href="#top">^</a></h1></h1>
+For the changelog of GIMLI look at the VERSIONS.txt file on the github repository.<br />
+<br />
+v2.01 > Added documentation changelog.<br />
+v2.00 > Added sounds to GIMLI and thus to the documentation. Documentation bugfixes. More explanatory text.<br />
+v1.0x > Documentation of all GIMLI-tags in one file. Scripting functionality is not explained big here but it's there.<br />
+
+<br />
 </div></div>
 
-<div class="footer"><br /><br />Doc. v1.04 by Benedict Jäggi / Latest change: 02.04.2019</div>
+<div class="footer"><br /><br />Doc. v2.01 by Benedict Jäggi / Latest change: 12.04.2019</div>
 </body>
 </html>
