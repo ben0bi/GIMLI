@@ -202,7 +202,15 @@ For this particular interpreter here, you can just put all the files in any dire
 <br />
 The GIML-page will be loaded with a function call in the index.html. Later, the browser itself shall do that. You can change the directory and page there. Keep in mind that this is just a prototype.<br />
 <br />
-The <span class="highlight">testsite</span> folder or any other folder with a GIML-page should reside OUTSIDE of the interpreter core directory. But because of CORS, there are to much security measures to make such stuff happen "as is", without setting up complex server stuff and so on. I mean, I just want to edit a file and test it out locally. I don't want to set up a whole server infrastructure just to see how a freaking "Markup Language"-file looks on the browser. Damn CORS. So, I just put the GIML-folders into the interpreter folder. Sorry for that. No, not sorry: Damn and curse CORS for that. It made the internet a whole lot more complicated and I don't want to see it on "my" internet. <br />
+Be aware that the testsite has some "faulty" (but working) entries and some errors. They were made to test if the interpreter can handle it.<br />
+<br />
+E.g.: There is the same file loaded in two gml files. 
+It should give a warning that there is a double entry, despite the "different" paths from the two issuing files.<br />
+<br />
+The <span class="highlight">testsite</span> folder or any other folder with a GIML-page should reside OUTSIDE of the interpreter core directory. But because of CORS,
+there are to much security measures to make such stuff happen "as is", without setting up complex server stuff and so on. I mean, I just want to edit a file and test it out locally.
+I don't want to set up a whole server infrastructure just to see how a freaking "Markup Language"-file looks on the browser. Damn CORS. So, I just put the GIML-folders into the interpreter
+folder. Sorry for that. No, not sorry: Damn and curse CORS for that. It made the internet a whole lot more complicated and I don't want to see it on "my" internet. <br />
 
 <br /><hr />
 
@@ -471,6 +479,6 @@ He grew up with computers and used the browser based internet since it was throw
 
 </div></div>
 
-<div class="footer"><br /><br />Doc. v1.03 by Benedict Jäggi / Latest change: 02.04.2019</div>
+<div class="footer"><br /><br />Doc. v1.04 by Benedict Jäggi / Latest change: 02.04.2019</div>
 </body>
 </html>
