@@ -1,3 +1,6 @@
+0.3.00 -> Use ?roomname in your URL (to index.html, not gml...) for jumping directly into a room. e.G: index.html?floor
+
+0.2.10 -> Issuing after load function after load of all recursive loading files which need some time. Hopefully...
 0.2.09 -> Mtouchover Bugfix. It will now make a mouseover event after a click properly I hope.
 0.2.08 -> New DELAY for items: click the item after this delay, based on the sound length. (1.0 = full, 0.5 = half, etc.)
 0.2.07 -> now the sounds play and AFTER that the item click function is done.

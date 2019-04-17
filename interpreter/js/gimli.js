@@ -13,13 +13,17 @@
  . GIML[I] stands for:                        .
  . Game Induced Markup Language [Interpreter] .
  ..............................................
+ 
+ PROTOTYPE INTERPRETER in pure JavaScript
+ Hopefully this will be included into Firefox
+ or such, natively.
 
  needs jQuery, BeJQuery and jBash.
  See the GIMLI-JSFILES.json in the config dir.
  
 */
 
-const GIMLIVERSION = "0.2.09";
+const GIMLIVERSION = "0.3.00";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -182,12 +186,13 @@ var GIMLsound = function()
 		}
 	};
 
-	// THIS FUNCTION DOES RETURN NaN NO MATTER WHAT I DO, FUCK THAT SHIT.
+	// get the duration of the sound file.
 	this.getDuration=function() 
 	{
 		return m_duration;
 	}
 	
+	// parse the gml for this SOUND.
 	this.parseGML=function(gmlSound, rootPath="")
 	{
 		m_folder=__addSlashIfNot(rootPath);
@@ -732,10 +737,7 @@ var GIMLI = function()
 			for(var i=0;i<b.length;i++)
 				roomArray.push(b[i]);
 		}
-		
-		//log("GML start room: "+m_startRoomIntern, LOG_USER);
-		//log("General GML scale factor: "+parseFloat(m_scaleFactor), LOG_USER);
-		
+
 		// load in the rooms.
 		if(roomArray.length>0)
 		{
@@ -781,16 +783,24 @@ var GIMLI = function()
 				snd.debug(LOG_DEBUG_VERBOSE);
 			}
 		}
-		
-		//log(__roomCount()+ " rooms loaded.",LOG_USER);
-		//log(__itemCount()+" items loaded.", LOG_USER);
-		//log(__soundCount()+" sounds loaded.",LOG_USER);
-		
+				
 		// load the additional gml files recursively and one after each other.
+		m_recLoadedFiles+=gmlArray.length;
 		__recursiveload(gmlArray,0, rootPath);
 	};
+	
+	this.debug=function(loglevel)
+	{
+		log("GML start room: "+m_startRoomIntern, loglevel);
+		log("General GML scale factor: "+parseFloat(m_scaleFactor), loglevel);
+		log(__roomCount()+ " rooms loaded.",loglevel);
+		log(__itemCount()+" items loaded.", loglevel);
+		log(__soundCount()+" sounds loaded.",loglevel);
+	}
 
 	// load all the gml files recursively.
+	var m_recLoadedFiles = 0;
+	var m_afterLoadCalled = false;	// only call after load if it is not called before.
 	var __recursiveload = function(gmlArray, actual_i, rootPath ="")
 	{
 		if(gmlArray.length>actual_i)
@@ -813,11 +823,22 @@ var GIMLI = function()
 					__recursiveload(gmlArray,actual_i+1,rootPath);
 				});
 			}else{
+				//m_recLoadedFiles-=1;
 				// file is already loaded, get the next one.
 				log("File "+gmlArray[actual_i]+" already loaded.", LOG_WARN);
 				__recursiveload(gmlArray,actual_i+1, rootPath);
 			}
-		}		
+		}
+		
+		//log("RECLF:" +m_recLoadedFiles+" / "+m_loadedGMLFiles.length);
+		
+		// after the last load, call the afterload function.
+		if(!m_afterLoadCalled && m_recLoadedFiles<=m_loadedGMLFiles.length)
+		{
+			m_afterLoadCalled=true;
+			m_afterLoadFunction();
+			me.debug(LOG_USER);
+		}
 	}
 
 // ENDOF GML PARSER
@@ -997,11 +1018,29 @@ var GIMLI = function()
 	}
 	
 	// initialize gimli with a gml-file.
+	var m_afterLoadFunction = function() {};
 	this.init = function(gmurl)
-	{
+	{		
+		// create the main window, including the console.
 		__createMainWindow();
+
+		// get the url parameters.
+		var initurl=window.location.href;
+		initurl = initurl.split("?");
+		// get the room directly from the "first" parameter.
+		if(initurl.length>1)
+		{
+			initurl=initurl[1];
+		}else{
+			initurl="";
+		}
+		
+		log("Set room from URL: "+initurl, LOG_DEBUG);
+	
 		var checkurl = GMLurl.makeGMURL(gmurl);
 		log("Loading "+checkurl.getCombined()+"...");
+		// load the gml file.
+		// TODO: do after load stuff after recursive load. (jumptostartroom should be called after all recursiveloads.)
 		me.loadJSONFile(checkurl.getCombined(), function(json) {
 			m_GMURL_initpage = checkurl;
 			// clear all preloaded stuff.
@@ -1012,8 +1051,18 @@ var GIMLI = function()
 			// clear the loaded files array and push this filename.
 			m_loadedGMLFiles = [];
 			m_loadedGMLFiles.push(checkurl.getCombined());
+			
+			// set the after load function.
+			m_afterLoadFunction = function()
+			{
+				log("Issuing after load function...", LOG_DEBUG);
+				if(initurl!="")
+					me.jumpToRoom(initurl);
+				else
+					me.jumpToStartRoom();
+			};
+			
 			me.parseGML(json);
-			me.jumpToStartRoom();
 			// hide the console in front of the user. :)
 			setTimeout(GIMLI.hideConsole,750);
 		});

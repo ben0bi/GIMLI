@@ -3,7 +3,6 @@
 	"ScaleFactor": "2.0",
 	"GMLS": [
 		"locations/floor/floor.gml",
-		"locations/toilet/toilet.gml",
 		"locations/museum/museum.gml"
 		],
 	"LOCATIONS": [

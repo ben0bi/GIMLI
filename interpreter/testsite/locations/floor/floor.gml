@@ -1,5 +1,8 @@
 {
-	"GMLS": ["../../computer_room.gml"],
+	"GMLS": [
+				"../../computer_room.gml",	
+				"../toilet/toilet.gml"
+			],
 	"LOCATIONS": [
 		{
 			"NAME": "Floor",
