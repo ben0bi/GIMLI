@@ -19,7 +19,7 @@
  
 */
 
-const GIMLIVERSION = "0.2.07";
+const GIMLIVERSION = "0.2.09";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -234,6 +234,7 @@ var GIMLitem = function()
 				  // if none is set, it will take the size of the collision image.
 	var m_overImageFile = ""; // mouse over image.
 	var m_clickSound = "";		// intern name of the sound to play when clicked.
+	var m_soundDelay = 1.0;		// wait this * sound_length until the click will be done.
 
 	var m_collisionImageFile = "";	
 	var m_collisionDataContext = null; // the collision image pixel data.
@@ -336,11 +337,13 @@ var GIMLitem = function()
 	};
 	
 	// do something when the item is clicked.
+	var m_clickEvt = null;
 	this.click=function(evt) 
 	{
+		m_clickEvt=evt;
 		var duration = GIMLI.getSoundDuration(m_clickSound);
-		log("SOUND DURATION: "+duration);
-		duration = duration*1000+1; // get in ms and add one ms.
+		//log("SOUND DURATION: "+duration);
+		duration = parseInt(duration*1000)*m_soundDelay + 1; // get in ms and add one ms.
 		// (maybe) play the sound.
 		GIMLI.playSound(m_clickSound);
 		// click after the sound has played.
@@ -348,10 +351,13 @@ var GIMLitem = function()
 	};
 	var __realClick = function()
 	{
+		// click it.
 		if(m_script_click.length>0 && m_script_click!=parseInt(m_script_click))
 		{
 			jBash.Parse(m_script_click);
-		}		
+		}
+		// do an mtouchover after the click.
+		GIMLI.instance.mtouchover(m_clickEvt);
 	}
 
 	// show debug information.
@@ -421,6 +427,7 @@ var GIMLitem = function()
 		m_collisionImageFile = "";// gmlItem['COLLISIONIMAGE'];
 		m_posLocation = "";
 		m_script_click = "";
+		m_soundDelay = 1.0;
 
 		if(!__defined(gmlItem['INTERN']))
 			m_internName = "@_INTERN_not_found_@";
@@ -499,6 +506,10 @@ var GIMLitem = function()
 			log("Spaces are not allowed in intern names. [Item-Clicksound]['"+m_clickSound+"' ==&gt; '"+cs2+"']", LOG_WARN);
 			m_clickSound = cs2;
 		}
+		
+		// get the sound delay.
+		if(__defined(gmlItem['DELAY']))
+			m_soundDelay = parseFloat(gmlItem['DELAY'])		
 	};
 	
 	// add this item to a room div.
@@ -1168,6 +1179,37 @@ var GIMLI = function()
 	var __getMiddleWindow = function() {return $('#gimli-middle-window');};	// where the gimli content is put into.
 	var __getOuterWindow = function() {return $('#gimli-outer-window');};	// where console and middle window is put into.
 
+	// event function to go through all items and check if there is a mouse over.
+	var __mtouchover = function(evt)
+	{
+		var outerwindow = $('#gimli-outer-window');
+		var isover = null;
+		var isloaded = true;
+		for(var i = 0; i<m_actualRoomItems.length;i++)
+		{
+			var itm = m_actualRoomItems[i];
+			// check if the collision image is already loaded.
+			if(!itm.isCollisionLoaded())
+				isloaded = false;
+			if(itm.isMouseOver(evt))
+				isover=itm;
+		}
+		// maybe set another cursor.
+		if(isover!=null)
+		{
+			outerwindow.css('cursor','pointer');
+			isover.showName(evt);
+		}else{
+			outerwindow.css('cursor','auto');
+			$('#gimli-text-description').hide();
+		}
+			
+		// wait 50ms and redo if not all images are loaded.
+		if(!isloaded)
+			window.setTimeout(function() {__mtouchover(evt);}, 50);
+	};
+	this.mtouchover=function(evt) {__mtouchover(evt);}; // for using mtouchover on items.
+
 	// create the div where the action goes. :)
 	var __createMainWindow = function()
 	{
@@ -1197,40 +1239,12 @@ var GIMLI = function()
 		middlewindow.append(mainwindow);
 		outerwindow.append(middlewindow);
 		outerwindow.append(elconsole_outer);
-		//outerwindow.append(descriptionwindow);		
-
-		// event function to go through all items and check if there is a mouse over.
-		var mtouchover = function(evt)
-		{
-			var isover = null;
-			var isloaded = true;
-			for(var i = 0; i<m_actualRoomItems.length;i++)
-			{
-				var itm = m_actualRoomItems[i];
-				if(!itm.isCollisionLoaded())
-					isloaded = false;
-				if(itm.isMouseOver(evt))
-					isover=itm;
-			}
-			// maybe set another cursor.
-			if(isover!=null)
-			{
-				outerwindow.css('cursor','pointer');
-				isover.showName(evt);
-			}else{
-				outerwindow.css('cursor','auto');
-				$('#gimli-text-description').hide();
-			}
-			
-			// wait 50ms and redo if not all images are loaded.
-			if(!isloaded)
-				window.setTimeout(function() {mtouchover(evt);}, 50);
-		};
-				
-		outerwindow.mousemove(mtouchover);
-		outerwindow.on('touchstart',mtouchover);
-		outerwindow.on('touchmove',mtouchover);
-		outerwindow.on('touchend',mtouchover);
+		//outerwindow.append(descriptionwindow);
+	
+		outerwindow.mousemove(__mtouchover);
+		outerwindow.on('touchstart',__mtouchover);
+		outerwindow.on('touchmove',__mtouchover);
+		outerwindow.on('touchend',__mtouchover);
 		
 		// go through all items and check if there is a click.
 		outerwindow.click(function(evt)
@@ -1246,8 +1260,6 @@ var GIMLI = function()
 			{
 				clickedItem.click(evt);
 			}
-			// TODO: Wait for loading of images.
-			mtouchover(evt);
 		});
 
 		var t='<a href="https://github.com/ben0bi/GIMLI/">GIML-Interpreter</a> v'+GIMLIVERSION+' (JS-Version) by Benedict Jäggi in 2019&nbsp;|&nbsp;';

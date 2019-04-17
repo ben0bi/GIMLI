@@ -47,7 +47,15 @@
 			"IMAGE": "nsa.png",
 			"OVERIMAGE": "nsa_mouseover.png",
 			"onclick": "link to https://benis-bastelschuppen.github.io/NSA",
+			"SOUND": "sound_nintendo",
 			"LOCATION": ["living_room", 215, 370]
+		}
+	],
+	"SOUNDS": [
+		{
+			"INTERN": "sound_nintendo",
+			"FILE": "nintendo.wav",
+			"FOLDER": "entities/nsa"
 		}
 	]
 }

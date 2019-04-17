@@ -1,3 +1,5 @@
+0.2.09 -> Mtouchover Bugfix. It will now make a mouseover event after a click properly I hope.
+0.2.08 -> New DELAY for items: click the item after this delay, based on the sound length. (1.0 = full, 0.5 = half, etc.)
 0.2.07 -> now the sounds play and AFTER that the item click function is done.
 0.2.02 -> 0.2.06 : deliberately trying to get the duration of this frikkin sound files...
 0.2.01 -> prevent mouseover check if console is on.

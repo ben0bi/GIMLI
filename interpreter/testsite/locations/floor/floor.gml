@@ -40,6 +40,15 @@
 			"LOCATION": ["floor", 0, 0]
 		},
 		{
+			"NAME": "To the kitchen.",
+			"INTERN": "door_floor_to_kitchen",
+			"OVERIMAGE": "floor_to_kitchen.png",
+			"COLLISION": "floor_collision_to_kitchen.png",
+			"onclick": "jump to kitchen",
+			"LOCATION": ["floor", 0, 0]
+		},
+
+		{
 			"NAME": "Lexikon des Schwindels",
 			"INTERN": "floor_typewriter",
 			"OVERIMAGE": "typewriter.png",
