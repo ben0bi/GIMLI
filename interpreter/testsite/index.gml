@@ -3,7 +3,8 @@
 	"ScaleFactor": "2.0",
 	"GMLS": [
 		"locations/floor/floor.gml",
-		"locations/museum/museum.gml"
+		"locations/museum/museum.gml",
+		"slideshow/images.gml"
 		],
 	"LOCATIONS": [
 		{
