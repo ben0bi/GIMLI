@@ -1,2 +1,5 @@
-testsite/slideshow/*.jpg
-testsite/slideshow/*.JPG
+*/testsite/slideshow/*.jpg
+*/testsite/slideshow/*.JPG
+*/testsite/slideshow/*.png
+*/testsite/slideshow/*.PNG
+
