@@ -4,7 +4,7 @@
 	"GMLS": [
 		"locations/floor/floor.gml",
 		"locations/museum/museum.gml",
-		"slideshow/images.gml"
+		"dialogues.gml"
 		],
 	"LOCATIONS": [
 		{
