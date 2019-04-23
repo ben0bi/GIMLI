@@ -23,7 +23,7 @@
  
 */
 
-const GIMLIVERSION = "0.3.00";
+const GIMLIVERSION = "0.3.01";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -855,6 +855,9 @@ var GIMLI = function()
 			return;
 		}
 		
+		// show the blocker while it waits for the loading.
+		GIMLI.showBlocker(true);
+		
 		// clear the actual room items.
 		m_actualRoomItems = [];
 		
@@ -946,6 +949,9 @@ var GIMLI = function()
 			
 			me.setRoomPosition(newRoomX, newRoomY);
 			log("Background '"+imgPath+"' loaded. [Size: "+scaledbgwidth+" "+scaledbgheight+" from "+bgwidth+" "+bgheight+"]" , LOG_DEBUG);
+			
+			// hide the blocker.
+			GIMLI.showBlocker(false);
 		}
 		bgimg.src = imgPath;
 		
@@ -1269,12 +1275,18 @@ var GIMLI = function()
 		var css2= '<link rel="stylesheet" type="text/css" href="'+cssfile2+'">';
 		
 		var outerwindow = jQuery.getNewDiv('', 'gimli-outer-window', 'gimli-pixelperfect');
-		var middlewindow = jQuery.getNewDiv('','gimli-middle-window','gimli-pixelperfect');		
+		var middlewindow = jQuery.getNewDiv('','gimli-middle-window','gimli-pixelperfect');
+
+		// i forgot why the middle window is needed but it is.
 		var mainwindow = jQuery.getNewDiv('','gimli-main-window', 'gimli-pixelperfect');
 		var descriptionwindow = jQuery.getNewDiv('','gimli-text-description','gimli-text');
 		
 		// new, v0.2.x: diashow window.
-		var diashowwindow = jQuery.getNewDiv('','gimli-diashow-window', 'gimli-pixelperfect');
+		//var diashowwindow = jQuery.getNewDiv('','gimli-diashow-window', 'gimli-pixelperfect');
+		
+		// new, v0.3.01: wait for laoding window.
+		var waitWindow = jQuery.getNewDiv('', 'gimli-wait-window', 'gimli-pixelperfect');
+		waitWindow.append(jQuery.getNewDiv('Loading...','','gimli-pixelperfect gimli-verticalcenter gimli-waitcontent'));
 		
 		var elconsole = jQuery.getNewDiv('','gimli-jbash-window', '');
 		var elconsole_outer = jQuery.getNewDiv('', 'gimli-jbash-outer-window', '');
@@ -1287,6 +1299,7 @@ var GIMLI = function()
 		elconsole_outer.append(elhelpbutton);
 		middlewindow.append(mainwindow);
 		outerwindow.append(middlewindow);
+		outerwindow.append(waitWindow);
 		outerwindow.append(elconsole_outer);
 		//outerwindow.append(descriptionwindow);
 	
@@ -1320,7 +1333,7 @@ var GIMLI = function()
 		
 		jQuery.appendElementTo('body', outerwindow);
 		jQuery.appendElementTo('body', descriptionwindow); // description is on body for making it visible "everywhere".
-		jQuery.appendElementTo('body', diashowwindow); // the dia show window.		
+		//jQuery.appendElementTo('body', diashowwindow); // the dia show window.		
 		jQuery.appendElementTo('body', el2);
 		
 		// initialize the console.
@@ -1397,8 +1410,20 @@ GIMLI.instance = new GIMLI();
 
 // Initialize the GIMLI engine.
 GIMLI.init = function(gmurl) {GIMLI.instance.init(gmurl);};
+
+// some sound commands.
 GIMLI.playSound = function(soundname) {GIMLI.instance.playSound(soundname);}
 GIMLI.getSoundDuration = function(soundname) {return GIMLI.instance.getSoundDuration(soundname);}
+
+// show and hide the loading window.
+GIMLI.showBlocker=function(show = true)
+{
+	log("Show blocker "+show, LOG_DEBUG);
+	if(show==true)
+		$('#gimli-wait-window').show();
+	else
+		$('#gimli-wait-window').hide();
+}
 
 // jump to another room (console command)
 GIMLI.jump = function(params)
