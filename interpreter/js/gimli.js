@@ -23,7 +23,7 @@
  
 */
 
-const GIMLIVERSION = "0.3.01";
+const GIMLIVERSION = "0.3.02";
 
 // check if a variable is defined or not.
 function __defined(variable)
@@ -1418,7 +1418,7 @@ GIMLI.getSoundDuration = function(soundname) {return GIMLI.instance.getSoundDura
 // show and hide the loading window.
 GIMLI.showBlocker=function(show = true)
 {
-	log("Show blocker "+show, LOG_DEBUG);
+	log("Show blocker "+show, LOG_DEBUG_VERBOSE);
 	if(show==true)
 		$('#gimli-wait-window').show();
 	else

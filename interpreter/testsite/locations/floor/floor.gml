@@ -1,7 +1,8 @@
 {
 	"GMLS": [
 				"../../computer_room.gml",	
-				"../toilet/toilet.gml"
+				"../toilet/toilet.gml",
+				"../kitchen/kitchen.gml"
 			],
 	"LOCATIONS": [
 		{

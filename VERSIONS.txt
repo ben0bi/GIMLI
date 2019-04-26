@@ -1,3 +1,4 @@
+0.3.02 -> Show blocker message to the verbose log group.
 0.3.01 -> Loading screen. Removed diashow window.
 
 0.3.00 -> Use ?roomname in your URL (to index.html, not gml...) for jumping directly into a room. e.G: index.html?floor
