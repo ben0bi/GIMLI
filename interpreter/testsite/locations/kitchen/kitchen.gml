@@ -4,6 +4,11 @@
 			"NAME": "Kitchen",
 			"INTERN": "kitchen",
 			"BGIMAGE": "kitchen_background.png"
+		},
+		{
+			"NAME": "Balcony",
+			"INTERN": "balcony",
+			"BGIMAGE": "balcony_background.png"
 		}
 	],
 	"ITEMS": [
@@ -29,7 +34,24 @@
 			"OVERIMAGE": "kitchen_backofen.png",
 			"SOUND": "sound_kitchencat",
 			"LOCATION": ["kitchen", 0, 0]
+		},
+		
+		{
+			"NAME": "To the computer room.",
+			"INTERN": "door_balcony_to_computer_room",
+			"COLLISIONIMAGE": "balcony_collision_to_computer_room.png",
+			"OVERIMAGE": "balcony_lantern.png",
+			"ONCLICK": "jump to computer_room",
+			"LOCATION": ["balcony", 0, 0]
+		},
+		{
+			"NAME": "To the kitchen.",
+			"INTERN": "door_balcony_to_kitchen",
+			"OVERIMAGE": "balcony_door_to_kitchen.png",
+			"ONCLICK": "jump to kitchen",
+			"LOCATION": ["balcony", 0, 0]
 		}
+		
 	],
 	"SOUNDS": [
 		{
