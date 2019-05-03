@@ -32,6 +32,7 @@
 			"NAME": "",
 			"INTERN": "kitchen_oven",
 			"OVERIMAGE": "kitchen_backofen.png",
+			"COLLISIONIMAGE": "kitchen_collision_backofen.png",
 			"SOUND": "sound_kitchencat",
 			"LOCATION": ["kitchen", 0, 0]
 		},
