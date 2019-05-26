@@ -21,6 +21,14 @@
 			"OVERIMAGE": "museum_starforce.png",
 			"onclick": "link to http://starforce.masterbit.net",
 			"LOCATION": ["photo_museum", 0, 0]
+		},
+		{
+			"NAME": "Party Foto Blog",
+			"INTERN": "fotoblog_parties",
+			"OVERIMAGE": "museum_parties.png",
+			"onclick": "link to http://party.masterbit.net",
+			"LOCATION": ["photo_museum", 0, 0]
 		}
+
 	]
 }
