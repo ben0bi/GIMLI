@@ -18,135 +18,29 @@
  Hopefully this will be included into Firefox
  or such, natively.
 
- needs jQuery, BeJQuery and jBash.
+ needs jQuery, BeJQuery, behelpers and jBash.
  See the GIMLI-JSFILES.json in the config dir.
  
 */
 
-const GIMLIVERSION = "0.3.02";
+const GIMLIVERSION = "0.3.03";
 
-// check if a variable is defined or not.
-function __defined(variable)
-{
-	if(typeof(variable)==="undefined")
-		return false;
-	return true;
-}
-
-// remove all "dir/../" combinations to get "unique" directories from each subfolder.
-function __shortenDirectory(longdir)
-{
-	var dir = "";
-	var arr = [];
-	for(var i=0;i<longdir.length;i++)
-	{
-		var lc = longdir[i];
-		var ret =0;
-		// put all directory names into an array.
-		if(lc=="/" || lc=="\\" || i==longdir.length-1)
-		{
-			if(lc=="/" || lc=="\\")
-				dir=dir+"/";	// set same slash everywhere.
-			else
-				dir=dir+lc;
-			
-			arr.push(dir);
-			dir="";
-		}else{
-			dir=dir+lc;
-		}
-	}
-	
-	var done = false;
-	while(!done)
-	{
-		var arr2=[];
-		var dirpushed = false;
-		var firstdirpushed = false;
-		done = true;
-		for(var i=0;i<arr.length;i++)
-		{
-			var a1=arr[i];
-			if(a1!="../")
-			{
-				arr2.push(a1);
-				dirpushed = true;
-				firstdirpushed = true;
-			}else{
-				// it's ../, go one dir back.
-				// but only if there is a dir before.
-				if(dirpushed && firstdirpushed)
-				{
-					arr2.pop();
-					done = false;
-				}else{
-					// push it anyway if it is at first position or if there are more of them.
-					arr2.push(a1);
-				}
-				dirpushed=false;
-			}
-		}
-		arr=arr2;
-	}
-	
-	dir="";
-	for(var i=0;i<arr.length;i++)
-		dir+=arr[i];
-	
-	if(dir!=longdir)
-		log("Directory shortened: "+longdir+" to "+dir, LOG_DEBUG_VERBOSE);
-	
-	return dir;
-}
-
-// add a slash to the folder name if there is none.
-function __addSlashIfNot(directoryName)
-{
-	var d = directoryName;
-	if(d==null)
-		d="";
-	// add ending / if it is not there.
-	if(d.length>=1)
-	{
-		lastChar = d[d.length-1];
-		if(lastChar!='\\' && lastChar!='/')
-			d+='/';
-	}
-	return d;
-}
-
-// log something.
-// loglevels: 0: only user related stuff like crash errors and user information and such.
-// 1 = 0 with errors
-// 2 = 1 with warnings
-// 3 = 2 with debug
-// 4 = very much output, be aware.
-const LOG_USER = 0;
-const LOG_ERROR = 1;
-const LOG_WARN = 2;
-const LOG_DEBUG = 3;
-const LOG_DEBUG_VERBOSE = 4
-
-var log = function(text, loglevel = 0)
-{
-	if(log.loglevel>=loglevel)
-	{
-		var ll="";
-		switch(loglevel)
-		{
-			//case LOG_USER: ll="";break;
-			case LOG_ERROR: ll='[<span class="jBashError">ERROR</span>]&gt; ';break;
-			case LOG_WARN: ll='[<span class="jBashWarning">WARNING</span>]&gt; ';break;
-			case LOG_DEBUG:
-			case LOG_DEBUG_VERBOSE:
-				ll='[<span class="jBashCmd">DEBUG</span>]&gt; ';break;
-			default: break;
-		}
-		console.log("> "+text);
-		jBash.instance.AddLine(ll+text);
-	}
-};
 log.loglevel = LOG_DEBUG;
+log.logfunction = function(text, loglevel) 
+{
+	switch(loglevel)
+	{
+		//case LOG_USER: ll="";break;
+		case LOG_ERROR: ll='[<span class="jBashError">ERROR</span>]&gt; ';break;
+		case LOG_WARN: ll='[<span class="jBashWarning">WARNING</span>]&gt; ';break;
+		case LOG_DEBUG:
+		case LOG_DEBUG_VERBOSE:
+			ll='[<span class="jBashCmd">DEBUG</span>]&gt; ';break;
+		default: break;
+	}
+	jBash.instance.AddLine(ll+text);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

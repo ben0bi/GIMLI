@@ -5,6 +5,7 @@
 	
 	"jQuery": "js/jquery-3.3.1.min.js",
 	"Benis JQuery Extensions": "js/BeJQuery.js",
+	"Benis Helper Functions": "js/bhelpers.js",
 	"Benis Console": "js/jBash.js",
 	"GIMLI-BASE": "js/gimli.js"
 }

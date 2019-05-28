@@ -3,7 +3,7 @@
 	general functions to easy up your life.
 	by Benedict Jäggi in 2019
 
-	version 1.00: It's all tested by myself so I put it outta beta. :)
+	version 1.02: It's all tested by myself so I put it outta beta. :)
 	
 	because they are sooo general, I will use double-underscore for them.
 	like jquerys $ you need to put __ before this stuff here.
@@ -40,11 +40,15 @@ var log = function(text, loglevel = 0)
 		}
 		console.log("> "+ll+text);
 		log.array.push(ll+text);
+		if(typeof(log.logfunction)=="function")
+			log.logfunction(text, loglevel);
 	}
 };
 log.loglevel = LOG_DEBUG;
 // we push all log messages to this array, too.
 log.array = [];
+// maybe we set an external log function.
+log.logfunction=null;
 
 /* Defined: Check if a variable is defined. Also works with associative array entries and such. */
 function __defined(variable)
