@@ -8,7 +8,7 @@ Yes, it is not Web-site anymore. When you find webs on your site, you usually cl
 So. GIMLI. A great dwarf. Visited Moria. I think. Don't remember it right...
 
 Game induced means there are IMAGES and they do not only serve as images but as interactive 
-panels to do stuff on them.
+panels to do stuff on them. And there are SOUNDS in the system, too. :)
 
 Like in an adventure. And an adventure it is, the inter[web]nets.
 
