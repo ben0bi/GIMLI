@@ -1,3 +1,5 @@
+0.3.03 -> included bhelpers.js into the system, it was just laying around doing nothing. 
+			All functions from there taken out of gimli.js. Included new log functionality.
 0.3.02 -> Show blocker message to the verbose log group.
 0.3.01 -> Loading screen. Removed diashow window.
 

@@ -25,6 +25,7 @@
 
 const GIMLIVERSION = "0.3.03";
 
+// install log function.
 log.loglevel = LOG_DEBUG;
 log.logfunction = function(text, loglevel) 
 {
@@ -140,14 +141,14 @@ var GIMLitem = function()
 	var m_collisionWidth = 0;
 	var m_collisionHeight = 0;
 	var m_collisionScaleFactor = 1.0; // scale factor for collision including world factor,
-					  // please reset after each get.
+									  // please reset after each get.
 
 	var m_internName = "";
 	this.getIntern = function() {return m_internName;};
 	var m_itemName = "";
 	var m_description = "";
 	var m_folder = "";
-	var m_scaleFactor = 1.0;
+	var m_scaleFactor = 1.0;	// the scale factor without world scale factor.
 	var m_script_click = "";
 
 	var m_myDiv = null;
@@ -299,8 +300,8 @@ var GIMLitem = function()
 	{
 		// get mouse position related to this item.
 		var pos   = m_myDiv.offset();
-	      	var elPos = { X:pos.left , Y:pos.top };
-	      	var mPos  = { X:evt.clientX-elPos.X, Y:evt.clientY-elPos.Y };
+	    var elPos = { X:pos.left , Y:pos.top };
+	    var mPos  = { X:evt.clientX-elPos.X, Y:evt.clientY-elPos.Y };
 		var mPosInt = { X:parseInt(mPos.X*1.0/m_collisionScaleFactor), Y:parseInt(mPos.Y*1.0/m_collisionScaleFactor) };
 		
 		// it does not collide when it is not on the area.
@@ -583,7 +584,7 @@ var GIMLI = function()
 	var m_scrollBoundarY2 = 0;
 	var m_scrollBoundarX2 = 0;
 	var m_scrollBoundarY2 = 0;
-	
+		
 	// the size factor. usually 1 or 2
 	var m_scaleFactor = 1.0;
 
@@ -806,7 +807,6 @@ var GIMLI = function()
 			var bgheight = this.height;
 			var outerWidth = outer.width();
 			var outerHeight = outer.height();
-			//log("main: "+mainWidth+" "+mainHeight+" "+m_scaleFactor, LOG_DEBUG);
 			
 			// scale the bg.
 			var scaledbgwidth = parseInt(bgwidth*room.getScaleFactor(m_scaleFactor));

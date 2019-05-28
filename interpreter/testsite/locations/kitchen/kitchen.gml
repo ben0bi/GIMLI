@@ -36,6 +36,14 @@
 			"SOUND": "sound_kitchencat",
 			"LOCATION": ["kitchen", 0, 0]
 		},
+		{
+			"NAME": "<center>Refrigerator<br /><font color=\"#F00\">(empty)</font></center>",
+			"INTERN": "kitchen_refrigerator",
+			"OVERIMAGE": "kitchen_refrigerator.png",
+			"COLLISIONIMAGE": "kitchen_collision_refrigerator.png",
+			"SOUND": "sound_refrigerator",
+			"LOCATION": ["kitchen", 0, 0]
+		},
 		
 		{
 			"NAME": "To the computer room.",
@@ -52,12 +60,15 @@
 			"ONCLICK": "jump to kitchen",
 			"LOCATION": ["balcony", 0, 0]
 		}
-		
 	],
 	"SOUNDS": [
 		{
 			"INTERN": "sound_kitchencat",
 			"FILE": "do_not_bake_the_cat.wav"
+		},
+		{
+			"INTERN": "sound_refrigerator",
+			"FILE": "refrigerator.wav"
 		}
 	]
 }
