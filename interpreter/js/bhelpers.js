@@ -30,7 +30,7 @@ var log = function(text, loglevel = 0)
 		var ll="";
 		switch(loglevel)
 		{
-			//case LOG_USER: ll="";break;
+			case LOG_USER: ll="";break;
 			case LOG_ERROR: ll='[ERROR]: ';break;
 			case LOG_WARN: ll='[WARNING]: ';break;
 			case LOG_DEBUG:

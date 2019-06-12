@@ -23,12 +23,13 @@
  
 */
 
-const GIMLIVERSION = "0.3.03";
+const GIMLIVERSION = "0.3.07";
 
 // install log function.
 log.loglevel = LOG_DEBUG;
 log.logfunction = function(text, loglevel) 
 {
+	ll="";
 	switch(loglevel)
 	{
 		//case LOG_USER: ll="";break;
@@ -741,7 +742,7 @@ var GIMLI = function()
 
 // this is the second main function:  It loads a room and its items and shows it in the window.
 	var m_actualRoomItems = [];	// all the items in the actual room, used for mouseover processing.
-	this.jumpToRoom=function(roomInternName)
+	this.jumpToRoom=function(roomInternName,tox=0,toy=0)
 	{
 		var room = __findRoom(roomInternName);
 		if(room==null)
@@ -819,7 +820,7 @@ var GIMLI = function()
 				m_scrollBoundarX2 = outerWidth-scaledbgwidth;
 			}else{
 				// bg width is smaller than screen.
-				var newRoomX = outerWidth*0.5 - scaledbgwidth*0.5;
+				newRoomX = outerWidth*0.5 - scaledbgwidth*0.5;
 				m_scrollBoundarX1 = newRoomX;
 				m_scrollBoundarX2 = newRoomX;
 			}
@@ -829,7 +830,7 @@ var GIMLI = function()
 				m_scrollBoundarY2 = outerHeight - scaledbgheight;
 			}else{
 				// bg height is smaller than screen.
-				var newRoomY = outerHeight*0.5 - scaledbgheight*0.5;
+				newRoomY = outerHeight*0.5 - scaledbgheight*0.5;
 				m_scrollBoundarY1 = newRoomY;
 				m_scrollBoundarY2 = newRoomY;
 			}
@@ -840,6 +841,20 @@ var GIMLI = function()
 			newroom.width(scaledbgwidth);
 			newroom.height(scaledbgheight);
 			newroom.css('background-size', ''+scaledbgwidth+'px '+scaledbgheight+'px');
+			
+			// 0.3.04 : set room position from script.
+			if(tox!=0)
+			{
+				if(tox<m_scrollBoundarX1) tox=m_scrollBoundarX1;
+				if(tox>m_scrollBoundarX2) tox=m_scrollBoundarX2;
+				newRoomX=tox;
+			}
+			if(toy!=0)
+			{
+				if(toy<m_scrollBoundarY1) tox=m_scrollBoundarY1;
+				if(toy>m_scrollBoundarY2) tox=m_scrollBoundarY2;
+				newRoomY=toy;
+			}
 			
 			me.setRoomPosition(newRoomX, newRoomY);
 			log("Background '"+imgPath+"' loaded. [Size: "+scaledbgwidth+" "+scaledbgheight+" from "+bgwidth+" "+bgheight+"]" , LOG_DEBUG);
@@ -1327,13 +1342,22 @@ GIMLI.jump = function(params)
 	if(p!="")
 	{
 		r = p[0];
+		x=0;
+		y=0;
 		if(r.toLowerCase()=="to" && p.length>1)
+		{
 			r = p[1];
+			if(__defined(p[2])) x = parseInt(p[2]);
+			if(__defined(p[3])) y = parseInt(p[3]);
+		}else{
+			if(__defined(p[1])) x = parseInt(p[1]);
+			if(__defined(p[2])) y = parseInt(p[2]);
+		}
 	}else{
 		jBash.Parse("man jump");
 		return;
 	}
-	GIMLI.instance.jumpToRoom(r);
+	GIMLI.instance.jumpToRoom(r,x,y);
 };
 
 // Hooks for the jBash instance.

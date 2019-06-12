@@ -1,3 +1,6 @@
+0.3.06/07 -> Loglevel display bugfix.
+0.3.05 -> set room position with scroll boundaries. (bugfix)
+0.3.04 -> set room position from script: "Jump to roomname x y"
 0.3.03 -> included bhelpers.js into the system, it was just laying around doing nothing. 
 			All functions from there taken out of gimli.js. Included new log functionality.
 0.3.02 -> Show blocker message to the verbose log group.
