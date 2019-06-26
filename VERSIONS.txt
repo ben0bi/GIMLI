@@ -1,3 +1,13 @@
+0.3.12 -> Almost completely new scrolling process.
+		The old one did not work with the keys, the mouse stopped it all the way and mouseover was not done right.
+		When using keydown directly (no interval), it worked someway but very lame.
+		Now it uses an interval for both, mouse and keyboard input and the mouseover does also work very well. 
+		The mouse does not block the keyboard anymore when it is in the scroll boundaries.
+
+0.3.11 -> mouseover when scrolling with the keys. not really proper code but it almost works, only not when you have the mouse in a scroll area, too.
+0.3.10 -> mouseover when scrolling. Only mouse right now, working on the key-mouseover.
+0.3.09 -> shorter scroll function.
+0.3.08 -> Scrolling with the arrow keys.
 0.3.06/07 -> Loglevel display bugfix.
 0.3.05 -> set room position with scroll boundaries. (bugfix)
 0.3.04 -> set room position from script: "Jump to roomname x y"

@@ -23,7 +23,7 @@
  
 */
 
-const GIMLIVERSION = "0.3.07";
+const GIMLIVERSION = "0.3.12";
 
 // install log function.
 log.loglevel = LOG_DEBUG;
@@ -42,7 +42,6 @@ log.logfunction = function(text, loglevel)
 	}
 	jBash.instance.AddLine(ll+text);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -277,7 +276,7 @@ var GIMLitem = function()
 	var __checkMouseOver = function(evt)
 	{
 		// do nothing if the mouse is inactive.
-		if(GIMLI.stopMouse)
+		if(GIMLI.stopMouse || evt==null)
 			return false;
 		
 		// if the pixel is set, show the mouseover image.
@@ -578,14 +577,27 @@ var GIMLI = function()
 	var m_scrollXDir = 0;
 	var m_scrollYDir = 0;
 	var m_scrollStep = 5;
-	var m_isScrolling = false;
+	var m_isScrolling = 0;	// 0 = no, 1 = mouse, 2 = keys
 	var m_scrollingEnabled = true; // disable scrolling when the console is over.
 	//  the scroll boundaries.
 	var m_scrollBoundarX1 = 0;
 	var m_scrollBoundarY2 = 0;
 	var m_scrollBoundarX2 = 0;
 	var m_scrollBoundarY2 = 0;
-		
+	
+	// keys for scrolling.
+	const KEY_LEFT= 37;
+	const KEY_RIGHT = 39;
+	const KEY_UP = 38;
+	const KEY_DOWN = 40;
+	
+	// the last event fired when scrolling was enabled or disabled.
+	var m_lastScrollEvent = null;
+	// the function to call after the interval. either scroll_mouse or scroll_keys
+	var m_scrollIntervalFunction = null;
+	// are we scrolling with the keyboard or the mouse?
+	var m_scrollWithKeys = false;
+	
 	// the size factor. usually 1 or 2
 	var m_scaleFactor = 1.0;
 
@@ -713,13 +725,11 @@ var GIMLI = function()
 				// file is not laoded, get it and then load the next one.
 				me.loadJSONFile(all, function(json) 
 				{
-					// TODO: remove ../ and predessing dir from all so that different dirs to the same file will be the same.
 					m_loadedGMLFiles.push(all);
 					me.parseGML(json, relativePath);
 					__recursiveload(gmlArray,actual_i+1,rootPath);
 				});
 			}else{
-				//m_recLoadedFiles-=1;
 				// file is already loaded, get the next one.
 				log("File "+gmlArray[actual_i]+" already loaded.", LOG_WARN);
 				__recursiveload(gmlArray,actual_i+1, rootPath);
@@ -734,6 +744,7 @@ var GIMLI = function()
 			m_afterLoadCalled=true;
 			m_afterLoadFunction();
 			me.debug(LOG_USER);
+			log("----------------- ALL GMLS LOADED. ------------------------", LOG_USER);
 		}
 	}
 
@@ -999,30 +1010,129 @@ var GIMLI = function()
 		mainWindow.css('top', ''+setY+'px');
 	};
 	
-	// scrolling function
-	var m_lastMouseEvent = null;
-	var m_scrollInterval = null;
-	var __scroll = function(evt)
-	{
-		m_lastMouseEvent = evt;
-		__realScroll();
-	}
-	
-	// the real scroll function, will call itself when scrolling is on and determine itself, IF scrolling is on.
-	var __realScroll = function()
+	// the function to call in the events for mouse and keyboard.
+	var __scroll = function(evt, iskb=false)
 	{
 		// maybe disable scrolling.
 		if(!m_scrollingEnabled)
 		{
-			if(m_scrollInterval!=null)
+			if(m_scrollIntervalFunction!=null)
 			{
-				clearInterval(m_scrollInterval);
-				m_scrollInterval = null;
+				clearInterval(m_scrollIntervalFunction);
+				m_scrollIntervalFunction = null;
 			}
 			return;
 		}
+
+		// I really hope, the mouse params are also in a keyboard event...
+		m_lastScrollEvent = evt;
 		
-		var evt = m_lastMouseEvent;
+		if(!iskb && !m_scrollWithKeys)
+			__realScroll_mouse();
+		else
+			__realScroll_keys();
+	}
+	
+	// stop the scrolling.
+	var __stopScroll=function(evt, iskb=false)
+	{
+		if(!m_scrollWithKeys || iskb==true)
+		{
+			m_isScrolling = 0;
+			m_scrollXDir=0;
+			m_scrollYDir=0
+		}
+		
+		if(m_scrollIntervalFunction!=null)
+			clearInterval(m_scrollIntervalFunction);
+		m_scrollIntervalFunction=null;
+		m_scrollWithKeys=false;
+	}
+
+	// scroll process does the actual scrolling on the map,
+	// with m_scrollStep as range.
+	var __scrollProcess = function()
+	{
+		m_actualRoomX +=m_scrollXDir*m_scrollStep;
+		m_actualRoomY +=m_scrollYDir*m_scrollStep;
+			
+		/* constrain the positions. */
+		if(m_actualRoomX>m_scrollBoundarX1)
+			m_actualRoomX = m_scrollBoundarX1;
+		if(m_actualRoomY>m_scrollBoundarY1)
+			m_actualRoomY=m_scrollBoundarY1;
+		
+		if(m_actualRoomX<m_scrollBoundarX2)
+			m_actualRoomX=m_scrollBoundarX2;
+		if(m_actualRoomY<m_scrollBoundarY2)
+			m_actualRoomY=m_scrollBoundarY2;	
+
+		me.setRoomPosition(m_actualRoomX, m_actualRoomY);
+		//log("Scroll: W"+w+" H"+h+" +x"+l+" +y"+t+" X"+cx+" Y"+cy, LOG_DEBUG);		
+	}
+	
+	var __realScroll_keys = function()
+	{
+		var evt = m_lastScrollEvent;
+		
+		// check if it is a scroll key at all.
+		switch(evt.keyCode)
+		{
+			case KEY_LEFT:
+			case KEY_RIGHT:
+			case KEY_UP:
+			case KEY_DOWN:
+				m_isScrolling = 2;
+				m_scrollWithKeys = true;
+				break;
+			default: break;
+		}
+		
+		// now we need to do that again, to determine the scroll directions.
+		if(m_isScrolling==2)
+		{
+			// set scroll direction.
+			switch(evt.keyCode)
+			{
+				case KEY_UP: m_scrollYDir = 1;break;
+				case KEY_DOWN: m_scrollYDir = -1;break;
+				case KEY_LEFT: m_scrollXDir = 1;break;
+				case KEY_RIGHT: m_scrollXDir = -1;break;
+				default: break;
+			}
+			// repeat the scrolling.
+			if(m_isScrolling==2)
+			{
+				__scrollProcess();
+				__mtouchover(m_lastMouseEvent);
+				if(m_scrollIntervalFunction!=null)
+					clearInterval(m_scrollIntervalFunction)
+				m_scrollIntervalFunction=null; // for security, null it "again".
+				m_scrollIntervalFunction=setInterval(__realScroll_keys, 15);
+			}else{
+				if(m_isScrolling==0)
+				{
+					if(m_scrollIntervalFunction!=null)
+						clearInterval(m_scrollIntervalFunction);
+					m_scrollIntervalFunction = null;
+				}
+			}
+		}
+	}
+	
+	// the real scroll function, will call itself when scrolling is on and determine itself, IF scrolling is on.
+	var __realScroll_mouse = function()
+	{
+		// we are already scrolling with the keys, do no "mouseover"
+		if(m_scrollWithKeys)
+			return;
+		
+		var evt = m_lastScrollEvent;
+		
+		// the scroll event may be clear.
+		if(evt==null)
+			return;
+		
 		// get the size of the main screen.
 		var main = __getMainWindow();
 		var outer = __getOuterWindow();
@@ -1031,9 +1141,10 @@ var GIMLI = function()
 		var r = outer.get(0).getBoundingClientRect();
 		var t = r.top;				// get top of main window.
 		var l = r.left;				// get left of main window.
+		
 		var cx = evt.clientX-l;		// get mouse x relative to main window.
 		var cy = evt.clientY-t;		// get mouse y relative to main window.
-				
+
 		// scrolling areas
 		var minW = w*0.2;
 		var maxW = w*0.2*4;
@@ -1041,17 +1152,15 @@ var GIMLI = function()
 		var maxH = h*0.2*4;
 		
 		// check for mouse position.
-		if(cx<=minW || cx>=maxW || cy<=minH || cy>=maxH)
-		{
-			m_isScrolling = true;
-		}else
-		{
-			m_isScrolling = false;
+		if(cx<=minW || cx>=maxW || cy<=minH || cy>=maxH) {
+			m_isScrolling = 1;
+		}else{
+			m_isScrolling = 0;
 		}
 		
 		// check if mouse is out of field.
-		if(cx<=0 || cx>=w || cy<=0 || cy>=h) {m_isScrolling = false;}
-		
+		if(cx<=0 || cx>=w || cy<=0 || cy>=h) {m_isScrolling = 0;}
+
 		// set scroll directories.
 		m_scrollXDir = 0;
 		m_scrollYDir = 0;
@@ -1065,35 +1174,24 @@ var GIMLI = function()
 			m_scrollYDir = -1;
 						
 		// repeat the scrolling.
-		if(m_isScrolling)
+		if(m_isScrolling==1)
 		{
-			m_actualRoomX +=m_scrollXDir*m_scrollStep;
-			m_actualRoomY +=m_scrollYDir*m_scrollStep;
-			
-			/* constrain the positions. */
-			if(m_actualRoomX>m_scrollBoundarX1)
-				m_actualRoomX = m_scrollBoundarX1;
-			if(m_actualRoomY>m_scrollBoundarY1)
-				m_actualRoomY=m_scrollBoundarY1;
-			
-			if(m_actualRoomX<m_scrollBoundarX2)
-				m_actualRoomX=m_scrollBoundarX2;
-			if(m_actualRoomY<m_scrollBoundarY2)
-				m_actualRoomY=m_scrollBoundarY2;	
-
-			me.setRoomPosition(m_actualRoomX, m_actualRoomY);
-			//log("Scroll: W"+w+" H"+h+" +x"+l+" +y"+t+" X"+cx+" Y"+cy, LOG_DEBUG);
-			if(m_scrollInterval==null)
-				m_scrollInterval=setInterval(__realScroll, 15);
+			__scrollProcess();
+			__mtouchover(evt);
+			if(m_scrollIntervalFunction!=null)
+				clearInterval(m_scrollIntervalFunction)
+			m_scrollIntervalFunction=null; // for security, null it "again".
+			m_scrollIntervalFunction=setInterval(__realScroll_mouse, 15);
 		}else{
-			if(m_scrollInterval!=null)
+			if(m_isScrolling==0)
 			{
-				clearInterval(m_scrollInterval);
-				m_scrollInterval = null;
+				if(m_scrollIntervalFunction!=null)
+					clearInterval(m_scrollIntervalFunction);
+				m_scrollIntervalFunction = null;
 			}
 		}
 	}
-		
+
 	// make all the array names in a json object upper case.
 	var __jsonUpperCase=function(obj) {
 		var key, upKey;
@@ -1189,10 +1287,7 @@ var GIMLI = function()
 		// i forgot why the middle window is needed but it is.
 		var mainwindow = jQuery.getNewDiv('','gimli-main-window', 'gimli-pixelperfect');
 		var descriptionwindow = jQuery.getNewDiv('','gimli-text-description','gimli-text');
-		
-		// new, v0.2.x: diashow window.
-		//var diashowwindow = jQuery.getNewDiv('','gimli-diashow-window', 'gimli-pixelperfect');
-		
+				
 		// new, v0.3.01: wait for laoding window.
 		var waitWindow = jQuery.getNewDiv('', 'gimli-wait-window', 'gimli-pixelperfect');
 		waitWindow.append(jQuery.getNewDiv('Loading...','','gimli-pixelperfect gimli-verticalcenter gimli-waitcontent'));
@@ -1212,6 +1307,7 @@ var GIMLI = function()
 		outerwindow.append(elconsole_outer);
 		//outerwindow.append(descriptionwindow);
 	
+		// mouseover functions.
 		outerwindow.mousemove(__mtouchover);
 		outerwindow.on('touchstart',__mtouchover);
 		outerwindow.on('touchmove',__mtouchover);
@@ -1254,30 +1350,35 @@ var GIMLI = function()
 		// apply mouseover to the body.
 		/*var main = __getMainWindow();*/
 		var body = $('body');
+		body.mouseover(function(evt) {
+			m_lastMouseEvent = evt;
+			__scroll(evt, false);
+		});
 		body.mousemove(function(evt) {
-			__scroll(evt);
+			m_lastMouseEvent = evt;
+			__scroll(evt, false);
 		});
 		body.mouseout(function(evt) {
-			m_isScrolling = false;
+			m_lastMouseEvent = evt;
+			// stop all scrolling when the mouse leaves the body.
+			__stopScroll(evt, false);
+		});
+		
+/* new 0.3.08: keydown/up for scrolling */
+/* 0.3.12: completely new (overall) scroll process (except for the mouse one, which worked good anyway) */
+		body.keydown(function(evt) 
+		{
+			__scroll(evt,true);
+		});
+		body.keyup(function(evt) 
+		{
+			__stopScroll(evt,true);
 		});
 		
 		// disable scrolling when jbash is on.
 		var jb = $('#gimli-jbash-outer-window');
 		jb.mouseover(function(evt) {m_scrollingEnabled=false;});
 		jb.mouseout(function(evt) {m_scrollingEnabled=true;});
-	}
-	
-	// show or hide the image view / main window.
-	var __showDiashowWindow=function(show=true)
-	{
-		if(show)
-		{
-			$('#gimli-outer-window').hide();
-			$('#gimli-diashow-window').show();
-		}else{
-			$('#gimli-diashow-window').hide();
-			$('#gimli-outer-window').show();
-		}
 	}
 	
 	// play a sound from the sound bank.
