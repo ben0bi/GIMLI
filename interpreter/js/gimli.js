@@ -112,7 +112,7 @@ var GIMLsound = function()
 		
 	this.debug = function(loglevel = LOG_DEBUG)
 	{
-		log("SOUND: "+m_internName+" --> "+m_soundFile, loglevel);
+		log("SOUND ("+m_duration+"s): "+m_internName+" --> "+m_soundFile, loglevel);
 	}
 }
 
@@ -914,7 +914,7 @@ var GIMLI = function()
 	// show debug info about the rooms.
 	this.debugRooms = function()
 	{
-		if(__roomCount<=0)
+		if(__roomCount()<=0)
 		{
 			log("There are no rooms loaded.", LOG_USER);
 			return;
@@ -930,7 +930,7 @@ var GIMLI = function()
 	// show debug info about the items.
 	this.debugItems = function()
 	{
-		if(__itemCount<=0)
+		if(__itemCount()<=0)
 		{
 			log("There are no items loaded.", LOG_USER);
 			return;
@@ -940,6 +940,22 @@ var GIMLI = function()
 		for(var i=0;i<__itemCount();i++)
 		{
 			m_itemsLoaded[i].debug(LOG_USER);
+		}
+	}
+	
+	// show debug info about the sounds.
+	this.debugSounds = function()
+	{
+		if(__soundCount()<=0)
+		{
+			log("There are no sounds loaded.", LOG_USER);
+			return;
+		}
+		log(" ", LOG_USER);
+		log("+++ <span class='jBashCmd'>SHOWING DATA FOR "+__soundCount()+" LOADED ITEMS.</span> +++", LOG_USER);
+		for(var i=0;i<__soundCount();i++)
+		{
+			m_soundsLoaded[i].debug(LOG_USER);
 		}
 	}
 	
@@ -1466,6 +1482,8 @@ jBash.registerCommand("rooms", "Show info about the loaded rooms.", function(par
 	{GIMLI.instance.debugRooms();});
 jBash.registerCommand("items", "Show info about the loaded items.", function(params)
 	{GIMLI.instance.debugItems();});
+jBash.registerCommand("sounds", "Show info about the loaded sounds.", function(params)
+	{GIMLI.instance.debugSounds();});
 jBash.registerCommand("jump", "Jump to a given room (intern name)<br />E.g. {<span class='jBashCmd'>jump to garden</span>}", GIMLI.jump);
 jBash.registerCommand("j", "Short for the <span class='jBashCmd'>jump</span> command.", GIMLI.jump, true);
 

@@ -1,3 +1,4 @@
+0.3.13 -> New jBash command: "sounds" -> show all loaded sounds.
 0.3.12 -> Almost completely new scrolling process.
 		The old one did not work with the keys, the mouse stopped it all the way and mouseover was not done right.
 		When using keydown directly (no interval), it worked someway but very lame.
@@ -17,6 +18,7 @@
 0.3.01 -> Loading screen. Removed diashow window.
 
 0.3.00 -> Use ?roomname in your URL (to index.html, not gml...) for jumping directly into a room. e.G: index.html?floor
+			[edit] does not work right because of the loading process.
 
 0.2.10 -> Issuing after load function after load of all recursive loading files which need some time. Hopefully...
 0.2.09 -> Mtouchover Bugfix. It will now make a mouseover event after a click properly I hope.
@@ -33,10 +35,10 @@
 0.1.19 -> Loading SOUND (intern name) from GML into item for playing on click.
 0.1.18 -> loading SOUNDS from GML into sound array.
 0.1.17 -> SOUND structure prototype.
-0.1.16 -> Window for creating "photo sessions" in createMainWindow eingebaut.
+0.1.16 -> Window for creating "photo sessions" in createMainWindow eingebaut. [EDIT: removed it in 0.3.01]
 0.1.15 -> calling mtouchover each 50ms until all images are loaded. (see bathroom location ;) )
 0.1.14 -> added m_CollisionLoaded to the items to determine if mouse check should be done or...not. Not yet functional.
-0.1.13 -> can now use (one) ROOMS AND (one) LOCATIONS array instead of "or".
+0.1.13 -> can now use (one) ROOMS AND (one) LOCATIONS array per file (instead of "or").
 0.1.12 -> use of the __shortenDirectory function for comparing gml file paths for double entries.
 0.1.11 -> new function __shortenDirectory(longdir) to remove all "dir/../" combinations from a directory.
 0.1.10 -> new jBash command "loglevel" to set or get the actual log level.
@@ -45,7 +47,7 @@
 0.1.05-0.1.08 -> added touch events for supporting mobiles. Not really working but....it's something.
 0.1.04 -> can now load gmls from sub-directories. The entries in the gml can be relative. "FOLDER" tag can be omitted.
 0.1.03 -> Trying to load GMLs from sub-directories. Not done yet. Upload for working on another computer.
-0.1.01 - 0.1.2 -> added and removed a directory fix which aint working.
+0.1.01 - 0.1.02 -> added and removed a directory fix which aint working.
 
 0.1.0 -> Recursive loading of GMLs (in the base directory) works. Happy Easter, this is the "first" version. :)
 
