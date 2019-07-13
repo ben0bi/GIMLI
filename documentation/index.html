@@ -490,7 +490,15 @@ as much panel entries as you want with the following parameters and values:<br /
 	<td><span class="highlight">BUTTONS</span></td>
 	<td>---</td>
 	<td>[empty array]</td>
-	<td>The buttons which the user can click into. A button has a <span class="highlight">TEXT</span> and a <span class="highlight">CLICK</span> (or <span class="highlight">ONCLICK</span>) entry which executes a jBash command. See example below.</td>
+	<td>The buttons which the user can click into. A button has a <span class="highlight">TEXT</span> and a <span class="highlight">CLICK</span> (or <span class="highlight">ONCLICK</span>)
+	entry which executes a <span class="highlight">jBash</span) command. See example below.</td>
+</tr>
+<tr>
+	<td><span class="highlight">BUTTON</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>ONE (other) button which the user can click into. This can be used as shortcut for just one button on the panel. A button has a <span class="highlight">TEXT</span> and a
+	<span class="highlight">CLICK</span> (or <span class="highlight">ONCLICK</span>) entry which executes a <span class="highlight">jBash</span> command. See example below.</td>
 </tr>
 </table>
 
@@ -534,7 +542,7 @@ This is an example gml file with two rooms and two items:<br />
 			"COLLISIONIMAGE": "panel_over.png",
 			"FOLDER": "items/myabout/",
 			"LOCATION": ["start_room", 50,50],
-			"SCRIPT": "panel closeall ",
+			"SCRIPT": "panel panel_about closeall",
 		},
 		{
 			"NAME": "A door",
@@ -611,7 +619,7 @@ Those are the predefined commands exclusively made for GML, where Secondary is t
 	<td>Loads the <span class="highlight">url</span> as normal website in the same window. <span class="highlight">to</span> can be omitted.</td>
 </tr>
 <tr>
-	<td><span class="highlight">panel</span> (not done yet)</td>
+	<td><span class="highlight">panel</span></td>
 	<td> </td>
 	<td>[<span class="highlight">closeall</span>] [<span class="highlight">panel_to_show</span>]</td>
 	<td><span class="highlight">closeall</span> closes all open panels. <span class="highlight">panel_to_show</span> is the intern name of the panel to display. 
@@ -641,6 +649,7 @@ He grew up with computers and used the browser based internet since it was throw
 <h1>Documentation Changelog <a href="#top">^</a></h1></h1>
 For the changelog of GIMLI look at the VERSIONS.txt file on the github repository.<br />
 <br />
+v4.01 > Panels working, more specific info about them.<br />
 v4.00 > Added info about the <a href="#gml_panels">PANELS</a>. Not yet working in code but the doc is here. :)<br />
 v3.00 > Added <a href="#direct_link">direct link</a> documentation.<br />
 v2.02 > Added DELAY documentation.<br />
@@ -651,6 +660,6 @@ v1.0x > Documentation of all GIMLI-tags in one file. Scripting functionality is 
 <br />
 </div></div>
 
-<div class="footer"><br />Doc. v4.00 by Benedict Jäggi / Latest change: 11.07.2019 (d-m-y)</div>
+<div class="footer"><br />Doc. v4.01 by Benedict Jäggi / Latest change: 11.07.2019 (d-m-y)</div>
 </body>
 </html>
