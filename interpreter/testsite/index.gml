@@ -32,6 +32,7 @@
 			"OVERIMAGE": "nsa_mouseover.png",
 			"onclick": "panel closeall ssd_clicked",
 			"SOUND": "sound_nintendo",
+			"DELAY": 0.25,
 			"LOCATION": ["living_room", 215, 370]
 		}
 	],

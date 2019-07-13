@@ -44,11 +44,12 @@
 			"BUTTONS": [
 				{
 					"TEXT": "[LEAVE] But I want to go there now..",
-					"CLICK": "link https://benis-bastelschuppen.github.io/NSA"
+					"SOUND": "sound_nintendo",
+					"SCRIPTS": ["panel closeall", "link https://benis-bastelschuppen.github.io/NSA"]
 				},
 				{
 					"TEXT": "[STAY] Ok, I'll try the door..",
-					"CLICK": "panel closeall"
+					"SCRIPT": ["panel closeall"]
 				}
 
 			]

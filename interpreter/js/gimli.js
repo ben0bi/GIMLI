@@ -23,7 +23,7 @@
  
 */
 
-const GIMLIVERSION = "0.4.00";
+const GIMLIVERSION = "0.4.04";
 
 // install log function.
 log.loglevel = LOG_DEBUG;
@@ -51,7 +51,10 @@ log.logfunction = function(text, loglevel)
 var GIMLbutton = function()
 {
 	var m_buttonText = "";		// text shown for this button.
-	var m_buttonFunction = "";	// jBash function called with this button.
+	var m_buttonFunctions = "";	// jBash function called with this button.
+	var m_clickSound = "";
+	var m_soundDelay = 1.0;
+//	var m_clickEvt = null;
 	var me = this;
 	
 	// return the dom element for this button.
@@ -67,16 +70,36 @@ var GIMLbutton = function()
 	// the click function for this button.
 	this.onClick = function(evt)
 	{
-		if(m_buttonFunction!="")
-			jBash.instance.DoLine(m_buttonFunction);
-		else
-			log("This button has no function associated.", LOG_WARN);
-		
+//		m_clickEvt=evt;
+		var duration = GIMLI.getSoundDuration(m_clickSound);
+		//log("SOUND DURATION: "+duration);
+		duration = parseInt(duration*1000)*m_soundDelay + 1; // get in ms and add one ms.
+		// (maybe) play the sound.
+		GIMLI.playSound(m_clickSound);
+		// click after the sound has played.
+		setTimeout(__realClick,duration);
+
 		// do not click through!
 		evt.stopPropagation();
 		evt.preventDefault();
 		evt.stopImmediatePropagation();
 		return false;
+
+	}
+	var __realClick = function()
+	{
+		if(m_buttonFunctions.length>0)
+		{
+			// 0.4.01: array instead of single function.
+			for(var btnfi=0;btnfi<m_buttonFunctions.length;btnfi++)
+			{
+				var line = m_buttonFunctions[btnfi];
+				if(line!="")
+					jBash.instance.DoLine(line);
+			}
+		}
+		else
+			log("This button has no function associated.", LOG_WARN);		
 	}
 		
 	// get the gml.
@@ -84,11 +107,41 @@ var GIMLbutton = function()
 	{
 		if(__defined(GIMLbutton['TEXT']))
 			m_buttonText=GIMLbutton['TEXT'];
-		// click is better than onclick ;)
+		// button functions in an array.
+		m_buttonFunctions = [];
 		if(__defined(GIMLbutton['ONCLICK']))
-			m_buttonFunction=GIMLbutton['ONCLICK'];
-		if(__defined(GIMLbutton['CLICK']))
-			m_buttonFunction=GIMLbutton['CLICK'];
+		{
+			var arr = GIMLbutton['ONCLICK'];
+			for(var ic=0;ic<arr.length;ic++)
+				m_buttonFunctions.push(arr[ic])
+		}
+		if(__defined(GIMLbutton['SCRIPT']))
+		{
+			var arr = GIMLbutton['SCRIPT'];
+			for(var ic=0;ic<arr.length;ic++)
+				m_buttonFunctions.push(arr[ic])
+		}
+		if(__defined(GIMLbutton['SCRIPTS']))
+		{
+			var arr = GIMLbutton['SCRIPTS'];
+			for(var ic=0;ic<arr.length;ic++)
+				m_buttonFunctions.push(arr[ic])
+		}
+
+		// loading in the sound.
+		if(__defined(GIMLbutton['SOUND']))
+			m_clickSound = GIMLbutton['SOUND'];
+		var cs2 = m_clickSound.split(' ').join('_');
+		if(m_clickSound!=cs2)
+		{
+			log("Spaces are not allowed in intern names. [Panelbutton-Clicksound]['"+m_clickSound+"' ==&gt; '"+cs2+"']", LOG_WARN);
+			m_clickSound = cs2;
+		}
+		
+		// get the sound delay.
+		if(__defined(GIMLbutton['DELAY']))
+			m_soundDelay = parseFloat(GIMLbutton['DELAY']);
+
 	}
 };
 
@@ -531,9 +584,11 @@ var GIMLitem = function()
 			m_scaleFactor=parseFloat(gmlItem['SCALEFACTOR']);
 		if(__defined(gmlItem['SCALE']))	// get item scale 2.
 			m_scaleFactor=parseFloat(gmlItem['SCALE']);
-		// get the click event.
+		// get the click events (XHEREX todo)
 		if(__defined(gmlItem['SCRIPT'])) // script happens on click, but onclick is preferred.
 			m_script_click = gmlItem['SCRIPT'];
+		if(__defined(gmlItem['SCRIPTS'])) // script happens on click, but onclick is preferred.
+			m_script_click = gmlItem['SCRIPTS'];
 		if(__defined(gmlItem['ONCLICK']))
 			m_script_click = gmlItem['ONCLICK'];
 		// get the sound to play when the item is clicked.
@@ -548,7 +603,7 @@ var GIMLitem = function()
 		
 		// get the sound delay.
 		if(__defined(gmlItem['DELAY']))
-			m_soundDelay = parseFloat(gmlItem['DELAY'])		
+			m_soundDelay = parseFloat(gmlItem['DELAY']);
 	};
 	
 	// add this item to a room div.

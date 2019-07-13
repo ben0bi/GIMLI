@@ -490,15 +490,15 @@ as much panel entries as you want with the following parameters and values:<br /
 	<td><span class="highlight">BUTTONS</span></td>
 	<td>---</td>
 	<td>[empty array]</td>
-	<td>The buttons which the user can click into. A button has a <span class="highlight">TEXT</span> and a <span class="highlight">CLICK</span> (or <span class="highlight">ONCLICK</span>)
-	entry which executes a <span class="highlight">jBash</span) command. See example below.</td>
+	<td>The buttons which the user can click into. A button has a <span class="highlight">TEXT</span> and a <span class="highlight">SCRIPT</span>[S] (or <span class="highlight">ONCLICK</span>)
+	array which executes the given <span class="highlight">jBash</span> command/s. See example below.</td>
 </tr>
 <tr>
 	<td><span class="highlight">BUTTON</span></td>
 	<td>---</td>
 	<td>---</td>
 	<td>ONE (other) button which the user can click into. This can be used as shortcut for just one button on the panel. A button has a <span class="highlight">TEXT</span> and a
-	<span class="highlight">CLICK</span> (or <span class="highlight">ONCLICK</span>) entry which executes a <span class="highlight">jBash</span> command. See example below.</td>
+	<span class="highlight">SCRIPT</span>[S] (and/or <span class="highlight">ONCLICK</span>) array entry which executes the given <span class="highlight">jBash</span> command/s. See example below.</td>
 </tr>
 </table>
 
@@ -570,8 +570,13 @@ This is an example gml file with two rooms and two items:<br />
 			"BUTTONS": [
 				{
 					"TEXT": "Close panel",
-					"CLICK": "panel closeall"
+					"SCRIPT": ["panel closeall"]
+				},
+				{
+					"TEXT": "Goto Github",
+					"ONCLICK": ["panel closeall", "link to https://github.com"]
 				}
+
 			]
 		}
 	]
@@ -594,7 +599,7 @@ web page while the <span class="highlight">jump</span> loads another location fr
 The first item plays the loaded sound when it is clicked. It will wait for the sound to finish before it executes the scripted link. Whereelse, the sound would not play because the external page
 would be loaded instantly and overwrite the actual GIMLI-framework and thus the sound engine.<br />
 <br />
-
+At last there are some panels with the onclick function ARRAYs.
 <hr />
 
 <a name="script_structure"></a>
@@ -649,6 +654,8 @@ He grew up with computers and used the browser based internet since it was throw
 <h1>Documentation Changelog <a href="#top">^</a></h1></h1>
 For the changelog of GIMLI look at the VERSIONS.txt file on the github repository.<br />
 <br />
+v4.03 > SCRIPT/S instead of CLICK.
+v4.02 > BugFix of 4.01
 v4.01 > Panels working, more specific info about them.<br />
 v4.00 > Added info about the <a href="#gml_panels">PANELS</a>. Not yet working in code but the doc is here. :)<br />
 v3.00 > Added <a href="#direct_link">direct link</a> documentation.<br />
@@ -660,6 +667,6 @@ v1.0x > Documentation of all GIMLI-tags in one file. Scripting functionality is 
 <br />
 </div></div>
 
-<div class="footer"><br />Doc. v4.01 by Benedict Jäggi / Latest change: 11.07.2019 (d-m-y)</div>
+<div class="footer"><br />Doc. v4.03 by Benedict Jäggi / Latest change: 11.07.2019 (d-m-y)</div>
 </body>
 </html>
