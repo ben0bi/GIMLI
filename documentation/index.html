@@ -144,6 +144,7 @@
 		<li><a href="#gml_locations">Locations/Rooms</a></li>
 		<li><a href="#gml_items">Items</a></li>
 		<li><a href="#gml_panels">Panels</a></li>
+			<ul><li><a href="#gml_panel_buttons">Panel buttons</a></li></ul>
 		<li><a href="#gml_example_1">Example File</a></li>
 	</ul>
 </li>
@@ -229,7 +230,9 @@ folder. Sorry for that. No, not sorry: Damn and curse CORS for that. It made the
 		<li><a href="#gml_sounds">Sounds</a></li>
 		<li><a href="#gml_locations">Locations/Rooms</a></li>
 		<li><a href="#gml_items">Items</a></li>
-		<li><a href="#gml_panels">Panels</a></li>
+		<li><a href="#gml_panels">Panels</a>
+			<ul><li><a href="#gml_panel_buttons">Panel buttons</a></li></ul>
+		</li>
 		<li><a href="#gml_example_1">Example File</a></li>
 	</ul>
 	
@@ -304,6 +307,12 @@ Optional parameters have a default value.<br />
 	<td>---</td>
 	<td>[empty array]</td>
 	<td>Array containing all sound-files.</td>
+</tr>
+<tr>
+	<td><span class="highlight">PANELS</span></td>
+	<td>---</td>
+	<td>[empty array]</td>
+	<td>Array containing all panels. A panel is a text box with several buttons to choose from.</td>
 </tr>
 </table>
 
@@ -502,6 +511,40 @@ as much panel entries as you want with the following parameters and values:<br /
 </tr>
 </table>
 
+<a name="gml_panel_buttons"></a>
+<h3>Panel-Buttons <a href="#gml_panels">^</a></h3>
+Every panel has its own <span class="highlight">BUTTONS</span> array. A button is somewhat the same like an <span class="highlight">ITEM</span> but without images. It displays a text button underneath the text of your panel.<br /><br />
+Those are the values for a button:
+<br />
+<br />
+<table>
+<tr><td>Primary</td><td>Secondary</td><td>Default</td><td>Description</td></tr>
+<tr>
+	<td><span class="highlight">TEXT</span></td>
+	<td>---</td>
+	<td>[empty array]</td>
+	<td>Array with the texts to display on the panel. The array entries will be combined together.</td>
+</tr>
+<tr>
+	<td><span class="highlight">ONCLICK</span></td>
+	<td><span class="highlight">SCRIPT</span>[S]</td>
+	<td>[empty array]</td>
+	<td>The <span class="highlight">jBash</span>-command-lines to execute when this button is clicked.</td>
+</tr>
+<tr>
+	<td><span class="highlight">SOUND</span></td>
+	<td>---</td>
+	<td>---</td>
+	<td>The intern name of the <span class="highlight">SOUND</span> to play when this button is clicked.</td>
+</tr>
+<tr>
+	<td><span class="highlight">DELAY</span></td>
+	<td>---</td>
+	<td>1.0</td>
+	<td>How many fractions of the length of the sound to wait until the button executes its commands.</td>
+</tr>
+</table>
+
 <a name="gml_example_1"></a>
 <h2>Example File <a href="#gml_structure">^</a></h2>
 This is an example gml file with two rooms and two items:<br />
@@ -612,28 +655,28 @@ Those are the predefined commands exclusively made for GML, where Secondary is t
 <table>
 <tr><td>Command</td><td>Secondary</td><td>Parameters</td><td>Description</td></tr>
 <tr>
-	<td><span class="highlight">jump</td>
-	<td><span class="highlight">j</td>
+	<td><span class="highlight">jump</span></td>
+	<td><span class="highlight">j</span></td>
 	<td>[<span class="highlight">to</span>] <span class="highlight">target</span></td>
 	<td>Loads the <span class="highlight">target</span> room (<span class="highlight">intern name</span>) from the same gml page. <span class="highlight">to</span> can be omitted.</td>
 </tr>
 <tr>
-	<td><span class="highlight">link</td>
-	<td><span class="highlight">l</td>
+	<td><span class="highlight">link</span></td>
+	<td><span class="highlight">l</span></td>
 	<td>[<span class="highlight">to</span>] <span class="highlight">url</span></td>
 	<td>Loads the <span class="highlight">url</span> as normal website in the same window. <span class="highlight">to</span> can be omitted.</td>
 </tr>
 <tr>
 	<td><span class="highlight">panel</span></td>
-	<td> </td>
+	<td><span class="highlight">p</span></td>
 	<td>[<span class="highlight">closeall</span>] [<span class="highlight">panel_to_show</span>]</td>
 	<td><span class="highlight">closeall</span> closes all open panels. <span class="highlight">panel_to_show</span> is the intern name of the panel to display. 
 	<span class="highlight">closeall</span> OR <span class="highlight">panel_to_show</span> can be omitted.<br />
 	<span class="highlight">closeall</span> must be BEFORE <span class="highlight">panel_to_show</span></td>
 </tr>
 <tr>
-	<td><span class="highlight">show</td>
-	<td><span class="highlight"> -- </td>
+	<td><span class="highlight">show</span></td>
+	<td>---</td>
 	<td><span class="highlight">items</span> OR <span class="highlight">rooms</span> OR <span class="highlight">sounds</span> OR <span class="highlight">panels</span></td>
 	<td>Shows debug info in the console about ALL the given stuff. E.g. <span class="highlight">show panels</span> shows info about all loaded panels.</td>
 </tr>
@@ -652,10 +695,12 @@ He grew up with computers and used the browser based internet since it was throw
 <hr />
 <a name="changelog"></a>
 <h1>Documentation Changelog <a href="#top">^</a></h1></h1>
-For the changelog of GIMLI look at the VERSIONS.txt file on the github repository.<br />
+For the changelog of GIMLI itself look at the VERSIONS.txt file on the github repository.<br />
 <br />
-v4.03 > SCRIPT/S instead of CLICK.
-v4.02 > BugFix of 4.01
+v4.05 > Github link in the lower right (footer).<br />
+v4.04 > <a href="#gml_panel_buttons">BUTTONS</a> section for the panel buttons.<br />
+v4.03 > SCRIPT/S instead of CLICK.<br />
+v4.02 > BugFix of 4.01<br />
 v4.01 > Panels working, more specific info about them.<br />
 v4.00 > Added info about the <a href="#gml_panels">PANELS</a>. Not yet working in code but the doc is here. :)<br />
 v3.00 > Added <a href="#direct_link">direct link</a> documentation.<br />
@@ -667,6 +712,8 @@ v1.0x > Documentation of all GIMLI-tags in one file. Scripting functionality is 
 <br />
 </div></div>
 
-<div class="footer"><br />Doc. v4.03 by Benedict Jäggi / Latest change: 11.07.2019 (d-m-y)</div>
+<div class="footer">
+		<a href="https://github.com/ben0bi/GIMLI" id="github-btn" class="btn">GIMLI on Github</a>
+<br />Doc. v4.05 by Benedict Jäggi / Latest change: 13.07.2019 (d-m-y)</div>
 </body>
 </html>
