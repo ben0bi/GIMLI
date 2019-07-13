@@ -1,37 +1,58 @@
 {
-	"DIALOGS": [
+	"PANELS": [
 		{
 			"INTERN": "dialog_welcome",
 			"TEXT": "Welcome to GIMLIs home. What can I do for you?",
-			"COLOR": "#69FF69",
-			"LOCATION": [10,100],
-			"ANSWERS": [
+			"BUTTONS": [
 				{
 					"TEXT": "Tell me about you.",
-					"GOTO": "dialog_about_me"
+					"CLICK": "panel closeall dialog_about_me"
 				},
 				{
 					"TEXT": "Can I buy something here?",
-					"GOTO": "dialog_no"
+					"CLICK": "panel dialog_no closeall"
 				},
 				{
 					"TEXT": "Bye.",
-					"SCRIPT": "exit dialog"
+					"CLICK": "panel closeall"
 				}
 			]
 		},
 		{
 			"INTERN": "dialog_about_me",
-			"TEXT": ["I love the old adventures, especially Monkey Island."],
-			"COLOR": "#69FF69",
-			"LOCATION": [10,100],
-			"ANSWERS": [
+			"TEXT": ["I love the old adventures, especially Monkey Island. Also I like the old Final Fantasies. Not so much the new ones."],
+			"BUTTONS": [
 				{
 					"TEXT": "Well....Ok.",
-					"SCRIPT": "exit dialog"
+					"CLICK": "panel closeall"
 				}
 			]
+		},
+		{
+			"INTERN": "dialog_no",
+			"TEXT": ["No."],
+			"BUTTONS": [
+				{
+					"TEXT": "Well....Ok.",
+					"CLICK": "panel closeall"
+				}
+			]
+		},
+		{
+			"INTERN": "ssd_clicked",
+			"TEXT": ["<font color='#FF0000'>EXTERNAL LINK</font></br>If you clicked *this* first of everything..the door is on the upper right. Please don't leave me. :)"],
+			"BUTTONS": [
+				{
+					"TEXT": "[LEAVE] But I want to go there now..",
+					"CLICK": "link https://benis-bastelschuppen.github.io/NSA"
+				},
+				{
+					"TEXT": "[STAY] Ok, I'll try the door..",
+					"CLICK": "panel closeall"
+				}
+
+			]
 		}
-		
+
 	]
 }

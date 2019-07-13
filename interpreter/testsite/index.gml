@@ -30,7 +30,7 @@
 			"FOLDER": "entities/nsa",
 			"IMAGE": "nsa.png",
 			"OVERIMAGE": "nsa_mouseover.png",
-			"onclick": "link to https://benis-bastelschuppen.github.io/NSA",
+			"onclick": "panel closeall ssd_clicked",
 			"SOUND": "sound_nintendo",
 			"LOCATION": ["living_room", 215, 370]
 		}

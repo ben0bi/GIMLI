@@ -23,7 +23,7 @@
  
 */
 
-const GIMLIVERSION = "0.3.12";
+const GIMLIVERSION = "0.4.00";
 
 // install log function.
 log.loglevel = LOG_DEBUG;
@@ -45,15 +45,158 @@ log.logfunction = function(text, loglevel)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// 0.3.16: a panel with some text and buttons on it.
+// button prototype for a panel.
+// 0.3.22: outside panels.
+var GIMLbutton = function()
+{
+	var m_buttonText = "";		// text shown for this button.
+	var m_buttonFunction = "";	// jBash function called with this button.
+	var me = this;
+	
+	// return the dom element for this button.
+	this.getDOMElement = function() 
+	{
+		var dom = jQuery.getNewDiv(m_buttonText,'','gimli-panel-button gimli-pixelperfect');
+		$(dom).on('click', function(evt) {log("BUTTON '"+m_buttonText+"' clicked.",LOG_DEBUG); me.onClick(evt); });
+		log("Adding button '"+m_buttonText+"' to panel.", LOG_DEBUG_VERBOSE);
+		return dom;
+	}
+	this.getText=function() {return m_buttonText;}
+
+	// the click function for this button.
+	this.onClick = function(evt)
+	{
+		if(m_buttonFunction!="")
+			jBash.instance.DoLine(m_buttonFunction);
+		else
+			log("This button has no function associated.", LOG_WARN);
+		
+		// do not click through!
+		evt.stopPropagation();
+		evt.preventDefault();
+		evt.stopImmediatePropagation();
+		return false;
+	}
+		
+	// get the gml.
+	this.parseGML = function(GIMLbutton)
+	{
+		if(__defined(GIMLbutton['TEXT']))
+			m_buttonText=GIMLbutton['TEXT'];
+		// click is better than onclick ;)
+		if(__defined(GIMLbutton['ONCLICK']))
+			m_buttonFunction=GIMLbutton['ONCLICK'];
+		if(__defined(GIMLbutton['CLICK']))
+			m_buttonFunction=GIMLbutton['CLICK'];
+	}
+};
+
+/* a gimli panel. */
+var GIMLpanel = function()
+{
+	var me = this;
+	var m_text = ""; // the text for this panel.
+	var m_internName = "";
+	var m_buttons = []; // array with all the buttons for this panel.
+	var m_panelDiv = null;
+	
+	this.getIntern = function() {return m_internName;};
+		
+	// get the count of buttons for this panel.
+	var __buttonCount = function() {return m_buttons.length};
+	
+	// show some debug information about this panel.
+	this.debug= function(loglevel = LOG_DEBUG_VERBOSE)
+	{
+		log("* PANEL intern name: "+m_internName,loglevel);
+		log("--&gt; Button count: "+__buttonCount(), loglevel);
+		log(" ", loglevel);
+	}
+	
+	// parse the gml for that panel.
+	this.parseGML=function(gmlPanel)
+	{
+		// get the text for this panel.
+		if(__defined(gmlPanel['TEXT']))
+		{
+			var t=gmlPanel['TEXT'];
+			m_text="";
+			for(var i=0;i<t.length;i++)
+				m_text=m_text+t[i];
+		}
+
+		// get the intern name for this panel.
+		if(__defined(gmlPanel['INTERN']))
+			m_internName = gmlPanel['INTERN'];
+		var i2 =m_internName.split(' ').join('_');
+		if(i2!=m_internName)
+		{
+			log("Spaces are not allowed in intern names. [Panel]['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
+			m_internName = i2;
+		}
+		
+		// get the buttons for this panel.
+		if(__defined(gmlPanel['BUTTONS']))
+		{
+			for(var i=0;i<gmlPanel['BUTTONS'].length;i++)
+			{
+				var btn = gmlPanel['BUTTONS'][i];
+				var b = new GIMLbutton();
+				b.parseGML(btn);
+				m_buttons.push(b);
+			}
+		}
+		
+		// or just one button. buttonS are before button (no s)
+		if(__defined(gmlPanel['BUTTON']))
+		{
+			var btn = gmlPanel['BUTTON'];
+			var b = new aButton();
+			b.parseGML(btn);
+			m_buttons.push(b);	
+		}
+	};
+	
+	// show the panel on the gimli screen.
+	this.show = function()
+	{
+		// stop the mouse action first.
+		GIMLI.panelActive = true;
+		
+		var GIMLIwindow = GIMLI.instance.getOuterWindow();
+		m_panelDiv = jQuery.getNewDiv(m_text, 'gimli-panel-'+m_internName, 'gimli-panel gimli-pixelperfect');
+		
+		// add the buttons.
+		for(var i=0;i<m_buttons.length; i++)
+		{
+			var b=m_buttons[i];
+			var btnDiv = b.getDOMElement();
+			m_panelDiv.append(btnDiv);
+		}
+		
+		GIMLIwindow.append(m_panelDiv);
+
+		// check for the height.
+		if(m_panelDiv.height()>GIMLIwindow.height()-30)
+		{
+			m_panelDiv.css('top', '0px');
+			m_panelDiv.append("<br />");
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // a sound file in the giml system.
 var GIMLsound = function()
 {
 	var me = this;
-	var m_soundFile ="";
-	var m_internName = "";
-	var m_folder = "";
-	var m_audio = null;
-	var m_duration = 0.0;
+	var m_soundFile ="";	// the name of the sound file.
+	var m_internName = "";	// the intern name of this sound.
+	var m_folder = "";		// folder where the sound resides.
+	var m_audio = null;		// audio data for this sound file.
+	var m_duration = 0.0;	// duration of this sound in seconds.
 	
 	this.getIntern = function() {return m_internName;};
 	
@@ -82,10 +225,7 @@ var GIMLsound = function()
 	};
 
 	// get the duration of the sound file.
-	this.getDuration=function() 
-	{
-		return m_duration;
-	}
+	this.getDuration=function() {return m_duration;}
 	
 	// parse the gml for this SOUND.
 	this.parseGML=function(gmlSound, rootPath="")
@@ -112,7 +252,10 @@ var GIMLsound = function()
 		
 	this.debug = function(loglevel = LOG_DEBUG)
 	{
-		log("SOUND ("+m_duration+"s): "+m_internName+" --> "+m_soundFile, loglevel);
+		log("* SOUND ("+m_duration+"s): "+m_internName, loglevel);
+		log("--&gt; File: "+m_soundFile, loglevel);
+		log("--&gt; Duration: "+m_duration+"s", loglevel);
+		log(" ", loglevel);
 	}
 }
 
@@ -142,7 +285,6 @@ var GIMLitem = function()
 	var m_collisionHeight = 0;
 	var m_collisionScaleFactor = 1.0; // scale factor for collision including world factor,
 									  // please reset after each get.
-
 	var m_internName = "";
 	this.getIntern = function() {return m_internName;};
 	var m_itemName = "";
@@ -262,7 +404,7 @@ var GIMLitem = function()
 
 	// show debug information.
 	this.debug=function(loglevel=LOG_DEBUG) {
-		log("* Item '"+m_itemName+"' (intern: '"+m_internName+"')", loglevel);
+		log("* ITEM '"+m_itemName+"' (intern: '"+m_internName+"')", loglevel);
 		log(" --&gt; resides in '"+m_folder+"'", loglevel);
 		log(" --&gt; Image: '"+m_imageFile+"'", loglevel);
 		log(" --&gt; Collision: '"+m_collisionImageFile+"'", loglevel);
@@ -276,7 +418,7 @@ var GIMLitem = function()
 	var __checkMouseOver = function(evt)
 	{
 		// do nothing if the mouse is inactive.
-		if(GIMLI.stopMouse || evt==null)
+		if(GIMLI.stopMouse || evt==null || GIMLI.panelActive)
 			return false;
 		
 		// if the pixel is set, show the mouseover image.
@@ -284,13 +426,10 @@ var GIMLitem = function()
 		{
 			$('#item_image_'+m_id).hide();
 			$('#item_image_over_'+m_id).show();
-			//$('#item_'+m_id).css('cursor', 'pointer');
 			return true;
 		}else{
 			$('#item_image_over_'+m_id).hide();
 			$('#item_image_'+m_id).show();
-			//$('#item_'+m_id).css('cursor', 'auto');
-			//evt.preventDefault();
 		}
 		return false;
 	};
@@ -540,7 +679,7 @@ var GMLurl = function(filename)
 		if(m_directory!="") m_directory+='/';
 		m_filename = r.replace(/^.*[\\\/]/, '');
 
-		log("MakeGMLUrl: "+gmurl,LOG_DEBUG)
+		log("MakeGMLUrl: "+gmurl,LOG_DEBUG_VERBOSE)
 		log(" --&gt; Directory: "+m_directory, LOG_DEBUG_VERBOSE);
 		log(" --&gt; Filename : "+m_filename, LOG_DEBUG_VERBOSE);
 		return me;
@@ -570,8 +709,9 @@ var GIMLI = function()
 	var m_actualRoomY = 0;
 	var m_roomsLoaded = [];		// the rooms (locations) loaded with the gml file.
 	var m_itemsLoaded = [];		// the items loaaded with the gml file.
+	var m_soundsLoaded = [];	// the sounds loaded with the gml file.
+	var m_panelsLoaded = [];	// the panels loaded with the gml file. (0.3.16)
 	var m_loadedGMLFiles = [];	// list with all the GML files which were loaeded.
-	var m_soundsLoaded = [];
 	
 	// scrolling variables.
 	var m_scrollXDir = 0;
@@ -606,7 +746,7 @@ var GIMLI = function()
 	// load a gml json file.
 	this.parseGML = function(json, rootPath = "")
 	{
-		log("Parsing GML [Path: "+rootPath+"]:"/*+JSON.stringify(json)*/, LOG_DEBUG);
+		log("Parsing GML [Path: "+rootPath+"]:"/*+JSON.stringify(json)*/, LOG_DEBUG_VERBOSE);
 		
 		log("Converting array names to uppercase..", LOG_DEBUG_VERBOSE);
 		var json2 = __jsonUpperCase(json);
@@ -618,8 +758,6 @@ var GIMLI = function()
 			gmlArray = json['GMLS'];
 		
 		// get the start room. (StartLocation or StartRoom)
-//TODO: remove that line below.
-//		m_actualRoomIntern = m_startRoomIntern = "@ STARTLOCATION/STARTROOM not found. @";
 		if(__defined(json['STARTLOCATION']))
 			m_actualRoomIntern = m_startRoomIntern = json['STARTLOCATION'];
 		if(__defined(json['STARTROOM']))
@@ -657,8 +795,6 @@ var GIMLI = function()
 				m_roomsLoaded.push(room);
 				room.debug(LOG_DEBUG_VERBOSE);
 			}
-		}else{
-			log("No rooms defined in the given GML file.", LOG_WARN);
 		}
 		
 		// load in the items.
@@ -673,11 +809,9 @@ var GIMLI = function()
 				m_itemsLoaded.push(item);
 				item.debug(LOG_DEBUG_VERBOSE);
 			}
-		}else{
-			log("No items defined in the given GML file.", LOG_WARN);
 		}
-		
-		// load in sounds.
+
+		// load in the sounds.
 		if(__defined(json['SOUNDS']))
 		{
 			var soundArray = json['SOUNDS'];
@@ -691,7 +825,21 @@ var GIMLI = function()
 				snd.debug(LOG_DEBUG_VERBOSE);
 			}
 		}
-				
+
+		// load in the text panels (dialogues, "real" panels)
+		if(__defined(json['PANELS']))
+		{
+			var panelArray = json['PANELS'];
+			for(var i=0;i<panelArray.length;i++)
+			{
+				var panel=panelArray[i];
+				var pnl = new GIMLpanel();
+				pnl.parseGML(panel);
+				m_panelsLoaded.push(pnl);
+				pnl.debug(LOG_DEBUG);
+			}
+		}
+		
 		// load the additional gml files recursively and one after each other.
 		m_recLoadedFiles+=gmlArray.length;
 		__recursiveload(gmlArray,0, rootPath);
@@ -704,6 +852,7 @@ var GIMLI = function()
 		log(__roomCount()+ " rooms loaded.",loglevel);
 		log(__itemCount()+" items loaded.", loglevel);
 		log(__soundCount()+" sounds loaded.",loglevel);
+		log(__panelCount()+" text panels loaded.", loglevel);
 	}
 
 	// load all the gml files recursively.
@@ -777,12 +926,10 @@ var GIMLI = function()
 		
 		// get the divs with the size and the content.
 		var outer = __getMiddleWindow();
-		//var main = __getMainWindow();
+		// create a new main window.
 		var newroom = jQuery.getNewDiv('','gimli-main-window','gimli-pixelperfect');
-		
-		// clear the main window.
-		//main.html("");
-		// get the background image path.
+
+		// get the background image.
 		var imgPath = __shortenDirectory(m_GMURL_initpage.getDirectory()+room.getBGimagePath());
 		//log("--> Loading background: "+imgPath,LOG_DEBUG);
 		
@@ -897,9 +1044,12 @@ var GIMLI = function()
 	// return and clear rooms and items.
 	var __clearRooms = function() {m_roomsLoaded = [];};
 	var __clearItems = function() {m_itemsLoaded = [];};
+	var __clearSounds = function() {m_soundsLoaded = [];};
+	var __clearPanels = function() {m_panelsLoaded = [];};
 	var __roomCount = function() {return m_roomsLoaded.length;}
 	var __itemCount = function() {return m_itemsLoaded.length;}
 	var __soundCount = function() {return m_soundsLoaded.length;}
+	var __panelCount = function() {return m_panelsLoaded.length;}
 	
 	var __isGMLFileLoaded = function(filepath)
 	{
@@ -952,10 +1102,26 @@ var GIMLI = function()
 			return;
 		}
 		log(" ", LOG_USER);
-		log("+++ <span class='jBashCmd'>SHOWING DATA FOR "+__soundCount()+" LOADED ITEMS.</span> +++", LOG_USER);
+		log("+++ <span class='jBashCmd'>SHOWING DATA FOR "+__soundCount()+" LOADED SOUNDS.</span> +++", LOG_USER);
 		for(var i=0;i<__soundCount();i++)
 		{
 			m_soundsLoaded[i].debug(LOG_USER);
+		}
+	}
+	
+	// show debug info about all panels.
+	this.debugPanels = function()
+	{
+		if(__panelCount()<=0)
+		{
+			log("There are no panels loaded", LOG_USER);
+			return;
+		}
+		log(" ", LOG_USER);
+		log("+++ <span class='jBashCmd'>SHOWING DATA FOR "+__panelCount()+" LOADED PANELS.</span> +++", LOG_USER);
+		for(var i=0;i<__panelCount();i++)
+		{
+			m_panelsLoaded[i].debug(LOG_USER);
 		}
 	}
 	
@@ -1029,6 +1195,10 @@ var GIMLI = function()
 	// the function to call in the events for mouse and keyboard.
 	var __scroll = function(evt, iskb=false)
 	{
+		// do nothing if the mouse is stopped.
+		if(GIMLI.stopMouse==true || GIMLI.panelActive==true)
+			return;
+		
 		// maybe disable scrolling.
 		if(!m_scrollingEnabled)
 		{
@@ -1239,7 +1409,7 @@ var GIMLI = function()
         		if (xhr.status === 200) 
 				{
 					var json=xhr.response;
-					log("JSON from "+urlToFile+" loaded.", LOG_DEBUG);
+					log("JSON from "+urlToFile+" loaded.", LOG_DEBUG_VERBOSE);
 					if(typeof(successFunction)==="function")
 						successFunction(json);
         		} else {
@@ -1252,10 +1422,37 @@ var GIMLI = function()
     	xhr.send();
 	}
 	
+	// 0.3.19: show a specific panel.
+	this.showPanel= function(internName)
+	{
+		for(var i=0;i<__panelCount();i++)
+		{
+			var p = m_panelsLoaded[i];
+			if(p.getIntern()==internName)
+			{
+				p.show();
+				return;
+			}
+		}
+		log("Panel '"+internName+"' does not exist.", LOG_WARN);
+	}
+	
+	// remove all panels from the dom.
+	this.closeAllPanels=function()
+	{
+		var panels = document.getElementsByClassName('gimli-panel');
+		while(panels[0])
+		{
+			panels[0].parentNode.removeChild(panels[0]);
+		}
+		GIMLI.panelActive = false;
+	}
+	
 	// get the main window and outer window.
-	var __getMainWindow = function() {return $('#gimli-main-window');};	// gimli content
-	var __getMiddleWindow = function() {return $('#gimli-middle-window');};	// where the gimli content is put into.
+	var __getMainWindow = function() {return $('#gimli-main-window');};		// gimli content (this one is the "room")
+	var __getMiddleWindow = function() {return $('#gimli-middle-window');};	// where the gimli content (the "room") is put into.
 	var __getOuterWindow = function() {return $('#gimli-outer-window');};	// where console and middle window is put into.
+	this.getOuterWindow = function() {return __getOuterWindow();}; // TODO: remove the var function.
 
 	// event function to go through all items and check if there is a mouse over.
 	var __mtouchover = function(evt)
@@ -1364,7 +1561,6 @@ var GIMLI = function()
 		
 /* Some event functions */	
 		// apply mouseover to the body.
-		/*var main = __getMainWindow();*/
 		var body = $('body');
 		body.mouseover(function(evt) {
 			m_lastMouseEvent = evt;
@@ -1477,15 +1673,69 @@ GIMLI.jump = function(params)
 	GIMLI.instance.jumpToRoom(r,x,y);
 };
 
+// show a specific panel (console command)
+GIMLI.panel = function(params)
+{
+	var p = jBash.GP(params);
+	var panelToShow = "";
+	var closeall = false;
+	if(p!="")
+	{
+		panelToShow=p[0];
+		// maybe the closeall command is at the begin.
+		if(panelToShow.toLowerCase()=="closeall")
+		{
+			panelToShow="";
+			closeall = true;
+		}
+		// closeall command at begin and a panel to show.
+		if(panelToShow.toLowerCase()=="" && p.length>1)
+			panelToShow=p[1];
+		// maybe the closeall command is at the end.
+		if(p.length>1)
+		{
+			if(p[1].toLowerCase()=="closeall")
+				closeall=true;
+		}
+	}else{
+		jBash.parse("man panel");
+		return;
+	}
+	if(closeall==true)
+		GIMLI.instance.closeAllPanels();
+	if(panelToShow!="")
+		GIMLI.instance.showPanel(panelToShow);
+}
+
 // Hooks for the jBash instance.
-jBash.registerCommand("rooms", "Show info about the loaded rooms.", function(params)
-	{GIMLI.instance.debugRooms();});
-jBash.registerCommand("items", "Show info about the loaded items.", function(params)
-	{GIMLI.instance.debugItems();});
-jBash.registerCommand("sounds", "Show info about the loaded sounds.", function(params)
-	{GIMLI.instance.debugSounds();});
+// the jump command.
 jBash.registerCommand("jump", "Jump to a given room (intern name)<br />E.g. {<span class='jBashCmd'>jump to garden</span>}", GIMLI.jump);
 jBash.registerCommand("j", "Short for the <span class='jBashCmd'>jump</span> command.", GIMLI.jump, true);
+
+// the panel command.
+jBash.registerCommand("panel", "Show a panel and/or close all the other ones.<br />E.g. {<span class='jBashCmd'>panel closeall my_panel</span>}", GIMLI.panel);
+jBash.registerCommand("p", "Show a panel and/or close all the other ones.<br />E.g. {<span class='jBashCmd'>panel closeall my_panel</span>}", GIMLI.panel);
+
+// show debug stuff.
+jBash.registerCommand("show", "Print out debug info for the given stuff.<br />E.g. {<span class='jBashCmd'>show items</span>}",
+function(params)
+{
+	if(__defined(params[1]))
+	{
+		switch(params[1].toLowerCase())
+		{
+			case "items": GIMLI.instance.debugItems(); break;
+			case "rooms": GIMLI.instance.debugRooms(); break;
+			case "sounds": GIMLI.instance.debugSounds(); break;
+			case "panels": GIMLI.instance.debugPanels(); break;
+			default:
+				log("Wrong parameter. Use <span class='jBashCmd'>items</span>, <span class='jBashCmd'>rooms</span>, <span class='jBashCmd'>sounds</span> or <span class='jBashCmd'>panels</span> to get a list of the given array.", LOG_USER);
+				break;
+		}
+	}else{
+		log("You need to provide a parameter.");
+	}
+});
 
 // set or get the log level.
 jBash.registerCommand("loglevel","Set or get the log level. The bigger, the more verbose. From 0 to 4. USER, ERROR, WARNING, DEBUG, VERBOSE.<br />E.g. {<span class='jBashCmd'>loglevel 3</span>}",
@@ -1508,6 +1758,7 @@ function(params)
 
 /* FUNCTIONS to Show and hide the console. */
 GIMLI.stopMouse = false; // can we use the mouse?
+GIMLI.panelActive = false; // can we use the mouse? (console uses stopMouse so we need another flag.)
 GIMLI.hideConsole = function()  {__hideGIMLIconsole();}
 GIMLI.showConsole = function() {__showGIMLIconsole();}
 
