@@ -42,6 +42,8 @@
 			"OVERIMAGE": "kitchen_refrigerator.png",
 			"COLLISIONIMAGE": "kitchen_collision_refrigerator.png",
 			"SOUND": "sound_refrigerator",
+			"DELAY": 0.1,
+			"script": "panel closeall dialog_welcome",
 			"LOCATION": ["kitchen", 0, 0]
 		},
 		

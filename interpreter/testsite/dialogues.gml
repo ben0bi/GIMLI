@@ -6,25 +6,25 @@
 			"BUTTONS": [
 				{
 					"TEXT": "Tell me about you.",
-					"CLICK": "panel closeall dialog_about_me"
+					"ONCLICK": ["panel closeall dialog_about_me"]
 				},
 				{
 					"TEXT": "Can I buy something here?",
-					"CLICK": "panel dialog_no closeall"
+					"SCRIPT": ["panel dialog_no closeall"]
 				},
 				{
 					"TEXT": "Bye.",
-					"CLICK": "panel closeall"
+					"SCRIPTS": ["panel closeall"]
 				}
 			]
 		},
 		{
 			"INTERN": "dialog_about_me",
-			"TEXT": ["I love the old adventures, especially Monkey Island. Also I like the old Final Fantasies. Not so much the new ones."],
+			"TEXT": ["I love the old adventures, especially Monkey Island. Also, I like the old Final Fantasies up to IX. Not so much the new ones. And I love comics. The french ones, like Spirou, Gaston and so on."],
 			"BUTTONS": [
 				{
-					"TEXT": "Well....Ok.",
-					"CLICK": "panel closeall"
+					"TEXT": "Really? Well...OK.",
+					"SCRIPT": ["panel closeall"]
 				}
 			]
 		},
@@ -33,8 +33,8 @@
 			"TEXT": ["No."],
 			"BUTTONS": [
 				{
-					"TEXT": "Well....Ok.",
-					"CLICK": "panel closeall"
+					"TEXT": "Well...OK.",
+					"SCRIPT": ["panel closeall"]
 				}
 			]
 		},
