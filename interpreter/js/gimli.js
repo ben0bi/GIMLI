@@ -23,7 +23,7 @@
  
 */
 
-const GIMLIVERSION = "0.4.04";
+const GIMLIVERSION = "0.5.01";
 
 // install log function.
 log.loglevel = LOG_DEBUG;
@@ -344,7 +344,7 @@ var GIMLitem = function()
 	var m_description = "";
 	var m_folder = "";
 	var m_scaleFactor = 1.0;	// the scale factor without world scale factor.
-	var m_script_click = "";
+	var m_scripts_click = [];
 
 	var m_myDiv = null;
 
@@ -447,9 +447,14 @@ var GIMLitem = function()
 	var __realClick = function()
 	{
 		// click it.
-		if(m_script_click.length>0 && m_script_click!=parseInt(m_script_click))
+		if(m_scripts_click.length>0)
 		{
-			jBash.Parse(m_script_click);
+			// 0.5.00: multible lines.
+			for(var rc=0;rc<m_scripts_click.length;rc++)
+			{
+				if(m_scripts_click[rc]!=parseInt(m_scripts_click[rc]))
+					jBash.Parse(m_scripts_click[rc]);
+			}
 		}
 		// do an mtouchover after the click.
 		GIMLI.instance.mtouchover(m_clickEvt);
@@ -518,7 +523,7 @@ var GIMLitem = function()
 		m_overImageFile = "";//gmlItem['OVERIMAGE'];
 		m_collisionImageFile = "";// gmlItem['COLLISIONIMAGE'];
 		m_posLocation = "";
-		m_script_click = "";
+		m_scripts_click = [];
 		m_soundDelay = 1.0;
 
 		if(!__defined(gmlItem['INTERN']))
@@ -584,13 +589,38 @@ var GIMLitem = function()
 			m_scaleFactor=parseFloat(gmlItem['SCALEFACTOR']);
 		if(__defined(gmlItem['SCALE']))	// get item scale 2.
 			m_scaleFactor=parseFloat(gmlItem['SCALE']);
-		// get the click events (XHEREX todo)
+		
+		// get the click events
+		// 0.5.00
+		if(__defined(gmlItem['ONCLICK']))
+		{
+			var arr = gmlItem['ONCLICK'];
+			for(var ic=0;ic<arr.length;ic++)
+				m_scripts_click.push(arr[ic])
+		}
+		if(__defined(gmlItem['SCRIPT']))
+		{
+			var arr = gmlItem['SCRIPT'];
+			for(var ic=0;ic<arr.length;ic++)
+				m_scripts_click.push(arr[ic])
+		}
+		if(__defined(gmlItem['SCRIPTS']))
+		{
+			var arr = gmlItem['SCRIPTS'];
+			for(var ic=0;ic<arr.length;ic++)
+				m_scripts_click.push(arr[ic])
+		}
+		
+		// Before 0.5.00
+		/*
 		if(__defined(gmlItem['SCRIPT'])) // script happens on click, but onclick is preferred.
 			m_script_click = gmlItem['SCRIPT'];
 		if(__defined(gmlItem['SCRIPTS'])) // script happens on click, but onclick is preferred.
 			m_script_click = gmlItem['SCRIPTS'];
 		if(__defined(gmlItem['ONCLICK']))
 			m_script_click = gmlItem['ONCLICK'];
+		*/
+		
 		// get the sound to play when the item is clicked.
 		if(__defined(gmlItem['SOUND']))
 			m_clickSound = gmlItem['SOUND'];

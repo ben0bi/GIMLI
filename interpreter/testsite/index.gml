@@ -21,7 +21,7 @@
 			"FOLDER": "locations/living_room",
 			"COLLISIONIMAGE": "living_room_door_collision.png",
 			"OVERIMAGE": "living_room_door_mouseover.png",
-			"onclick": "jump to floor",
+			"onclick": ["jump to floor"],
 			"LOCATION": ["living_room", 380, 0]
 		},
 		{
@@ -30,7 +30,7 @@
 			"FOLDER": "entities/nsa",
 			"IMAGE": "nsa.png",
 			"OVERIMAGE": "nsa_mouseover.png",
-			"onclick": "panel closeall ssd_clicked",
+			"onclick": ["panel closeall ssd_clicked"],
 			"SOUND": "sound_nintendo",
 			"DELAY": 0.25,
 			"LOCATION": ["living_room", 215, 370]

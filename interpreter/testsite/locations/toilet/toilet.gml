@@ -12,7 +12,7 @@
 			"INTERN": "toilet_to_floor",
 			"COLLISIONIMAGE": "toilet_door_collision.png",
 			"OVERIMAGE": "toilet_door.png",
-			"onclick": "jump to floor",
+			"onclick": ["jump to floor"],
 			"LOCATION": ["toilet", 0, 0]
 		},
 		{

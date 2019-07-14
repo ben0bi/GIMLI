@@ -1,3 +1,23 @@
+0.5.01 -> BugFix, SCRIPT without S in items did not work.
+0.5.00 -> Big version change: You need to make the ONCLICK events of all your ITEMS from <5.00 into array-brackets!
+			In exchange for that, you can make multible script lines in the ITEMS now, too.
+
+0.4.04 -> Loading SOUND for panel buttons, and it's DELAY.
+0.4.03 -> It's SCRIPT/S, not CLICK. I changed it back so it is consistent to the ITEMS.
+0.4.02 -> Combining CLICK and ONCLICK in the panels instead of preferring "click".
+0.4.01 -> ONCLICK Array instead of single line in the panels.
+0.4.00 -> Panels working. With buttons. With jBash-commands. With nice font. In oldschool blue-white.
+
+0.3.25 -> GIMLI.panelActive flag to stop the mouse and scroll action when there is a panel.
+0.3.22-0.3.24 -> Made the buttons working, too. But not the clicking itself yet.
+0.3.21 -> panel text shown properly without buttons yet. Mouseover and scrolling in the background needs to be canceled.
+0.3.20 -> jBash command "panel" to show panels.
+0.3.19 -> function to show a specific panel.
+0.3.18 -> SHOW command: show sounds, show panels, show items and show rooms prints out the associated array as list.
+0.3.17 -> Very much DEBUG messages moved to DEBUG_VERBOSE.
+0.3.16 -> Panels in code.
+0.3.15 -> making the css for the panels.
+0.3.14 -> began writing the PANELS code in GML.
 0.3.13 -> New jBash command: "sounds" -> show all loaded sounds.
 0.3.12 -> Almost completely new scrolling process.
 		The old one did not work with the keys, the mouse stopped it all the way and mouseover was not done right.

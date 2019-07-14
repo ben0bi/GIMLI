@@ -17,7 +17,7 @@
 			"INTERN": "door_floor_to_living_room",
 			"COLLISIONIMAGE": "floor_collision_to_living_room.png",
 			"OVERIMAGE": "floor_to_living_room.png",
-			"onclick": "jump to living_room",
+			"onclick": ["jump to living_room"],
 			"LOCATION": ["floor", 0, 0]
 		},
 		{
@@ -25,7 +25,7 @@
 			"INTERN": "door_floor_to_computer_room",
 			"COLLISIONIMAGE": "floor_collision_to_computer_room.png",
 			"OVERIMAGE": "floor_to_computer_room.png",
-			"onclick": "jump to computer_room",
+			"onclick": ["jump to computer_room"],
 			"LOCATION": ["floor", 0, 0]
 		},
 		{
@@ -33,14 +33,14 @@
 			"INTERN": "door_floor_to_museum",
 			"OVERIMAGE": "floor_to_sleep_room.png",
 			"COLLISION": "floor_collision_to_sleep_room.png",
-			"onclick": "jump to photo_museum",
+			"onclick": ["jump to photo_museum"],
 			"LOCATION": ["floor", 0, 0]
 		},
 		{
 			"NAME": "To the bath room.",
 			"INTERN": "door_floor_to_toilet",
 			"OVERIMAGE": "floor_to_closet.png",
-			"onclick": "jump to toilet",
+			"onclick": ["jump to toilet"],
 			"LOCATION": ["floor", 0, 0]
 		},
 		{
@@ -48,7 +48,7 @@
 			"INTERN": "door_floor_to_kitchen",
 			"OVERIMAGE": "floor_to_kitchen.png",
 			"COLLISION": "floor_collision_to_kitchen.png",
-			"onclick": "jump to kitchen",
+			"onclick": ["jump to kitchen"],
 			"LOCATION": ["floor", 0, 0]
 		},
 
@@ -56,7 +56,7 @@
 			"NAME": "Lexikon des Schwindels",
 			"INTERN": "floor_typewriter",
 			"OVERIMAGE": "typewriter.png",
-			"onclick": "link to https://benis-bastelschuppen.github.io/Lexikon_des_Schwindels/",
+			"onclick": ["link to https://benis-bastelschuppen.github.io/Lexikon_des_Schwindels/"],
 			"SOUND": "sound_typewriter",
 			"LOCATION": ["floor", 0, 0]
 		}

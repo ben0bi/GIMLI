@@ -17,7 +17,7 @@
 			"INTERN": "door_kitchen_to_floor",
 			"COLLISIONIMAGE": "kitchen_collision_door_to_floor.png",
 			"OVERIMAGE": "kitchen_door_to_floor.png",
-			"onclick": "jump to floor",
+			"onclick": ["jump to floor"],
 			"LOCATION": ["kitchen", 0, 0]
 		},
 		{
@@ -25,7 +25,7 @@
 			"INTERN": "door_kitchen_to_balcony",
 			"COLLISIONIMAGE": "kitchen_collision_door_balcony.png",
 			"OVERIMAGE": "kitchen_door_balcony.png",
-			"onclick": "jump to balcony",
+			"onclick": ["jump to balcony"],
 			"LOCATION": ["kitchen", 0, 0]
 		},
 		{
@@ -37,13 +37,13 @@
 			"LOCATION": ["kitchen", 0, 0]
 		},
 		{
-			"NAME": "<center>Refrigerator<br /><font color=\"#F00\">(empty)</font></center>",
+			"NAME": "<center>Refrigerator<br /><font color=\"#F00\">(mostly empty)</font></center>",
 			"INTERN": "kitchen_refrigerator",
 			"OVERIMAGE": "kitchen_refrigerator.png",
 			"COLLISIONIMAGE": "kitchen_collision_refrigerator.png",
 			"SOUND": "sound_refrigerator",
 			"DELAY": 0.1,
-			"script": "panel closeall dialog_welcome",
+			"script": ["panel closeall dialog_welcome"],
 			"LOCATION": ["kitchen", 0, 0]
 		},
 		
@@ -52,14 +52,14 @@
 			"INTERN": "door_balcony_to_computer_room",
 			"COLLISIONIMAGE": "balcony_collision_to_computer_room.png",
 			"OVERIMAGE": "balcony_lantern.png",
-			"ONCLICK": "jump to computer_room",
+			"ONCLICK": ["jump to computer_room"],
 			"LOCATION": ["balcony", 0, 0]
 		},
 		{
 			"NAME": "To the kitchen.",
 			"INTERN": "door_balcony_to_kitchen",
 			"OVERIMAGE": "balcony_door_to_kitchen.png",
-			"ONCLICK": "jump to kitchen",
+			"ONCLICK": ["jump to kitchen"],
 			"LOCATION": ["balcony", 0, 0]
 		}
 	],
