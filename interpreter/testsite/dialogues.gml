@@ -13,6 +13,14 @@
 					"SCRIPT": ["panel dialog_no closeall"]
 				},
 				{
+					"TEXT": "I heard about a Museum somwhere in here?..",
+					"SCRIPT": ["panel closeall dialog_teleport_museum"]
+				},
+				{
+					"TEXT": "Explain..what is this here?",
+					"SCRIPT": ["panel closeall dialog_teleport_computerroom"]
+				},
+				{
 					"TEXT": "Bye.",
 					"SCRIPTS": ["panel closeall"]
 				}
@@ -28,6 +36,66 @@
 				}
 			]
 		},
+		{
+			"INTERN": "dialog_teleport_museum",
+			"TEXT": ["It's in the back, left of the bath room.<br /><br />Would you like to use my mobile teleporter gun?"],
+			"BUTTONS": [
+				{
+					"TEXT": "Yes please, that tickles so well :)",
+					"SCRIPT": [
+						"panel closeall",
+						"jump to photo_museum",
+						"panel dialog_thanks_for_teleport"
+					]
+				},
+				{
+					"TEXT": "Telepo-what?",
+					"SCRIPT": ["panel closeall"]
+				}
+
+			]
+		},
+		{
+			"INTERN": "dialog_teleport_computerroom",
+			"TEXT": ["The documentation is on my computer in the computer room. It's in the back, right of the bath room.<br /><br />Would you like to use my mobile teleporter gun?"],
+			"BUTTONS": [
+				{
+					"TEXT": "Yes please, that tickles so well :)",
+					"SCRIPT": [
+						"panel closeall",
+						"jump to computer_room",
+						"panel dialog_thanks_for_teleport_cpr"
+					]
+				},
+				{
+					"TEXT": "Telepo-what?",
+					"SCRIPT": ["panel closeall"]
+				}
+
+			]
+		},
+		{
+			"INTERN": "dialog_thanks_for_teleport",
+			"TEXT": ["Thanks for using benobiGun v2.1"],
+			"BUTTONS": [
+				{
+					"TEXT": "You're welcome.",
+					"SCRIPT": ["panel closeall"]
+				}
+
+			]
+		},
+		{
+			"INTERN": "dialog_thanks_for_teleport_cpr",
+			"TEXT": ["Thanks for using benobiGun v2.1<br /><br />Click on the left display for documentation."],
+			"BUTTONS": [
+				{
+					"TEXT": "You're welcome.",
+					"SCRIPT": ["panel closeall"]
+				}
+			]
+		},
+
 		{
 			"INTERN": "dialog_no",
 			"TEXT": ["No."],
@@ -48,10 +116,13 @@
 					"SCRIPTS": ["panel closeall", "link https://benis-bastelschuppen.github.io/NSA"]
 				},
 				{
+					"TEXT": "[LEAVE] I would like to see the GIMLI Documentation, <font color=\"#FFAA00\">ASAP</font>!",
+					"SCRIPT": ["link to documentation/"]
+				},
+				{
 					"TEXT": "[STAY] Ok, I'll try the door..",
 					"SCRIPT": ["panel closeall"]
 				}
-
 			]
 		}
 
