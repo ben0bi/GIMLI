@@ -149,7 +149,23 @@
 	</ul>
 </li>
 			
-<li><a href="#script_structure">Scripting with GIML</a></li>
+<li><a href="#script_structure">Scripting with GIML</a>
+
+<ul><li>
+
+<a href="#script_commands">Script commands</a><br />
+
+<ul>
+<li><a href="#script_cmd_show">SHOW</a></li>
+<li><a href="#script_cmd_jump">JUMP</a></li>
+<li><a href="#script_cmd_link">LINK</a></li>
+<li><a href="#script_cmd_panel">PANEL</a></li>
+<li><a href="#script_cmd_item">ITEM</a></li>
+</ul>
+
+</li></ul>
+
+</li>
 <li><a href="#about">About the Author</a></li>
 <li><a href="#changelog">Changelog (Documentation)</a></li>
 </ul>
@@ -575,7 +591,7 @@ This is an example gml file with two rooms and two items:<br />
 			"OVERIMAGE": "item_over.png",
 			"FOLDER": "items/myitem/",
 			"LOCATION": ["start_room", 100,100],
-			"SCRIPT": "link to https://github.com/ben0bi",
+			"SCRIPT": ["link to https://github.com/ben0bi"],
 			"SOUND": "sound_of_glory"
 		},
 		{
@@ -585,7 +601,7 @@ This is an example gml file with two rooms and two items:<br />
 			"COLLISIONIMAGE": "panel_over.png",
 			"FOLDER": "items/myabout/",
 			"LOCATION": ["start_room", 50,50],
-			"SCRIPT": "panel panel_about closeall",
+			"SCRIPT": ["panel panel_about closeall"],
 		},
 		{
 			"NAME": "A door",
@@ -593,7 +609,7 @@ This is an example gml file with two rooms and two items:<br />
 			"COLLISIONIMAGE": "door.png",
 			"FOLDER": "items/door/",
 			"LOCATION": ["start_room", 200,50],
-			"SCRIPT": "jump to second_room"
+			"SCRIPT": ["jump to second_room"]
 		}
 	],
 	"SOUNDS": [
@@ -610,79 +626,168 @@ This is an example gml file with two rooms and two items:<br />
 				"GIMLI by benobi in 2019 &lt;br /&gt;",
 				"https://github.com/ben0bi/GIMLI"
 			],
+			"//": "This is may be a legal comment. I dunno.",
 			"BUTTONS": [
 				{
+					"//": "This is a legal comment.",
 					"TEXT": "Close panel",
 					"SCRIPT": ["panel closeall"]
 				},
 				{
 					"TEXT": "Goto Github",
-					"ONCLICK": ["panel closeall", "link to https://github.com"]
+					"ONCLICK": [
+						"panel closeall",
+						"link to https://github.com"
+					]
 				}
 
 			]
 		}
 	]
 }</pre></div><br />
-I do not check for json bugs right now. If it does not work, look at the debugger. If it says "json is null" somewhere, your json is faulty. Check for commas. ;)<br />
+I do not "really" check for json bugs right now. If it does not work, look at the console. Scroll up. If you see a red <b><font color="#FF0000">ERROR</font></b> somewhere, it could be the json.
+The error shows you the path to the file but not the file itself (yet). Check for Commas. Maybe you forgot one. It also gives error when there is a comma to much, like at the end of the file or such. ;)<br />
 <br />
-First we set the start room. The start room is the one loaded with the last loaded gml file, where it is set. So if there is a start room in cellar.gml, it will take this one.<br />
+You can include comments IN a structure, but not outside of it. Like in the PANELS section, it cannot be "its own panel" but it can be beneath the "TEXT" entry of a specific panel.
+Make comments in the innermost part of a structure. If it is on the outer part, it will maybe take the comment as structure member and crash. 
+But if you put it into, e.g. a button member (see above) structure,  it will just not check for it. Put the comment IN a {...} structure, not just outside of it.
+Comments can have all the names which are not used yet. I use <span class="highlight">"//"</span> for them. But be aware: Comments are not a part of GIMLI, they just appear to be working.<br />
+<br />
+Ok, first we set the start room. The start room is the one loaded with the last loaded gml file, where it is set. So if there is a start room in cellar.gml, it will take this one.<br />
 <br />
 Second there is a global scale factor which will be applied to all images. I use 2.0 to get some nice pixelated view.<br />
 <br />
 In the GMLs-Array, there are two file names. It will use the directory of this files (the second one) for loading stuff from that files.
-So you can forget about the FOLDER tag, which you see everywhere below.<br />
+So you can forget about the <span class="highlight">FOLDER</span> tag, which you see everywhere below.<br />
 <br />
 As you can see, the items are both located in the start room, but the second one has no image. It will only check mouseover on the collision image without displaying anything.
-The scripts of the items are jBash-commands with some parameters. The parameter "to" could be omitted. ;) The <span class="highlight">link</span> opens a new, external, "normal"
-web page while the <span class="highlight">jump</span> loads another location from the same gml file.<br />
+The scripts of the items are jBash-commands with some parameters. The parameter "<span class="highlight">to</span>" could be omitted. ;) The <span class="highlight">link</span> opens a new, external, "normal"
+web page while the <span class="highlight">jump</span> loads another location from the same gml file. The <span class="highlight">panel</span>-command is there to show or hide text panels with buttons on them.<br />
+<br />
+Since v0.5.x, all script-lines need to be in an array. So you can execute multible script lines with just one click. You can use <span class="highlight">jBash</span> as primitive "script language" now. :)<br />
 <br />
 {You won't get out of the second room with this file. There needs to be another door... ;) }<br />
 <br />
 The first item plays the loaded sound when it is clicked. It will wait for the sound to finish before it executes the scripted link. Whereelse, the sound would not play because the external page
 would be loaded instantly and overwrite the actual GIMLI-framework and thus the sound engine.<br />
 <br />
-At last there are some panels with the onclick function ARRAYs.
+At last there are some panels with the onclick function ARRAYs (same as for items since v.0.5.x).
 <hr />
 
 <a name="script_structure"></a>
-<h1>Scripting with GIML <a href="#top">^</a></h1></h1>
-<span class="highlight">(TODO)</span> Short: Just make a javascript function with one parameter, add it to jBash and call the jBash-command for it in the "SCRIPT" tag of your item. Only global functions just right now.
-jBash commands can have several parameters separated by space. All parameters are given as a whole string to your function.<br />
-<br />
-Those are the predefined commands exclusively made for GML, where Secondary is the same command in another word:<br />
-<br />
-<table>
-<tr><td>Command</td><td>Secondary</td><td>Parameters</td><td>Description</td></tr>
-<tr>
-	<td><span class="highlight">jump</span></td>
-	<td><span class="highlight">j</span></td>
-	<td>[<span class="highlight">to</span>] <span class="highlight">target</span></td>
-	<td>Loads the <span class="highlight">target</span> room (<span class="highlight">intern name</span>) from the same gml page. <span class="highlight">to</span> can be omitted.</td>
-</tr>
-<tr>
-	<td><span class="highlight">link</span></td>
-	<td><span class="highlight">l</span></td>
-	<td>[<span class="highlight">to</span>] <span class="highlight">url</span></td>
-	<td>Loads the <span class="highlight">url</span> as normal website in the same window. <span class="highlight">to</span> can be omitted.</td>
-</tr>
-<tr>
-	<td><span class="highlight">panel</span></td>
-	<td><span class="highlight">p</span></td>
-	<td>[<span class="highlight">closeall</span>] [<span class="highlight">panel_to_show</span>]</td>
-	<td><span class="highlight">closeall</span> closes all open panels. <span class="highlight">panel_to_show</span> is the intern name of the panel to display. 
-	<span class="highlight">closeall</span> OR <span class="highlight">panel_to_show</span> can be omitted.<br />
-	<span class="highlight">closeall</span> must be BEFORE <span class="highlight">panel_to_show</span></td>
-</tr>
-<tr>
-	<td><span class="highlight">show</span></td>
-	<td>---</td>
-	<td><span class="highlight">items</span> OR <span class="highlight">rooms</span> OR <span class="highlight">sounds</span> OR <span class="highlight">panels</span></td>
-	<td>Shows debug info in the console about ALL the given stuff. E.g. <span class="highlight">show panels</span> shows info about all loaded panels.</td>
-</tr>
+<h1>Scripting with GIML <a href="#top">^</a></h1>
+<span class="highlight">(TODO)</span> Short: Just make a javascript function with one parameter, add it to jBash and call the jBash-command for it in the "SCRIPT" tag of your item or panel. 
+Only global functions just right now.
+jBash commands can have several parameters separated by space. All parameters are given as a whole string to your function. They are described here in uppercase letters but converted
+to lowercase letters in the jBash-system.
 
-</table>
-<br /><hr />
+<a name="script_commands"></a>
+<h2>Scripting commands<a href="#script_structure">^</a></h2>
+As of version 5.0.x you can use more than one script line for the onclick-event of your items or panels.<br />
+Some scripting commands are made for using in one line like e.g. "<span class="highlight">panel mypanel closeall</span>", which closes all panels and then opens a new one (mypanel).
+You could now also use: "<span class="highlight">panel closeall</span>" and then "<span class="highlight">panel mypanel</span>" for the same effect. 
+(But not vice versa because it would close the newly opened panel, too.)<br /><br />
+Those are the predefined commands exclusively made for <span class="highlight">GML</span>. There are some others from <span class="highlight">jBash</span>. 
+You can see a list with all commands in the console with the <span class="highlight">cmd</span>-command.
+
+<ul>
+<li><a href="#script_cmd_show">SHOW</a></li>
+<li><a href="#script_cmd_jump">JUMP</a></li>
+<li><a href="#script_cmd_link">LINK</a></li>
+<li><a href="#script_cmd_panel">PANEL</a></li>
+<li><a href="#script_cmd_item">ITEM</a></li>
+</ul>
+
+<hr />
+<a name="script_cmd_show"></a>
+<h3>SHOW<a href="#script_commands">^</a></h3>
+	Parameters:<br />
+	1. <span class="highlight">debug_type</span> - Show debug information about the given debug_type.<br />
+	<br />
+	Description:<br />
+	<span class="highlight">SHOW</span> prints out information about the given <span class="highlight">debug_type</span> in the console window.<br />
+	WARNING: The website may use some time if you have much items etc. in your structures. Just wait. ;)<br />
+	<br />
+	Debug types are:<br />
+	<ul>
+	<li><span class="highlight">ITEMS</span> - show information about all actual loaded GML-<span class="highlight">ITEMS</span>.</li>
+	<li><span class="highlight">ROOMS</span> - show information about all actual loaded GML-<span class="highlight">ROOMS</span>.</li>
+	<li><span class="highlight">SOUNDS</span> - show information about all actual loaded GML-<span class="highlight">SOUNDS</span>.</li>
+	<li><span class="highlight">PANELS</span> - show information about all actual loaded GML-<span class="highlight">PANELS</span>.</li>
+	</ul>
+	<br />
+	Example:<br />
+	<span class="highlight">show rooms</span>
+
+<hr />
+<a name="script_cmd_jump"></a>
+<h3>JUMP or J<a href="#script_commands">^</a></h3>
+	Parameters:<br />
+	[1.] [<span class="highlight">to</span>] - can be omitted. Just for decoration.<br />
+	2. <span class="highlight">name_of_room</span> - the name of the room to jump to. No jump is done when the room does not exist.<br />
+	<br />
+	Description:<br />
+	Loads the room <span class="highlight">name_of_room</span> (<span class="highlight">intern name</span>) from the same (loaded) gml page. <span class="highlight">to</span> can be omitted.<br />
+	<br />
+	Example:<br />
+	<span class="highlight">jump to my_room</span>
+
+<hr />
+<a name="script_cmd_link"></a>
+<h3>LINK or L<a href="#script_commands">^</a></h3>
+	Parameters:<br />
+	[1.] [<span class="highlight">to</span>] - can be omitted. Just for decoration.<br />
+	2. <span class="highlight">URL</span> - URL load the website from in the same window.<br />
+	<br />
+	Description:<br />
+	Loads the normal website found under the given <span class="highlight">URL</span> into the same window. <span class="highlight">to</span> can be omitted.<br />
+	<br />
+	Example:<br />
+	<span class="highlight">link to https://github.com/ben0bi</span>
+
+<hr />
+<a name="script_cmd_panel"></a>
+<h3>PANEL or P<a href="#script_commands">^</a></h3>
+	Parameters:<br />
+	1. [<span class="highlight">closeall</span>] - Closes all panels.<br />
+	2. [<span class="highlight">name_of_panel</span>] - Shows the panel with the given intern name.<br />
+	<br />
+	Description:<br />
+	Several functions concerning the <span class="highlight">panels</span>. I will use this as "prefix" if there are new developments concerning the panels. (e.g. "panel move to x,y"  or such)<br />
+	<span class="highlight">closeall</span> closes all open panels. You can use <span class="highlight">closeall</span> alone or before or after the panel name.
+	<span class="highlight">name_of_panel</span> shows the panel with the given name. If there is no <span class="highlight">closeall</span>, it will pop up over the actual opened panels.
+	<br />
+	<br />
+	Examples:<br />
+	<span class="highlight">panel closeall</span> - close all panels.<br />
+	<span class="highlight">panel my_panel</span> - show panel my_panel.<br />
+	<span class="highlight">panel closeall my_panel</span> - close all panels and then show my_panel.<br />
+	<span class="highlight">panel my_panel closeall</span> - close all panels and then show my_panel.<br />
+	
+<hr />
+<a name="script_cmd_item"></a>
+<h3>ITEM or I<a href="#script_commands">^</a></h3>
+	Parameters:<br />
+	0. [<span class="highlight">unfocus</span>] - Hide ALL mouseover-images in the given room.<br />
+	1. [<span class="highlight">name_of_item</span>] - name of the target item.<br />
+	2. [<span class="highlight">focus</span>] - Shows the mouseover image of the target item AND jumps to the room with the given item if it is in another room.<br />
+	3. [<span class="highlight">x y</span>] - Move the room to the given position.<br />
+	
+	<br />
+	Description:<br />
+	Several functions concerning the <span class="highlight">items</span>. I will use this as "prefix" if there are new developments concerning the items. (e.g. "item my_item click"  or such)<br />
+	<span class="highlight">unfocus</span> needs to be used alone, it does hide all mouseover-images in the given room.<br />
+	
+	<span class="highlight">name_of_panel</span> needs to be given if you use <span class="highlight">focus</span>.<br />
+	<span class="highlight">x</span> and <span class="highlight">y</span> also can only be used with <span class="highlight">focus</span> right now.<br />
+	<br />
+	Please see examples below.<br />
+	<br />
+	Examples:<br />
+	<span class="highlight">item unfocus</span> - unfocus all items. See above.<br />
+	<span class="highlight">item my_item focus</span> - show the mouseover image of the item my_item.<br />
+	<span class="highlight">item my_item focus 0 -150</span> - show the mouseover image of the item my_item and move the whole room a little up to y=-150px.<br />
+<hr />
 
 <a name="about"></a>
 <h1>About the Author <a href="#top">^</a></h1></h1>
@@ -697,6 +802,9 @@ He grew up with computers and used the browser based internet since it was throw
 <h1>Documentation Changelog <a href="#top">^</a></h1></h1>
 For the changelog of GIMLI itself look at the VERSIONS.txt file on the github repository.<br />
 <br />
+v5.00 > jBash scripting commands for GML have their own chapter now.<br />
+v4.08 > Some more about comments, example scripts now in [] array brackets for gimli-v0.5.x<br />
+v4.07 > Faulty JSON will now not crash the whole site (again) but output an error in the console.<br />
 v4.06 > Items need to have their scripts in an array now with gimli-v0.5.xx.<br />
 v4.05 > Github link in the lower right (footer).<br />
 v4.04 > <a href="#gml_panel_buttons">BUTTONS</a> section for the panel buttons.<br />
@@ -715,6 +823,6 @@ v1.0x > Documentation of all GIMLI-tags in one file. Scripting functionality is 
 
 <div class="footer">
 		<a href="https://github.com/ben0bi/GIMLI" id="github-btn" class="btn">GIMLI on Github</a>
-<br />Doc. v4.06 by Benedict Jäggi / Latest change: 14.07.2019 (d-m-y)</div>
+<br />Doc. v5.00 by Benedict Jäggi / Latest change: 09.08.2019 (d-m-y)</div>
 </body>
 </html>

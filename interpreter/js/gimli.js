@@ -23,7 +23,7 @@
  
 */
 
-const GIMLIVERSION = "0.5.01";
+const GIMLIVERSION = "0.5.09";
 
 // install log function.
 log.loglevel = LOG_DEBUG;
@@ -95,7 +95,7 @@ var GIMLbutton = function()
 			{
 				var line = m_buttonFunctions[btnfi];
 				if(line!="")
-					jBash.instance.DoLine(line);
+					jBash.Parse(line);
 			}
 		}
 		else
@@ -218,23 +218,39 @@ var GIMLpanel = function()
 		GIMLI.panelActive = true;
 		
 		var GIMLIwindow = GIMLI.instance.getOuterWindow();
-		m_panelDiv = jQuery.getNewDiv(m_text, 'gimli-panel-'+m_internName, 'gimli-panel gimli-pixelperfect');
+		m_panelDiv = jQuery.getNewDiv('','gimli-panel-'+m_internName, 'gimli-panel gimli-pixelperfect');
 		
+		// the div with the content in it.
+		var contentDiv = jQuery.getNewDiv(m_text,'','gimli-panel-contentdiv gimli-pixelperfect');
 		// add the buttons.
+		var buttonDiv = jQuery.getNewDiv('','','gimli-panel-buttondiv gimli-pixelperfect');
 		for(var i=0;i<m_buttons.length; i++)
 		{
 			var b=m_buttons[i];
 			var btnDiv = b.getDOMElement();
-			m_panelDiv.append(btnDiv);
+			buttonDiv.append(btnDiv);
 		}
 		
-		GIMLIwindow.append(m_panelDiv);
-
 		// check for the height.
-		if(m_panelDiv.height()>GIMLIwindow.height()-30)
+/*		if(m_panelDiv.height()>GIMLIwindow.height()-30)
 		{
 			m_panelDiv.css('top', '0px');
 			m_panelDiv.append("<br />");
+		}
+*/		
+		m_panelDiv.append(contentDiv);
+		m_panelDiv.append(buttonDiv);
+		GIMLIwindow.append(m_panelDiv);
+
+		// maybe adjust the height.
+		if(m_panelDiv.height() >= GIMLIwindow.height()-30)
+		{
+			var hc = parseInt(GIMLIwindow.height()*0.1*7.0)+'px';
+			var hb = parseInt(GIMLIwindow.height()*0.1*3.0)+'px';
+			contentDiv.css('max-height',hc);
+			buttonDiv.css('max-height', hb);
+			m_panelDiv.css('max-height', GIMLIwindow.height()+'px');
+			m_panelDiv.css('top', '0px');
 		}
 	}
 }
@@ -472,6 +488,21 @@ var GIMLitem = function()
 		log(" ", loglevel);
 	};
 	
+	// show or hide the mouseover image of this item.
+	// 0.3.05
+	this.showMouseOverImage=function(show=false)
+	{
+		if(show)
+		{
+			$('#item_image_'+m_id).hide();
+			$('#item_image_over_'+m_id).show();
+			return true;
+		}else{
+			$('#item_image_over_'+m_id).hide();
+			$('#item_image_'+m_id).show();
+		}
+	}
+	
 	// check if the mouse is over an item and show the appropiate image.
 	var __checkMouseOver = function(evt)
 	{
@@ -482,12 +513,10 @@ var GIMLitem = function()
 		// if the pixel is set, show the mouseover image.
 		if(__checkForPixel(evt))
 		{
-			$('#item_image_'+m_id).hide();
-			$('#item_image_over_'+m_id).show();
+			me.showMouseOverImage(true);
 			return true;
 		}else{
-			$('#item_image_over_'+m_id).hide();
-			$('#item_image_'+m_id).show();
+			me.showMouseOverImage(false);
 		}
 		return false;
 	};
@@ -837,6 +866,12 @@ var GIMLI = function()
 		var json2 = __jsonUpperCase(json);
 		json = json2;
 		
+		if(json==null)
+		{
+			log("SEVERE ERROR: JSON for a GML file in "+rootPath+" is null", LOG_ERROR);
+			return;
+		}
+		
 		// get additional gml files.
 		var gmlArray = [];
 		if(__defined(json['GMLS']))
@@ -996,6 +1031,9 @@ var GIMLI = function()
 			return;
 		}
 		
+		// set the actual room intern name.
+		m_actualRoomIntern=roomInternName;
+		
 		// show the blocker while it waits for the loading.
 		GIMLI.showBlocker(true);
 		
@@ -1035,6 +1073,8 @@ var GIMLI = function()
 
 		// get background size.
 		var bgimg = new Image();
+		//0.5.06 : also hide blocker on error.
+		bgimg.onerror = function() {GIMLI.showBlocker(false);};
 		bgimg.onload = function()
 		{
 			// reset scroll boundaries.
@@ -1276,6 +1316,64 @@ var GIMLI = function()
 		mainWindow.css('left', ''+setX+'px');
 		mainWindow.css('top', ''+setY+'px');
 	};
+	
+	// 0.5.08: unfocus all items.
+	// 0.5.09: only in actual room.
+	this.unfocusItems=function()
+	{
+		for(var i=0;i<m_actualRoomItems.length;i++)
+		{
+			var itm=m_actualRoomItems[i];
+			itm.showMouseOverImage(false);
+		}
+	}
+	
+	// 0.5.03: focus on an item. Jump to another room if it has one.
+	this.focusItem=function(itemname,x="not",y="not")
+	{
+		// get the item.
+		for(var i=0;i<__itemCount();i++)
+		{
+			var itm=m_itemsLoaded[i];
+			if(itm.getIntern()==itemname)
+			{
+				// jump to another room if the item is not here.
+				var iloc=itm.getLocationIntern();
+				var interval = 1;
+				if(iloc!=m_actualRoomIntern)
+				{
+					interval=1000;
+					log("Item '"+itemname+"' is in another room. Actual room is '"+m_actualRoomIntern+"'. Jumping to room '"+iloc+"'..");
+					jBash.Parse("jump to "+iloc);
+				}
+				// highlight the item.
+				itm.showMouseOverImage(true);
+				var room = __findRoom(iloc);
+				if(room==null)
+				{
+					log("Room '"+roomInternName+"' not found. Position not changed.", LOG_WARN);
+					return;
+				}
+				// maybe set the room position.
+				if(x!="not" && y!="not") {
+					setTimeout(function(){
+						// Todo: put that in setroomposition.
+						if(x>m_scrollBoundarX1)
+							x=m_srollBoundarX1;
+						if(y>m_scrollBoundarY1)
+							y=m_scrollBoundarY1;
+						if(x<m_scrollBoundarX2)
+							x=m_srollBoundarX2;
+						if(y<m_scrollBoundarY2)
+							y=m_scrollBoundarY2;
+						//console.log("NOW! "+x+"/"+y);
+						me.setRoomPosition(x,y);
+						},interval);
+				}
+				return;
+			}
+		}
+	}
 	
 	// the function to call in the events for mouse and keyboard.
 	var __scroll = function(evt, iskb=false)
@@ -1585,6 +1683,7 @@ var GIMLI = function()
 		// i forgot why the middle window is needed but it is.
 		var mainwindow = jQuery.getNewDiv('','gimli-main-window', 'gimli-pixelperfect');
 		var descriptionwindow = jQuery.getNewDiv('','gimli-text-description','gimli-text');
+		descriptionwindow.css("display","none");
 				
 		// new, v0.3.01: wait for laoding window.
 		var waitWindow = jQuery.getNewDiv('', 'gimli-wait-window', 'gimli-pixelperfect');
@@ -1792,14 +1891,70 @@ GIMLI.panel = function(params)
 		GIMLI.instance.showPanel(panelToShow);
 }
 
+// highlight a specific item / do other stuff with it.
+GIMLI.item = function(params)
+{
+	var p = jBash.GP(params);
+	var itemname="";
+	if(p!="")
+	{
+		itemname=p[0];
+		// it is: item itemname [focus] [move x y] etc..		
+		// it could be [item unfocus] or such with no item name.
+		switch(itemname.toLowerCase())
+		{
+			case "unfocus":
+				GIMLI.instance.unfocusItems();
+				break;
+			case "focus":
+				log("You need to give the item-name first and 'focus' with the 'item' command. E.g. {item my_item focus}", LOG_WARN);
+				break;
+			default:
+				break;
+		}
+
+		// get the second command.
+		if(p.length>1)
+		{
+			switch(p[1].toLowerCase())
+			{
+				case "focus":
+					var x="not";
+					var y=0;
+					if(p.length>2)
+						var x=parseInt(p[2]);
+					if(p.length>3)
+						var y=parseInt(p[3]);
+					GIMLI.instance.focusItem(itemname,x,y);
+					break;
+				case "unfocus":
+					GIMLI.instance.unfocusItems();
+					break;
+				default:
+					jBash.parse("man item");
+					break;
+			}
+		}
+	}else{
+		jBash.parse("man item");
+		return;
+	}
+}
+
 // Hooks for the jBash instance.
 // the jump command.
 jBash.registerCommand("jump", "Jump to a given room (intern name)<br />E.g. {<span class='jBashCmd'>jump to garden</span>}", GIMLI.jump);
 jBash.registerCommand("j", "Short for the <span class='jBashCmd'>jump</span> command.", GIMLI.jump, true);
 
 // the panel command.
+// panel [panel_name] [closeall]
 jBash.registerCommand("panel", "Show a panel and/or close all the other ones.<br />E.g. {<span class='jBashCmd'>panel closeall my_panel</span>}", GIMLI.panel);
 jBash.registerCommand("p", "Show a panel and/or close all the other ones.<br />E.g. {<span class='jBashCmd'>panel closeall my_panel</span>}", GIMLI.panel);
+
+// the item command
+// item itemname [focus]
+jBash.registerCommand("item", "Do something specific with an item. \"focus\" highlights the item and jumps to its room when it is another.", GIMLI.item);
+jBash.registerCommand("i", "Do something specific with an item. \"focus [x, y]\" highlights the item and jumps to its room when it is another.", GIMLI.item);
 
 // show debug stuff.
 jBash.registerCommand("show", "Print out debug info for the given stuff.<br />E.g. {<span class='jBashCmd'>show items</span>}",

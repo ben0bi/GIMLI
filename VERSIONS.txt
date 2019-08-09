@@ -1,3 +1,11 @@
+0.5.09 -> unfocus did not work, maybe now.
+0.5.08 -> new item command: unfocus -> removes the focus from all items. {item unfocus}
+0.5.07 -> item command parameters: item ITEMNAME focus X Y -> set the room position when focusing.
+0.5.06 -> hide blocker even if the bg image could not load.
+0.5.05 -> item command (item itemname focus) focus: shows mouseover of given item
+0.5.04 -> Height bugfix in the panel build process.
+0.5.03 -> Buttons ever visible on panels even if the content is bigger. Made two divs for that.
+0.5.02 -> "BugFix": jBash.Parse instead of jBash.instance.DoLine on panel-button-click.
 0.5.01 -> BugFix, SCRIPT without S in items did not work.
 0.5.00 -> Big version change: You need to make the ONCLICK events of all your ITEMS from <5.00 into array-brackets!
 			In exchange for that, you can make multible script lines in the ITEMS now, too.
