@@ -3,8 +3,10 @@
 	general functions to easy up your life.
 	by Benedict Jäggi in 2019
 
-	version 1.02: It's all tested by myself so I put it outta beta. :)
+	version 1.04: It's all tested by myself so I put it outta beta. :)
 	
+	1.03/1.04 : Added two functions for loading json and converting to json to uppercase.
+	up to 1.02: "Initial Commit" :)
 	because they are sooo general, I will use double-underscore for them.
 	like jquerys $ you need to put __ before this stuff here.
 */
@@ -48,6 +50,7 @@ log.loglevel = LOG_DEBUG;
 // we push all log messages to this array, too.
 log.array = [];
 // maybe we set an external log function.
+// it needs to have 2 parameters: text and loglevel.
 log.logfunction=null;
 
 /* Defined: Check if a variable is defined. Also works with associative array entries and such. */
@@ -59,8 +62,7 @@ function __defined(variable)
 }
 
 /* Get the value of a GET parameter.
-	if there is no parameter with that name, 
-	this function returns null.
+	if there is no parameter with that name, this function returns null.
 	Use it like in php with $_GET(parametername) (round brackets instead of [] this ones.)
 */
 function $_GET(parameterName) {
@@ -131,6 +133,26 @@ function __loadJSON(urlToFile, successFunction)
    	xhr.send();
 }
 __loadJSON.loadCounter=0;
+
+// Make all the value/array names in a json object upper case.
+// returns a new json object with a copy of the old one but uppercase letters in the value names.
+var __jsonUpperCase=function(obj) {
+	var key, upKey;
+	for (key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			upKey = key.toUpperCase();
+			if (upKey !== key) {
+				obj[upKey] = obj[key];
+				delete(obj[key]);
+			}
+			// recurse
+			if (typeof obj[upKey] === "object") {
+				__jsonUpperCase(obj[upKey]);
+			}
+		}
+	}
+	return obj;
+}
 
 // DIRECTORY AND FILE OPERATIONS
 

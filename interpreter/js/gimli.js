@@ -23,7 +23,7 @@
  
 */
 
-const GIMLIVERSION = "0.5.09";
+const GIMLIVERSION = "0.6.00";
 
 // install log function.
 log.loglevel = LOG_DEBUG;
@@ -141,7 +141,6 @@ var GIMLbutton = function()
 		// get the sound delay.
 		if(__defined(GIMLbutton['DELAY']))
 			m_soundDelay = parseFloat(GIMLbutton['DELAY']);
-
 	}
 };
 
@@ -390,17 +389,23 @@ var GIMLitem = function()
 	}
 	
 	// get the dom element for this item.
-	this.getDOMElement = function(rootdirectory="", outerscalefactor = 1.0) 
+	this.getDOMElement = function(outerscalefactor = 1.0) 
 	{
 		m_myDiv = null;
 		m_CollisionLoaded = false;
 
 		var sc = me.getScaleFactor(outerscalefactor);
 
-		rootdirectory=__addSlashIfNot(rootdirectory);
-		var path = __shortenDirectory(rootdirectory+m_folder+m_imageFile);
-		var overpath = __shortenDirectory(rootdirectory+m_folder+m_overImageFile);
-		var collisionpath = __shortenDirectory(rootdirectory+m_folder+m_collisionImageFile);
+		var path = __shortenDirectory(m_folder+m_imageFile);
+		var overpath = __shortenDirectory(m_folder+m_overImageFile);
+		var collisionpath = __shortenDirectory(m_folder+m_collisionImageFile);
+		
+		/*log("ITEM PATHS: ", LOG_DEBUG);
+		log("* MAIN: "+path, LOG_DEBUG);
+		log("* OVER: "+overpath, LOG_DEBUG);
+		log("* COLL: "+collisionpath, LOG_DEBUG);
+		*/
+		
 		var divel = jQuery.getNewDiv('','item_'+m_id,'gimli-item');
 		
 		var txt = '';
@@ -639,17 +644,7 @@ var GIMLitem = function()
 			for(var ic=0;ic<arr.length;ic++)
 				m_scripts_click.push(arr[ic])
 		}
-		
-		// Before 0.5.00
-		/*
-		if(__defined(gmlItem['SCRIPT'])) // script happens on click, but onclick is preferred.
-			m_script_click = gmlItem['SCRIPT'];
-		if(__defined(gmlItem['SCRIPTS'])) // script happens on click, but onclick is preferred.
-			m_script_click = gmlItem['SCRIPTS'];
-		if(__defined(gmlItem['ONCLICK']))
-			m_script_click = gmlItem['ONCLICK'];
-		*/
-		
+				
 		// get the sound to play when the item is clicked.
 		if(__defined(gmlItem['SOUND']))
 			m_clickSound = gmlItem['SOUND'];
@@ -666,10 +661,10 @@ var GIMLitem = function()
 	};
 	
 	// add this item to a room div.
-	this.addToRoomDiv=function(div, rootdirectory="", outerscalefactor = 1.0)
+	this.addToRoomDiv=function(div, outerscalefactor = 1.0)
 	{
 		log("Placing the item '"+m_internName+"' in the room...", LOG_DEBUG);
-		var myElement = me.getDOMElement(rootdirectory, outerscalefactor);
+		var myElement = me.getDOMElement(outerscalefactor);
 		div.append(myElement);		
 	};
 	
@@ -811,12 +806,24 @@ GMLurl.makeGMURL = function(filename)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*******************************************************************************************************************************************************************/
+
+// 0.5.11-0.6.0: GML collector for synced loading.
+// This is for loading all gml filenames and THEN loading all gmls.
+// Previous versions started the init process before all gmls were loaded because of async timing problems.
+// hope this works better, despite the maybe longer loading time. Sorry for that.
+
+// 0.5.17: implemented gmlcollect into gimli directly.
+// .. there was a little class here ..
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*******************************************************************************************************************************************************************/
+
 // The GIML-Interpreter
 var GIMLI = function()
 {
 	var me = this; // protect this from be this'ed from something other inside some brackets.
 	
-	var m_GMURL_initpage = "";  // the gml file which was called on the init function.
+	//var m_GMURL_initpage = "";  // the gml file which was called on the init function.
 	var m_actualRoomIntern = "@ STARTLOCATION/STARTROOM not found. @"; // the actual room intern name.
 	var m_startRoomIntern = "@ STARTLOCATION/STARTROOM not found. @"; // the start room intern name.
 	var m_actualRoomX = 0;
@@ -856,11 +863,13 @@ var GIMLI = function()
 	var m_scaleFactor = 1.0;
 
 // THIS IS THE MAIN GML FUNCTION SO FAR
+	// 0.5.17: global file array instead of local one.
+	var m_gmlFileArray = [];
 	
 	// load a gml json file.
 	this.parseGML = function(json, rootPath = "")
 	{
-		log("Parsing GML [Path: "+rootPath+"]:"/*+JSON.stringify(json)*/, LOG_DEBUG_VERBOSE);
+		log("Parsing GML [Path: "+rootPath+"]"/*+JSON.stringify(json)*/, LOG_DEBUG_VERBOSE);
 		
 		log("Converting array names to uppercase..", LOG_DEBUG_VERBOSE);
 		var json2 = __jsonUpperCase(json);
@@ -871,12 +880,37 @@ var GIMLI = function()
 			log("SEVERE ERROR: JSON for a GML file in "+rootPath+" is null", LOG_ERROR);
 			return;
 		}
-		
-		// get additional gml files.
+	
+		// 0.5.18: gml file collector in the parser.
+		// get the gmls structure.
 		var gmlArray = [];
 		if(__defined(json['GMLS']))
 			gmlArray = json['GMLS'];
-		
+					
+		// check if the entries already exist, else add them.
+		for(var g=0;g<gmlArray.length;g++)
+		{
+			var gml = GMLurl.makeGMURL(gmlArray[g]);
+			var innerfound = false;
+			for(var q=0;q<m_gmlFileArray.length;q++)
+			{
+				var chk=m_gmlFileArray[q].gmurl.getCombined();
+				var gmlpath = __shortenDirectory(__addSlashIfNot(rootPath)+gml.getCombined());
+				if(gmlpath==__shortenDirectory(chk))
+				{
+					innerfound= true;
+					break;
+				}
+			}
+			// add it to the list.
+			if(!innerfound)
+			{
+				var colladd = GMLurl.makeGMURL(gmlpath);
+				log("GML collection add: "+colladd.getCombined(), LOG_DEBUG); 
+				m_gmlFileArray.push(new GMLfile(colladd));
+			}
+		}
+	
 		// get the start room. (StartLocation or StartRoom)
 		if(__defined(json['STARTLOCATION']))
 			m_actualRoomIntern = m_startRoomIntern = json['STARTLOCATION'];
@@ -940,7 +974,10 @@ var GIMLI = function()
 				var sound=soundArray[i];
 				var snd = new GIMLsound();
 				// we need to include the project path here instead of "jump to room".
-				snd.parseGML(sound, __shortenDirectory(__addSlashIfNot(m_GMURL_initpage.getDirectory())+rootPath));
+				
+				//0.5.20: m_gmlurl_initpage is obsolete.
+				snd.parseGML(sound, rootPath);
+
 				m_soundsLoaded.push(snd);
 				snd.debug(LOG_DEBUG_VERBOSE);
 			}
@@ -956,13 +993,12 @@ var GIMLI = function()
 				var pnl = new GIMLpanel();
 				pnl.parseGML(panel);
 				m_panelsLoaded.push(pnl);
-				pnl.debug(LOG_DEBUG);
+				pnl.debug(LOG_DEBUG_VERBOSE);
 			}
 		}
 		
 		// load the additional gml files recursively and one after each other.
-		m_recLoadedFiles+=gmlArray.length;
-		__recursiveload(gmlArray,0, rootPath);
+		// 0.5.17: load with the new collector code.
 	};
 	
 	this.debug=function(loglevel)
@@ -976,46 +1012,80 @@ var GIMLI = function()
 	}
 
 	// load all the gml files recursively.
-	var m_recLoadedFiles = 0;
-	var m_afterLoadCalled = false;	// only call after load if it is not called before.
-	var __recursiveload = function(gmlArray, actual_i, rootPath ="")
+	// 0.5.17: this function is obsolete
+	/* ... */
+
+	// 0.5.17: GMLfile in GIMLI
+	var GMLfile = function(gmurl)
 	{
-		if(gmlArray.length>actual_i)
+		this.gmurl = gmurl;		
+		this.collected = false;
+	}
+
+	// 0.5.17: collect function instead of recursive load function
+	// get the first one to collect and do it.
+	var collectioncounter = 0;
+	var collect = function()
+	{
+		collectioncounter++;
+		log("COLLECTION #"+collectioncounter+" / "+m_gmlFileArray.length+" entries to check.", LOG_DEBUG);
+		
+		var found = false;
+		for(var i=0;i<m_gmlFileArray.length;i++)
 		{
-			var url = GMLurl.makeGMURL(m_GMURL_initpage.getDirectory()+rootPath+gmlArray[actual_i]);
-			var all = __shortenDirectory(url.getCombined());
-			var path = __shortenDirectory(url.getDirectory());
-			
-			// get the relative path to add to the json entries.			
-			var relativePath = __shortenDirectory(GMLurl.makeGMURL(rootPath+gmlArray[actual_i]).getDirectory());
-			if(!__isGMLFileLoaded(all))
+			var l = m_gmlFileArray[i];
+			var filepath= l.gmurl.getCombined();
+			if(l.collected==false) // load the stuff and break the loop.
 			{
-				log("Additional GIML file to load: "+all);
-				// file is not laoded, get it and then load the next one.
-				me.loadJSONFile(all, function(json) 
+				log("Collecting entry #"+i+" @ "+filepath, LOG_DEBUG);
+				found = true;
+				
+				// load the file and collect its GMLs.
+				var relativePath = __shortenDirectory(GMLurl.makeGMURL(__addSlashIfNot(l.gmurl.getDirectory())+m_gmlFileArray[i]).getDirectory());
+
+				__loadJSON(filepath, function(json)
 				{
-					m_loadedGMLFiles.push(all);
-					me.parseGML(json, relativePath);
-					__recursiveload(gmlArray,actual_i+1,rootPath);
+					//log("RELPATH: "+relativePath);
+					me.parseGML(json,relativePath);
+
+					l.collected = true;
+					//log("Collected entry #"+i+": "+l.gmurl.getCombined(), LOG_DEBUG);
+					// repeat the collecting process until all gmls are collected.
+					collect();
 				});
-			}else{
-				// file is already loaded, get the next one.
-				log("File "+gmlArray[actual_i]+" already loaded.", LOG_WARN);
-				__recursiveload(gmlArray,actual_i+1, rootPath);
-			}
+				break;
+			}//else{
+			//	log("COLLECTION entry #"+i+" already collected. ("+filepath+")");
+			//}
 		}
 		
-		//log("RECLF:" +m_recLoadedFiles+" / "+m_loadedGMLFiles.length);
-		
-		// after the last load, call the afterload function.
-		if(!m_afterLoadCalled && m_recLoadedFiles<=m_loadedGMLFiles.length)
+		// if nothing was found, all files were loaded.
+		// jump to the start room.
+		if(found==false)
 		{
-			m_afterLoadCalled=true;
-			m_afterLoadFunction();
-			me.debug(LOG_USER);
-			log("----------------- ALL GMLS LOADED. ------------------------", LOG_USER);
+			log(m_gmlFileArray.length+" files loaded.",LOG_DEBUG);
+			log("-------- ENDOF COLLECTING GMLS ---------",LOG_DEBUG);
+			
+			// 0.5.19: Doing the rest.
+			if(m_roomByURL!="")
+			{		
+				// 0.5.22: check if the url room exists.
+				var room = __findRoom(m_roomByURL);
+				if(room==null)
+				{
+					log("Room ["+m_roomByURL+"] from URL not found!",LOG_WARN);
+					log("Jumping to original start room ["+m_startRoomIntern+"].", LOG_WARN);
+					me.jumpToStartRoom();
+				}else{
+					me.jumpToRoom(m_roomByURL);
+				}
+			}else{
+				me.jumpToStartRoom();
+			}
+			setTimeout(GIMLI.hideConsole,750);
 		}
 	}
+
 
 // ENDOF GML PARSER
 // JUMP FUNCTION *********************************************************************************************************************
@@ -1053,7 +1123,7 @@ var GIMLI = function()
 		var newroom = jQuery.getNewDiv('','gimli-main-window','gimli-pixelperfect');
 
 		// get the background image.
-		var imgPath = __shortenDirectory(m_GMURL_initpage.getDirectory()+room.getBGimagePath());
+		var imgPath = __shortenDirectory(room.getBGimagePath());
 		//log("--> Loading background: "+imgPath,LOG_DEBUG);
 		
 		// Search all items which are associated to this room.
@@ -1065,7 +1135,7 @@ var GIMLI = function()
 			if(room.getIntern() == itm.getLocationIntern())
 			{
 				count++;
-				itm.addToRoomDiv(newroom,m_GMURL_initpage.getDirectory(), room.getScaleFactor(m_scaleFactor));
+				itm.addToRoomDiv(newroom, room.getScaleFactor(m_scaleFactor));
 				m_actualRoomItems.push(itm);
 			}
 		}
@@ -1180,7 +1250,7 @@ var GIMLI = function()
 	{
 		for(var i=0;i<m_loadedGMLFiles.length;i++)
 		{
-			if(m_loadedGMLFiles[i] == filepath)
+			if(__shortenDirectory(m_loadedGMLFiles[i]) == __shortenDirectory(filepath))
 				return true;
 		}
 		return false;
@@ -1251,54 +1321,52 @@ var GIMLI = function()
 	}
 	
 	// initialize gimli with a gml-file.
-	var m_afterLoadFunction = function() {};
+	var m_roomByURL = "";
 	this.init = function(gmurl)
-	{		
+	{	
 		// create the main window, including the console.
 		__createMainWindow();
 
+		m_roomByURL="";
 		// get the url parameters.
-		var initurl=window.location.href;
-		initurl = initurl.split("?");
+		m_roomByURL=window.location.href;
+		m_roomByURL = m_roomByURL.split("?");
 		// get the room directly from the "first" parameter.
-		if(initurl.length>1)
+		if(m_roomByURL.length>1)
 		{
-			initurl=initurl[1];
+			m_roomByURL=m_roomByURL[1];
 		}else{
-			initurl="";
+			m_roomByURL="";
 		}
 		
-		log("Set room from URL: "+initurl, LOG_DEBUG);
+		if(m_roomByURL!="")
+			log("Set room from URL to "+m_roomByURL+".", LOG_DEBUG);
 	
-		var checkurl = GMLurl.makeGMURL(gmurl);
+		var checkurl = GMLurl.makeGMURL(__shortenDirectory(gmurl));
+		// 0.5.19: set the initpage directory to the first loaded gmurl.
+		//m_GMURL_initpage = checkurl;
 		log("Loading "+checkurl.getCombined()+"...");
-		// load the gml file.
-		// TODO: do after load stuff after recursive load. (jumptostartroom should be called after all recursiveloads.)
-		me.loadJSONFile(checkurl.getCombined(), function(json) {
-			m_GMURL_initpage = checkurl;
-			// clear all preloaded stuff.
-			__clearItems();
-			__clearRooms();
-			m_scaleFactor=1.0;
 
-			// clear the loaded files array and push this filename.
-			m_loadedGMLFiles = [];
-			m_loadedGMLFiles.push(checkurl.getCombined());
-			
-			// set the after load function.
-			m_afterLoadFunction = function()
-			{
-				log("Issuing after load function...", LOG_DEBUG);
-				if(initurl!="")
-					me.jumpToRoom(initurl);
-				else
-					me.jumpToStartRoom();
-			};
-			
-			me.parseGML(json);
-			// hide the console in front of the user. :)
-			setTimeout(GIMLI.hideConsole,750);
-		});
+		// 0.5.17: clearing everything before loading the json.
+		__clearItems();
+		__clearRooms();
+		__clearPanels();
+		__clearSounds();
+		m_scaleFactor=1.0;
+
+		log("----------- COLLECTING GMLS ----------------", LOG_DEBUG);
+	
+		// clear the gml file array.
+		m_gmlFileArray=[];
+
+		// 0.5.17: add first file to the collection.		
+		// add the first file.
+		// put the first filename into the list.
+		var first = new GMLfile(checkurl);
+		m_gmlFileArray.push(first);
+	
+		// 0.5.17: start collection
+		collect();
 	};
 	
 	// jump to the start location of a gml file.
@@ -1477,7 +1545,7 @@ var GIMLI = function()
 				if(m_scrollIntervalFunction!=null)
 					clearInterval(m_scrollIntervalFunction)
 				m_scrollIntervalFunction=null; // for security, null it "again".
-				m_scrollIntervalFunction=setInterval(__realScroll_keys, 15);
+				m_scrollIntervalFunction=setInterval(__realScroll_keys, 10);
 			}else{
 				if(m_isScrolling==0)
 				{
@@ -1550,7 +1618,7 @@ var GIMLI = function()
 			if(m_scrollIntervalFunction!=null)
 				clearInterval(m_scrollIntervalFunction)
 			m_scrollIntervalFunction=null; // for security, null it "again".
-			m_scrollIntervalFunction=setInterval(__realScroll_mouse, 15);
+			m_scrollIntervalFunction=setInterval(__realScroll_mouse, 10);
 		}else{
 			if(m_isScrolling==0)
 			{
@@ -1559,50 +1627,6 @@ var GIMLI = function()
 				m_scrollIntervalFunction = null;
 			}
 		}
-	}
-
-	// make all the array names in a json object upper case.
-	var __jsonUpperCase=function(obj) {
-		var key, upKey;
-		for (key in obj) {
-			if (obj.hasOwnProperty(key)) {
-				upKey = key.toUpperCase();
-				if (upKey !== key) {
-					obj[upKey] = obj[key];
-					delete(obj[key]);
-				}
-				// recurse
-				if (typeof obj[upKey] === "object") {
-					__jsonUpperCase(obj[upKey]);
-				}
-			}
-		}
-		return obj;
-	}
-
-	// Check if a file exists.
-	this.loadJSONFile=function(urlToFile, successFunction)
-	{
-		// Make an ajax call without jquery so we can load jquery with this loader.
-		var xhr = new XMLHttpRequest();
-		xhr.onreadystatechange = function()
-    	{
-        	if (xhr.readyState === XMLHttpRequest.DONE)
-			{
-        		if (xhr.status === 200) 
-				{
-					var json=xhr.response;
-					log("JSON from "+urlToFile+" loaded.", LOG_DEBUG_VERBOSE);
-					if(typeof(successFunction)==="function")
-						successFunction(json);
-        		} else {
-					log("Could not load file "+urlToFile+" / XHR: "+xhr.status, LOG_ERROR);
-				}
-        	}
-    	};
-    	xhr.open("GET", urlToFile, true);
-		xhr.responseType = "json";
-    	xhr.send();
 	}
 	
 	// 0.3.19: show a specific panel.

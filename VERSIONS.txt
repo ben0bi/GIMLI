@@ -1,3 +1,20 @@
+0.6.00 -> All new loading process: Collecting all GMLs in a global array instead of recursively create new local arrays per file.
+			Removed old overhead code.
+
+0.5.23 -> Removed a bug which looped on loading if you put the wrong gml together.
+0.5.22 -> Jumping to start room if room from URL does not exist and printing out a warning in the console.
+0.5.21 -> Direct room by URL does work again.
+0.5.20 -> It's all working again (hopefully). Sounds not tested yet. Direct URL does not work yet again, though.
+0.5.19 -> Brought it to work again, the directory algorithm was messed up.
+0.5.18 -> Moved the GML-collector to the parseGML function (again).
+0.5.17 -> Copied the collector code to GIMLI structure. Working. Not continuing after load right now.
+0.5.16 -> The collector works properly but is not implemented yet.
+0.5.15 -> Continued working on the GML collector.
+0.5.14 -> Continued working on the GML collector. Implemented it into the startup process for testing.
+0.5.13 -> Also moved __jsonUpperCase to behelpers.
+0.5.12 -> I already implemented loadJSONFile into behelpers but forgot to change the calls. Removed the double entry function.
+0.5.11 -> Began to write the GML collector for better loading process timing.
+0.5.10 -> Set the debug output when loading panels to LOG_DEBUG_VERBOSE.
 0.5.09 -> unfocus did not work, maybe now.
 0.5.08 -> new item command: unfocus -> removes the focus from all items. {item unfocus}
 0.5.07 -> item command parameters: item ITEMNAME focus X Y -> set the room position when focusing.
@@ -135,4 +152,3 @@
 0.0.6 -> other fonts choosen.
 0.0.4 -> 0.0.5: Included a console (jBash from github.com/ben0bi)
 0.0.1 -> 0.0.3: Outer screen setup, file structure definition.
-
