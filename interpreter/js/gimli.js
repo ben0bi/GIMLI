@@ -1,5 +1,4 @@
  /*
-
  ..............................................
  .                           GIML-INTERPRETER .
  ..............................................
@@ -23,7 +22,7 @@
  
 */
 
-const GIMLIVERSION = "0.6.00";
+const GIMLIVERSION = "0.6.03";
 
 // install log function.
 log.loglevel = LOG_DEBUG;
@@ -832,7 +831,16 @@ var GIMLI = function()
 	var m_itemsLoaded = [];		// the items loaaded with the gml file.
 	var m_soundsLoaded = [];	// the sounds loaded with the gml file.
 	var m_panelsLoaded = [];	// the panels loaded with the gml file. (0.3.16)
-	var m_loadedGMLFiles = [];	// list with all the GML files which were loaeded.
+
+	// 0.6.01: Get the structures out of this class.
+	this.getStructure_ITEMS = function() {return m_itemsLoaded;};
+	this.getStructure_ROOMS = function() {return m_roomsLoaded;};
+	this.getStructure_SOUNDS = function() {return m_soundsLoaded;};
+	this.getStructure_PANELS = function() {return m_panelsLoaded;};
+	
+//	var m_loadedGMLFiles = [];	// list with all the GML files which were loaeded.
+	// 0.5.17: global file array instead of local one.
+	var m_gmlFileArray = [];
 	
 	// scrolling variables.
 	var m_scrollXDir = 0;
@@ -863,8 +871,6 @@ var GIMLI = function()
 	var m_scaleFactor = 1.0;
 
 // THIS IS THE MAIN GML FUNCTION SO FAR
-	// 0.5.17: global file array instead of local one.
-	var m_gmlFileArray = [];
 	
 	// load a gml json file.
 	this.parseGML = function(json, rootPath = "")
@@ -1256,7 +1262,7 @@ var GIMLI = function()
 		return false;
 	}
 	
-	// show debug info about the rooms.
+/*	// show debug info about the rooms.
 	this.debugRooms = function()
 	{
 		if(__roomCount()<=0)
@@ -1319,6 +1325,7 @@ var GIMLI = function()
 			m_panelsLoaded[i].debug(LOG_USER);
 		}
 	}
+*/
 	
 	// initialize gimli with a gml-file.
 	var m_roomByURL = "";
@@ -1986,14 +1993,72 @@ function(params)
 {
 	if(__defined(params[1]))
 	{
-		switch(params[1].toLowerCase())
+		var arr = [];
+		// first get the array.
+		var typ = params[1].toLowerCase();
+		switch(typ)
 		{
-			case "items": GIMLI.instance.debugItems(); break;
-			case "rooms": GIMLI.instance.debugRooms(); break;
-			case "sounds": GIMLI.instance.debugSounds(); break;
-			case "panels": GIMLI.instance.debugPanels(); break;
+			case "item":
+			case "items":
+				arr = GIMLI.instance.getStructure_ITEMS();
+				break;
+			case "room":
+			case "rooms":
+				arr = GIMLI.instance.getStructure_ROOMS();
+				break;
+			case "sound":
+			case "sounds":
+				arr = GIMLI.instance.getStructure_SOUNDS();
+				break;
+			case "panel":
+			case "panels":
+				arr = GIMLI.instance.getStructure_PANELS();
+				break;
 			default:
 				log("Wrong parameter. Use <span class='jBashCmd'>items</span>, <span class='jBashCmd'>rooms</span>, <span class='jBashCmd'>sounds</span> or <span class='jBashCmd'>panels</span> to get a list of the given array.", LOG_USER);
+				break;
+		}
+		// second do something with the array.
+		switch(typ)
+		{
+// show a single item
+			case "item":
+			case "room":
+			case "sound":
+			case "panel":
+				if(__defined(params[2]))
+				{
+					var idx = parseInt(params[2]);
+					if(idx!="NaN")
+					{
+						// print the given array
+						if(idx>=0 && idx<arr.length)
+							arr[idx].debug(LOG_USER);
+						else
+							log("The index is to small or to big. (0 to "+arr.length+") --&gt; "+idx, LOG_USER);
+					}else{
+						log("Third parameter needs to be a number.", LOG_USER);
+					}
+				}else{
+					log("Missing parameter. You need to define an index number if you use the show command this way.", LOG_USER);
+				}
+				break;
+				
+			// show a list with all the items.
+			case "items":
+			case "rooms":
+			case "sounds":
+			case "panels":
+				log(" ", LOG_USER);
+				log("Show list: (index, intern) "+arr.length,LOG_USER);
+				for(var i=0;i<arr.length;i++)
+				{
+					log(i+": "+arr[i].getIntern(),LOG_USER);
+				}
+				log("Endof List. "+arr.length+" entries.", LOG_USER);
+				log(" ", LOG_USER);
+				break;
+			default:
 				break;
 		}
 	}else{
