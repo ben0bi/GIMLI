@@ -1,3 +1,5 @@
+0.6.04 -> Better "show room" command also showing the items for this room.
+0.6.03 -> refined the "show" command.
 0.6.02 -> New "show" command: show a list or a single item. e.g. "show items" shows a list with intern names and numbers.
 			"show item x" shows the item with the number x.
 0.6.01 -> Started rewriting the "show" command.

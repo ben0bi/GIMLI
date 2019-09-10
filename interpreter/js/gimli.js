@@ -22,7 +22,7 @@
  
 */
 
-const GIMLIVERSION = "0.6.03";
+const GIMLIVERSION = "0.6.04";
 
 // install log function.
 log.loglevel = LOG_DEBUG;
@@ -319,9 +319,10 @@ var GIMLsound = function()
 		
 	this.debug = function(loglevel = LOG_DEBUG)
 	{
-		log("* SOUND ("+m_duration+"s): "+m_internName, loglevel);
+		log("* SOUND: "+m_internName, loglevel);
 		log("--&gt; File: "+m_soundFile, loglevel);
 		log("--&gt; Duration: "+m_duration+"s", loglevel);
+		log("--&gt; resides in: "+m_folder, loglevel);
 		log(" ", loglevel);
 	}
 }
@@ -735,9 +736,16 @@ var GIMLroom = function()
 	};
 	
 	this.debug=function(loglevel=LOG_DEBUG) {
-		log("* Room '<span class='jBashCmd'>"+m_roomName+"</span>' (intern: '<span class='jBashCmd'>"+m_internName+"</span>')", loglevel);
+		log("* ROOM '<span class='jBashCmd'>"+m_roomName+"</span>' (intern: '<span class='jBashCmd'>"+m_internName+"</span>')", loglevel);
 		log(" --&gt; resides in '"+m_folder+"'", loglevel);
 		log(" --&gt; bgImage: '"+m_bgImageFile+"'", loglevel);
+		log(" --&gt; ITEMS:", loglevel);
+		var arr = GIMLI.instance.getStructure_ITEMS();
+		for(var i=0;i<arr.length;i++)
+		{
+			if(arr[i].getLocationIntern()==m_internName)
+				log("--&gt; * "+i+": "+arr[i].getIntern(), loglevel);
+		}
 		log(" ", loglevel);
 	};
 };
@@ -1261,72 +1269,7 @@ var GIMLI = function()
 		}
 		return false;
 	}
-	
-/*	// show debug info about the rooms.
-	this.debugRooms = function()
-	{
-		if(__roomCount()<=0)
-		{
-			log("There are no rooms loaded.", LOG_USER);
-			return;
-		}
-		log(" ", LOG_USER);
-		log("+++ <span class='jBashCmd'>SHOWING DATA FOR "+__roomCount()+" LOADED ROOMS.</span> +++", LOG_USER);
-		for(var i=0;i<__roomCount();i++)
-		{
-			m_roomsLoaded[i].debug(LOG_USER);
-		}
-	}
-	
-	// show debug info about the items.
-	this.debugItems = function()
-	{
-		if(__itemCount()<=0)
-		{
-			log("There are no items loaded.", LOG_USER);
-			return;
-		}
-		log(" ", LOG_USER);
-		log("+++ <span class='jBashCmd'>SHOWING DATA FOR "+__itemCount()+" LOADED ITEMS.</span> +++", LOG_USER);
-		for(var i=0;i<__itemCount();i++)
-		{
-			m_itemsLoaded[i].debug(LOG_USER);
-		}
-	}
-	
-	// show debug info about the sounds.
-	this.debugSounds = function()
-	{
-		if(__soundCount()<=0)
-		{
-			log("There are no sounds loaded.", LOG_USER);
-			return;
-		}
-		log(" ", LOG_USER);
-		log("+++ <span class='jBashCmd'>SHOWING DATA FOR "+__soundCount()+" LOADED SOUNDS.</span> +++", LOG_USER);
-		for(var i=0;i<__soundCount();i++)
-		{
-			m_soundsLoaded[i].debug(LOG_USER);
-		}
-	}
-	
-	// show debug info about all panels.
-	this.debugPanels = function()
-	{
-		if(__panelCount()<=0)
-		{
-			log("There are no panels loaded", LOG_USER);
-			return;
-		}
-		log(" ", LOG_USER);
-		log("+++ <span class='jBashCmd'>SHOWING DATA FOR "+__panelCount()+" LOADED PANELS.</span> +++", LOG_USER);
-		for(var i=0;i<__panelCount();i++)
-		{
-			m_panelsLoaded[i].debug(LOG_USER);
-		}
-	}
-*/
-	
+		
 	// initialize gimli with a gml-file.
 	var m_roomByURL = "";
 	this.init = function(gmurl)
@@ -2028,8 +1971,10 @@ function(params)
 			case "panel":
 				if(__defined(params[2]))
 				{
+					// use the index.
 					var idx = parseInt(params[2]);
-					if(idx!="NaN")
+					var intern = params[2];
+					if(idx.toString()==intern)
 					{
 						// print the given array
 						if(idx>=0 && idx<arr.length)
@@ -2037,7 +1982,18 @@ function(params)
 						else
 							log("The index is to small or to big. (0 to "+arr.length+") --&gt; "+idx, LOG_USER);
 					}else{
-						log("Third parameter needs to be a number.", LOG_USER);
+						// try to use the intern name.
+						var found = false;
+						for(var q = 0;q<arr.length;q++)
+						{
+							if(arr[q].getIntern()==intern)
+							{
+								found = true;
+								arr[q].debug(LOG_USER);
+							}
+						}
+						if(!found)
+							log(typ+" "+intern+" not found!", LOG_USER);
 					}
 				}else{
 					log("Missing parameter. You need to define an index number if you use the show command this way.", LOG_USER);
@@ -2050,12 +2006,21 @@ function(params)
 			case "sounds":
 			case "panels":
 				log(" ", LOG_USER);
-				log("Show list: (index, intern) "+arr.length,LOG_USER);
+				log("Show list: (index, intern)",LOG_USER);
 				for(var i=0;i<arr.length;i++)
 				{
 					log(i+": "+arr[i].getIntern(),LOG_USER);
 				}
+				var t="";
+				switch(typ)
+				{
+					case "items": t="item";break;
+					case "sounds": t="sound";break;
+					case "panels":t="panel";break;
+					case "rooms":t="room";break;
+				}
 				log("Endof List. "+arr.length+" entries.", LOG_USER);
+				log("Use 'show "+t+" index' or 'show "+t+" internname' to view information about a specific entry."); 
 				log(" ", LOG_USER);
 				break;
 			default:
