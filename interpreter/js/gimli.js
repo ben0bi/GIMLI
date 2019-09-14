@@ -22,7 +22,26 @@
  
 */
 
-const GIMLIVERSION = "0.6.04";
+const GIMLIVERSION = "0.6.09";
+
+// ADD the standard parsers.
+GMLParser.addParser("GLOBAL",new GMLParser_GLOBAL());
+GMLParser.addParser("ROOMS", new GMLParser_ROOMS());
+GMLParser.addParser("ITEMS", new GMLParser_ITEMS());
+GMLParser.addParser("SOUNDS", new GMLParser_SOUNDS());
+GMLParser.addParser("PANELS", new GMLParser_PANELS());
+
+// some shorts.
+GMLParser.GLOBALS = function() {return GMLParser.getParser("GLOBAL");};
+GMLParser.ROOMS = function() {return GMLParser.getParser("ROOMS");};
+GMLParser.ITEMS = function() {return GMLParser.getParser("ITEMS");};
+GMLParser.SOUNDS = function() {return GMLParser.getParser("SOUNDS");};
+GMLParser.PANELS = function() {return GMLParser.getParser("PANELS");};
+
+// eventually parse the given file and its sub-files.
+//GMLParser.parseFile("myFile.file");
+
+///////////////////////////////////////////////////////////////
 
 // install log function.
 log.loglevel = LOG_DEBUG;
@@ -1276,6 +1295,8 @@ var GIMLI = function()
 	{	
 		// create the main window, including the console.
 		__createMainWindow();
+
+		PARSEGMLFILE(gmurl);
 
 		m_roomByURL="";
 		// get the url parameters.
