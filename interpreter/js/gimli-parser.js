@@ -101,8 +101,8 @@ var GMLParser = function()
 	{
 		for(var i=0;i<parsers.length;i++)
 		{
-			if(parser[i].name==parserName.toUpperCase())
-				return parser[i].parser;
+			if(parsers[i].name==parserName.toUpperCase())
+				return parsers[i].parser;
 		}
 	}
 	
@@ -193,15 +193,31 @@ GMLParser.getParser = function(name) {return GMLParser.instance.getParser(name);
 
 // defined parsers for "standard GML"
 
+// 0.6.08: GML standard array parser prototypes.
+
 // the global parser holds some global values.
 var GMLParser_GLOBAL = function()
 {
+	var me = this;
+	this.actualRoomIntern = "";
+	this.startRoomIntern = "";
+	this.scaleFactor = 1.0; // scale factor is 1.0 initial.
 	this.parseGML = function(json, rootPath)
 	{
+		// get the start room. (StartLocation or StartRoom)
+		// also set the actual room to the start room.
+		if(__defined(json['STARTLOCATION']))
+			me.actualRoomIntern = me.startRoomIntern = json['STARTLOCATION'];
+		if(__defined(json['STARTROOM']))
+			me.actualRoomIntern = me.startRoomIntern = json['STARTROOM'];
+		
+		// get the global scale factor.
+		if(__defined(json['SCALEFACTOR']))
+			me.scaleFactor = parseFloat(json['SCALEFACTOR']);
+		if(__defined(json['SCALE']))
+			me.scaleFactor = parseFloat(json['SCALE']);
 	}
 }
-
-// 0.6.08: GML standard array parser prototypes.
 
 // The ROOM parser
 // data structure for the rooms
@@ -254,6 +270,13 @@ var GMLParser_SOUNDS = function()
 // The PANEL parser
 // data structure for the panel
 var GMLData_PANEL = function()
+{
+	var m_panelButtons = [];
+	
+}
+
+// data structure for the panel buttons.
+var GMLData_PANELBUTTON = function()
 {
 }
 

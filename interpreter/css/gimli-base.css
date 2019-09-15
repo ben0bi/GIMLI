@@ -92,6 +92,13 @@ here all images will be appended and other stuff. */
 	z-index: 10000;
 }
 
+.gimli-waitcontainer
+{
+	width: 100%;
+	text-align: center;
+	font-weight: bolder;
+}
+
 /* some modifications for the wait screen content. */
 .gimli-waitcontent
 {
@@ -99,6 +106,17 @@ here all images will be appended and other stuff. */
 	text-align: center;
 	font-weight: bolder;
 	font-size: 33pt;
+	font-family: 'gimli_highlight', monospace, sans-serif;
+	color: #339633;
+}
+
+/* same for the wait screen message. */
+.gimli-wait-message
+{
+	width: 100%;
+	text-align: center;
+	font-weight: bolder;
+	font-size: 16pt;
 	font-family: 'gimli_highlight', monospace, sans-serif;
 	color: #339633;
 }

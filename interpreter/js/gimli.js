@@ -22,7 +22,7 @@
  
 */
 
-const GIMLIVERSION = "0.6.09";
+const GIMLIVERSION = "0.6.11";
 
 // ADD the standard parsers.
 GMLParser.addParser("GLOBAL",new GMLParser_GLOBAL());
@@ -66,6 +66,8 @@ log.logfunction = function(text, loglevel)
 // 0.3.16: a panel with some text and buttons on it.
 // button prototype for a panel.
 // 0.3.22: outside panels.
+
+//  NOT NC YET
 var GIMLbutton = function()
 {
 	var m_buttonText = "";		// text shown for this button.
@@ -163,6 +165,8 @@ var GIMLbutton = function()
 };
 
 /* a gimli panel. */
+
+// NOT NC YET
 var GIMLpanel = function()
 {
 	var me = this;
@@ -275,6 +279,8 @@ var GIMLpanel = function()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // a sound file in the giml system.
+
+// NOT NC YET
 var GIMLsound = function()
 {
 	var me = this;
@@ -349,6 +355,8 @@ var GIMLsound = function()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // an item in the giml system.
+
+// NOT NC YET
 var GIMLitem = function()
 {
 	var me = this;
@@ -703,6 +711,8 @@ GIMLitem.getNewID = function()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // a room in the giml system.
+
+// NOT NC YET
 var GIMLroom = function()
 {
 	var me = this;
@@ -850,8 +860,10 @@ var GIMLI = function()
 	var me = this; // protect this from be this'ed from something other inside some brackets.
 	
 	//var m_GMURL_initpage = "";  // the gml file which was called on the init function.
-	var m_actualRoomIntern = "@ STARTLOCATION/STARTROOM not found. @"; // the actual room intern name.
-	var m_startRoomIntern = "@ STARTLOCATION/STARTROOM not found. @"; // the start room intern name.
+// NC
+//	var m_actualRoomIntern = "@ STARTLOCATION/STARTROOM not found. @"; // the actual room intern name.
+//	var m_startRoomIntern = "@ STARTLOCATION/STARTROOM not found. @"; // the start room intern name.
+// ENDOF NC
 	var m_actualRoomX = 0;
 	var m_actualRoomY = 0;
 	var m_roomsLoaded = [];		// the rooms (locations) loaded with the gml file.
@@ -895,7 +907,7 @@ var GIMLI = function()
 	var m_scrollWithKeys = false;
 	
 	// the size factor. usually 1 or 2
-	var m_scaleFactor = 1.0;
+//	var m_scaleFactor = 1.0;
 
 // THIS IS THE MAIN GML FUNCTION SO FAR
 	
@@ -916,6 +928,7 @@ var GIMLI = function()
 	
 		// 0.5.18: gml file collector in the parser.
 		// get the gmls structure.
+// NC
 		var gmlArray = [];
 		if(__defined(json['GMLS']))
 			gmlArray = json['GMLS'];
@@ -945,16 +958,17 @@ var GIMLI = function()
 		}
 	
 		// get the start room. (StartLocation or StartRoom)
-		if(__defined(json['STARTLOCATION']))
-			m_actualRoomIntern = m_startRoomIntern = json['STARTLOCATION'];
-		if(__defined(json['STARTROOM']))
-			m_actualRoomIntern = m_startRoomIntern = json['STARTROOM'];
+//		if(__defined(json['STARTLOCATION']))
+//			m_actualRoomIntern = m_startRoomIntern = json['STARTLOCATION'];
+//		if(__defined(json['STARTROOM']))
+//			m_actualRoomIntern = m_startRoomIntern = json['STARTROOM'];
 		
 		// get the global scale factor.
-		if(__defined(json['SCALEFACTOR']))
-			m_scaleFactor = parseFloat(json['SCALEFACTOR']);
-		if(__defined(json['SCALE']))
-			m_scaleFactor = parseFloat(json['SCALE']);
+//		if(__defined(json['SCALEFACTOR']))
+//			m_scaleFactor = parseFloat(json['SCALEFACTOR']);
+//		if(__defined(json['SCALE']))
+//			m_scaleFactor = parseFloat(json['SCALE']);
+// ENDOF NC
 		
 		// get locations (LOCATIONS or ROOMS)
 		var roomArray = [];
@@ -1036,8 +1050,9 @@ var GIMLI = function()
 	
 	this.debug=function(loglevel)
 	{
-		log("GML start room: "+m_startRoomIntern, loglevel);
-		log("General GML scale factor: "+parseFloat(m_scaleFactor), loglevel);
+		var globals = GMLParser.GLOBALS();
+		log("GML start room: "+globals.startRoomIntern, loglevel);
+		log("General GML scale factor: "+parseFloat(globals.scaleFactor), loglevel);
 		log(__roomCount()+ " rooms loaded.",loglevel);
 		log(__itemCount()+" items loaded.", loglevel);
 		log(__soundCount()+" sounds loaded.",loglevel);
@@ -1107,7 +1122,7 @@ var GIMLI = function()
 				if(room==null)
 				{
 					log("Room ["+m_roomByURL+"] from URL not found!",LOG_WARN);
-					log("Jumping to original start room ["+m_startRoomIntern+"].", LOG_WARN);
+					log("Jumping to original start room ["+GMLParser.GLOBALS().startRoomIntern+"].", LOG_WARN);
 					me.jumpToStartRoom();
 				}else{
 					me.jumpToRoom(m_roomByURL);
@@ -1135,10 +1150,11 @@ var GIMLI = function()
 		}
 		
 		// set the actual room intern name.
-		m_actualRoomIntern=roomInternName;
+		var globals = GMLParser.GLOBALS();
+		globals.actualRoomIntern=roomInternName;
 		
 		// show the blocker while it waits for the loading.
-		GIMLI.showBlocker(true);
+		GIMLI.showBlocker(true, "Jumping to another room...");
 		
 		// clear the actual room items.
 		m_actualRoomItems = [];
@@ -1168,16 +1184,18 @@ var GIMLI = function()
 			if(room.getIntern() == itm.getLocationIntern())
 			{
 				count++;
-				itm.addToRoomDiv(newroom, room.getScaleFactor(m_scaleFactor));
+				itm.addToRoomDiv(newroom, room.getScaleFactor(globals.scaleFactor));
 				m_actualRoomItems.push(itm);
 			}
 		}
 		log(count+" items are placed in this room.", LOG_USER);
 
+		GIMLI.showBlocker(true, "Loading room image..");
 		// get background size.
 		var bgimg = new Image();
 		//0.5.06 : also hide blocker on error.
-		bgimg.onerror = function() {GIMLI.showBlocker(false);};
+		// 0.6.11: do not hide blocker on error but show error message.
+		bgimg.onerror = function() {GIMLI.showBlocker(true, "ERROR: Could not load room background image!", true);};//GIMLI.showBlocker(false);};
 		bgimg.onload = function()
 		{
 			// reset scroll boundaries.
@@ -1196,8 +1214,8 @@ var GIMLI = function()
 			var outerHeight = outer.height();
 			
 			// scale the bg.
-			var scaledbgwidth = parseInt(bgwidth*room.getScaleFactor(m_scaleFactor));
-			var scaledbgheight = parseInt(bgheight*room.getScaleFactor(m_scaleFactor));
+			var scaledbgwidth = parseInt(bgwidth*room.getScaleFactor(globals.scaleFactor));
+			var scaledbgheight = parseInt(bgheight*room.getScaleFactor(globals.scaleFactor));
 						
 			// set scroll boundaries.
 			if(scaledbgwidth > outerWidth)
@@ -1296,6 +1314,9 @@ var GIMLI = function()
 		// create the main window, including the console.
 		__createMainWindow();
 
+		GIMLI.showBlocker(true, "Welcome to GIMLI");
+		//return; // TODO: REMOVE THAT RETURN
+
 		PARSEGMLFILE(gmurl);
 
 		m_roomByURL="";
@@ -1323,7 +1344,7 @@ var GIMLI = function()
 		__clearRooms();
 		__clearPanels();
 		__clearSounds();
-		m_scaleFactor=1.0;
+// NC		m_scaleFactor=1.0;
 
 		log("----------- COLLECTING GMLS ----------------", LOG_DEBUG);
 	
@@ -1341,7 +1362,7 @@ var GIMLI = function()
 	};
 	
 	// jump to the start location of a gml file.
-	this.jumpToStartRoom = function() {me.jumpToRoom(m_startRoomIntern);};
+	this.jumpToStartRoom = function() {me.jumpToRoom(GMLParser.GLOBALS().startRoomIntern);};
 	
 	// add some values to the room position.
 	this.addRoomPosition=function(addX, addY) {me.setRoomPosition(m_actualRoomX+addX, m_actualRoomY+addY);};
@@ -1376,13 +1397,15 @@ var GIMLI = function()
 			var itm=m_itemsLoaded[i];
 			if(itm.getIntern()==itemname)
 			{
+				var globals = GMLParser.GLOBALS();
+				
 				// jump to another room if the item is not here.
 				var iloc=itm.getLocationIntern();
 				var interval = 1;
-				if(iloc!=m_actualRoomIntern)
+				if(iloc!=globals.actualRoomIntern)
 				{
 					interval=1000;
-					log("Item '"+itemname+"' is in another room. Actual room is '"+m_actualRoomIntern+"'. Jumping to room '"+iloc+"'..");
+					log("Item '"+itemname+"' is in another room. Actual room is '"+globals.actualRoomIntern+"'. Jumping to room '"+iloc+"'..");
 					jBash.Parse("jump to "+iloc);
 				}
 				// highlight the item.
@@ -1682,7 +1705,11 @@ var GIMLI = function()
 				
 		// new, v0.3.01: wait for laoding window.
 		var waitWindow = jQuery.getNewDiv('', 'gimli-wait-window', 'gimli-pixelperfect');
-		waitWindow.append(jQuery.getNewDiv('Loading...','','gimli-pixelperfect gimli-verticalcenter gimli-waitcontent'));
+		// 0.6.11: add a sub message.
+		var waitmsgcontainer = jQuery.getNewDiv('', '', 'gimli-pixelperfect gimli-verticalcenter gimli-waitcontainer');
+		waitmsgcontainer.append(jQuery.getNewDiv('Loading...','','gimli-pixelperfect gimli-waitcontent'));
+		waitmsgcontainer.append(jQuery.getNewDiv('TEST test TEST','gimli-wait-message', 'gimli-wait-message gimli-pixelperfect'));
+		waitWindow.append(waitmsgcontainer);
 		
 		var elconsole = jQuery.getNewDiv('','gimli-jbash-window', '');
 		var elconsole_outer = jQuery.getNewDiv('', 'gimli-jbash-outer-window', '');
@@ -1817,13 +1844,27 @@ GIMLI.playSound = function(soundname) {GIMLI.instance.playSound(soundname);}
 GIMLI.getSoundDuration = function(soundname) {return GIMLI.instance.getSoundDuration(soundname);}
 
 // show and hide the loading window.
-GIMLI.showBlocker=function(show = true)
+GIMLI.blockerPreferred = false;
+GIMLI.showBlocker=function(show = true, submessage = "", preferred = false)
 {
 	log("Show blocker "+show, LOG_DEBUG_VERBOSE);
+	
+	// errors and warnings are preferred, they need to stay.
+	if(GIMLI.blockerPreferred == false || preferred == true)
+		$('#gimli-wait-message').html(submessage);
+	
+	// maybe set the preferred flag.
+	// will be reset on hide.
+	if(preferred==true)
+		GIMLI.blockerPreferred = true;
+	
 	if(show==true)
+	{
 		$('#gimli-wait-window').show();
-	else
+	}else{
+		GIMLI.blockerPreferred = false;
 		$('#gimli-wait-window').hide();
+	}
 }
 
 // jump to another room (console command)

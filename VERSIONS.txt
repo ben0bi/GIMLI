@@ -1,3 +1,7 @@
+0.6.11 -> Added a variable status message to the blocker panel/function.
+0.6.10 -> First NC ("New Collector") parser built into gimli interpreter -> GLOBALS.
+		(Exchanged the intern global values for values from the parser, double loading right now.)
+		Works like a charm, not even one "program flow" error. :)
 0.6.09 -> (new) parser now in own file. Not parsing the real data yet.
 0.6.08 -> Prototypes for the standard parsers.
 0.6.05-07 -> Created an external GML parser which can even add new parsers. Loading all the files but not functional and not external from the file yet.
