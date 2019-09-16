@@ -18,11 +18,13 @@
  or such, natively.
 
  needs jQuery, BeJQuery, behelpers and jBash.
+ Also needs, since 0.6.10: gimli-parser.js
+ 
  See the GIMLI-JSFILES.json in the config dir.
  
 */
 
-const GIMLIVERSION = "0.6.11";
+const GIMLIVERSION = "0.6.13";
 
 // ADD the standard parsers.
 GMLParser.addParser("GLOBAL",new GMLParser_GLOBAL());
@@ -33,10 +35,10 @@ GMLParser.addParser("PANELS", new GMLParser_PANELS());
 
 // some shorts.
 GMLParser.GLOBALS = function() {return GMLParser.getParser("GLOBAL");};
-GMLParser.ROOMS = function() {return GMLParser.getParser("ROOMS");};
-GMLParser.ITEMS = function() {return GMLParser.getParser("ITEMS");};
-GMLParser.SOUNDS = function() {return GMLParser.getParser("SOUNDS");};
-GMLParser.PANELS = function() {return GMLParser.getParser("PANELS");};
+GMLParser.ROOMS = function() {return GMLParser.getParser("ROOMS").rooms;};
+GMLParser.ITEMS = function() {return GMLParser.getParser("ITEMS").items;};
+GMLParser.SOUNDS = function() {return GMLParser.getParser("SOUNDS").sounds;};
+GMLParser.PANELS = function() {return GMLParser.getParser("PANELS").panels;};
 
 // eventually parse the given file and its sub-files.
 //GMLParser.parseFile("myFile.file");
@@ -713,8 +715,9 @@ GIMLitem.getNewID = function()
 // a room in the giml system.
 
 // NOT NC YET
-var GIMLroom = function()
+/*var GIMLroom = function()
 {
+// NC
 	var me = this;
 	var m_roomName ="";
 	var m_internName = "";
@@ -727,7 +730,6 @@ var GIMLroom = function()
 		
 	// return the image file including the path.
 	this.getBGimagePath=function() {return m_folder+m_bgImageFile;};
-	
 	// parse the gml of a ROOM.
 	this.parseGML=function(gmlRoom, rootPath="")
 	{
@@ -763,6 +765,7 @@ var GIMLroom = function()
 		if(__defined(gmlRoom['SCALE']))	// get room scale 2.
 			me.setScaleFactor(parseFloat(gmlRoom['SCALE']));
 	};
+// ENDOF NC
 	
 	this.debug=function(loglevel=LOG_DEBUG) {
 		log("* ROOM '<span class='jBashCmd'>"+m_roomName+"</span>' (intern: '<span class='jBashCmd'>"+m_internName+"</span>')", loglevel);
@@ -778,6 +781,7 @@ var GIMLroom = function()
 		log(" ", loglevel);
 	};
 };
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -866,14 +870,14 @@ var GIMLI = function()
 // ENDOF NC
 	var m_actualRoomX = 0;
 	var m_actualRoomY = 0;
-	var m_roomsLoaded = [];		// the rooms (locations) loaded with the gml file.
+// NC	var m_roomsLoaded = [];		// the rooms (locations) loaded with the gml file.
 	var m_itemsLoaded = [];		// the items loaaded with the gml file.
 	var m_soundsLoaded = [];	// the sounds loaded with the gml file.
 	var m_panelsLoaded = [];	// the panels loaded with the gml file. (0.3.16)
 
 	// 0.6.01: Get the structures out of this class.
 	this.getStructure_ITEMS = function() {return m_itemsLoaded;};
-	this.getStructure_ROOMS = function() {return m_roomsLoaded;};
+//	this.getStructure_ROOMS = function() {return m_roomsLoaded;};
 	this.getStructure_SOUNDS = function() {return m_soundsLoaded;};
 	this.getStructure_PANELS = function() {return m_panelsLoaded;};
 	
@@ -914,6 +918,7 @@ var GIMLI = function()
 	// load a gml json file.
 	this.parseGML = function(json, rootPath = "")
 	{
+// NC
 		log("Parsing GML [Path: "+rootPath+"]"/*+JSON.stringify(json)*/, LOG_DEBUG_VERBOSE);
 		
 		log("Converting array names to uppercase..", LOG_DEBUG_VERBOSE);
@@ -928,7 +933,6 @@ var GIMLI = function()
 	
 		// 0.5.18: gml file collector in the parser.
 		// get the gmls structure.
-// NC
 		var gmlArray = [];
 		if(__defined(json['GMLS']))
 			gmlArray = json['GMLS'];
@@ -968,10 +972,9 @@ var GIMLI = function()
 //			m_scaleFactor = parseFloat(json['SCALEFACTOR']);
 //		if(__defined(json['SCALE']))
 //			m_scaleFactor = parseFloat(json['SCALE']);
-// ENDOF NC
 		
 		// get locations (LOCATIONS or ROOMS)
-		var roomArray = [];
+/*		var roomArray = [];
 		if(__defined(json['LOCATIONS']))
 		{
 			var a = json['LOCATIONS'];
@@ -997,6 +1000,8 @@ var GIMLI = function()
 				room.debug(LOG_DEBUG_VERBOSE);
 			}
 		}
+*/
+// ENDOF NC
 		
 		// load in the items.
 		if(__defined(json['ITEMS']))
@@ -1053,7 +1058,7 @@ var GIMLI = function()
 		var globals = GMLParser.GLOBALS();
 		log("GML start room: "+globals.startRoomIntern, loglevel);
 		log("General GML scale factor: "+parseFloat(globals.scaleFactor), loglevel);
-		log(__roomCount()+ " rooms loaded.",loglevel);
+		log(GMLParser.ROOMS().length+ " rooms loaded.",loglevel);
 		log(__itemCount()+" items loaded.", loglevel);
 		log(__soundCount()+" sounds loaded.",loglevel);
 		log(__panelCount()+" text panels loaded.", loglevel);
@@ -1154,7 +1159,7 @@ var GIMLI = function()
 		globals.actualRoomIntern=roomInternName;
 		
 		// show the blocker while it waits for the loading.
-		GIMLI.showBlocker(true, "Jumping to another room...");
+		GIMLI.showBlocker(true, "Jumping to room "+roomInternName);
 		
 		// clear the actual room items.
 		m_actualRoomItems = [];
@@ -1278,9 +1283,11 @@ var GIMLI = function()
 	// find a room (local). Return null if nothing found.
 	var __findRoom = function(roomIntern)
 	{
-		for(var i=0;i<__roomCount();i++)
+		var rooms = GMLParser.ROOMS();
+		for(var i=0;i<rooms.length;i++)
 		{
-			var r = m_roomsLoaded[i];
+			// 0.6.12 externalized
+			var r = rooms[i];
 			if(r.getIntern()==roomIntern)
 				return r;
 		}
@@ -1288,16 +1295,17 @@ var GIMLI = function()
 	};
 	
 	// return and clear rooms and items.
-	var __clearRooms = function() {m_roomsLoaded = [];};
+	var __clearRooms = function() {GMLParser.getParser("ROOMS").clear();/* NC m_roomsLoaded = [];*/};
 	var __clearItems = function() {m_itemsLoaded = [];};
 	var __clearSounds = function() {m_soundsLoaded = [];};
 	var __clearPanels = function() {m_panelsLoaded = [];};
-	var __roomCount = function() {return m_roomsLoaded.length;}
+//	NC var __roomCount = function() {return m_roomsLoaded.length;}
 	var __itemCount = function() {return m_itemsLoaded.length;}
 	var __soundCount = function() {return m_soundsLoaded.length;}
 	var __panelCount = function() {return m_panelsLoaded.length;}
 	
-	var __isGMLFileLoaded = function(filepath)
+	// OBSOLETE
+/*	var __isGMLFileLoaded = function(filepath)
 	{
 		for(var i=0;i<m_loadedGMLFiles.length;i++)
 		{
@@ -1306,7 +1314,7 @@ var GIMLI = function()
 		}
 		return false;
 	}
-		
+*/		
 	// initialize gimli with a gml-file.
 	var m_roomByURL = "";
 	this.init = function(gmurl)
@@ -2009,7 +2017,8 @@ function(params)
 				break;
 			case "room":
 			case "rooms":
-				arr = GIMLI.instance.getStructure_ROOMS();
+				// 0.6.12: externalized
+				arr = GMLParser.ROOMS(); // NC GIMLI.instance.getStructure_ROOMS();
 				break;
 			case "sound":
 			case "sounds":

@@ -5,6 +5,10 @@
 	
 	GIMLi + Game Induced Markup Language interpreter
 	version number is combined with the gimli.js version.
+	
+	Your parser needs to incorporate this two functions:
+	this.parseGML(json, rootPath)
+	this.clear()
 */
 
 // 0.6.05: New "external" parser.
@@ -104,6 +108,7 @@ var GMLParser = function()
 			if(parsers[i].name==parserName.toUpperCase())
 				return parsers[i].parser;
 		}
+		return null;
 	}
 	
 	// this is the main function you need to call after you added your gml parsers.
@@ -117,6 +122,14 @@ var GMLParser = function()
 		m_gmlFileArray.push(new GMLfile(gmurl));
 		m_collectioncounter = 0;
 		log("COLLECTOR: Starting with "+filename,LOG_DEBUG);
+		GIMLI.showBlocker(true, "Loading "+filename);
+		
+		// clear all data.
+		for(var i=0;i<parsers.length;i++)
+		{
+			parsers[i].parser.clear();
+		}
+		
 		_collect();
 	}
 	
@@ -217,21 +230,118 @@ var GMLParser_GLOBAL = function()
 		if(__defined(json['SCALE']))
 			me.scaleFactor = parseFloat(json['SCALE']);
 	}
+	this.clear = function()
+	{
+		me.actualRoomIntern = "";
+		me.startRoomIntern = "";
+		me.scaleFactor = 1.0;
+	}
 }
 
 // The ROOM parser
 // data structure for the rooms
 var GMLData_ROOM = function()
 {
+	var me = this;
+	this.roomName ="";
+	var m_internName = "";
+	this.getIntern = function() {return m_internName;}
+	this.bgImageFile = "";
+	this.folder = "";
+	var m_scaleFactor = 1.0;
+	// some math.
+	this.setScaleFactor=function(newScaleFactor) {m_scaleFactor = parseFloat(newScaleFactor);}
+	this.getScaleFactor=function(outerScaleFactor=1.0) {return m_scaleFactor*outerScaleFactor;}
+		
+	// return the image file including the path.
+	this.getBGimagePath=function() {return me.folder+me.bgImageFile;};
+
+	// parse the gml of a ROOM.
+	this.parseGML=function(gmlRoom, rootPath="")
+	{
+		me.setScaleFactor(1.0);
+		me.roomName = gmlRoom['NAME'];
+		m_internName = gmlRoom['INTERN'];
+		me.bgImageFile = "@ BGIMAGE not found. @";
+		me.folder = __addSlashIfNot(rootPath);
+		
+		// check if the json has the entries.
+		if(!__defined(me.roomName))
+			me.roomName = "@ NAME not found @";
+		if(!__defined(m_internName))
+			m_internName = "@_INTERN_not_found_@";
+		// replace spaces from intern name.
+		var i2 = m_internName.split(' ').join('_');
+		if(m_internName!=i2)
+		{
+			log("Spaces are not allowed in intern names. [Location]['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
+			m_internName = i2;
+		}
+
+		if(__defined(gmlRoom['FOLDER']))
+			me.folder = __shortenDirectory(me.folder+gmlRoom['FOLDER']);
+		me.folder=__addSlashIfNot(me.folder);
+		
+		if(__defined(gmlRoom['BGIMAGE']))
+			me.bgImageFile = gmlRoom['BGIMAGE'];
+		// set the room scale factor.
+		//room.setScaleFactor(m_scaleFactor); // set global scale. 0.0.29: multiply instead of or-ing.
+		if(__defined(gmlRoom['SCALEFACTOR']))	// get room scale.
+			me.setScaleFactor(parseFloat(gmlRoom['SCALEFACTOR']));
+		if(__defined(gmlRoom['SCALE']))	// get room scale 2.
+			me.setScaleFactor(parseFloat(gmlRoom['SCALE']));
+	};
+	
+	this.debug=function(loglevel=LOG_DEBUG) {
+		log("* ROOM '<span class='jBashCmd'>"+me.roomName+"</span>' (intern: '<span class='jBashCmd'>"+m_internName+"</span>')", loglevel);
+		log(" --&gt; resides in '"+me.folder+"'", loglevel);
+		log(" --&gt; bgImage: '"+me.bgImageFile+"'", loglevel);
+		log(" --&gt; ITEMS:", loglevel);
+		var arr = GIMLI.instance.getStructure_ITEMS();
+		for(var i=0;i<arr.length;i++)
+		{
+			if(arr[i].getLocationIntern()==m_internName)
+				log("--&gt; * "+i+": "+arr[i].getIntern(), loglevel);
+		}
+		log(" ", loglevel);
+	};
 }
 
 // the actual parser
 var GMLParser_ROOMS = function()
 {
-	var m_rooms = [];
-	this.getArray = function() {return m_rooms;}
+	var me = this;
+	this.rooms = [];
+	this.clear = function() {me.rooms = [];}
 	this.parseGML = function(json, rootPath)
 	{
+		// get locations (LOCATIONS or ROOMS)
+		var roomArray = [];
+		if(__defined(json['LOCATIONS']))
+		{
+			var a = json['LOCATIONS'];
+			for(var i=0;i<a.length;i++)
+				roomArray.push(a[i]);
+		}		
+		if(__defined(json['ROOMS']))
+		{
+			var b = json['ROOMS'];
+			for(var i=0;i<b.length;i++)
+				roomArray.push(b[i]);
+		}
+
+		// load in the rooms.
+		if(roomArray.length>0)
+		{
+			for(var i = 0;i<roomArray.length;i++)
+			{
+				var jroom = roomArray[i];
+				var room = new GMLData_ROOM();
+				room.parseGML(jroom, rootPath);
+				me.rooms.push(room);
+				room.debug(LOG_DEBUG_VERBOSE);
+			}
+		}
 	}
 }
 
@@ -244,8 +354,9 @@ var GMLData_ITEM = function()
 // the actual parser
 var GMLParser_ITEMS = function()
 {
-	var m_items  = [];
-	this.getArray = function() {return m_items;}
+	var me = this;
+	this.items  = [];
+	this.clear = function() {me.items = [];}
 	this.parseGML = function(json, rootPath)
 	{
 	}
@@ -260,8 +371,9 @@ var GMLData_SOUND = function()
 // the actual parser
 var GMLParser_SOUNDS = function()
 {
-	var m_sounds = [];
-	this.getArray= function() {return m_sounds;}
+	var me = this;
+	this.sounds = [];
+	this.clear = function() {me.sounds = [];}
 	this.parseGML = function(json, rootPath)
 	{
 	}
@@ -283,8 +395,9 @@ var GMLData_PANELBUTTON = function()
 // the actual parser
 var GMLParser_PANELS = function()
 {
-	var m_panels = [];
-	this.getArray= function() {return m_panels;}
+	var me = this;
+	this.panels = [];
+	this.clear = function() {me.panels=[];}
 	this.parseGML = function(json, rootPath)
 	{
 	}
