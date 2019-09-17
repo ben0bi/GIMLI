@@ -1,3 +1,10 @@
+0.6.14 -> created a new file only with GML structure parsers.
+			renamed gimli.js to gimli-interpreter.js
+			So you can:
+				* use the parser structure standalone for your own parsers in your own game or application.
+				* use the parser and the gml structure parsers for your own interpreter/application/game using standard gml structures.
+				* use all 3 files (including gimli-interperter.js) for using this particular interpreter.
+0.6.13 -> Rooms completely externalized.
 0.6.12 -> Tried to externalize the rooms. Does only half work: it just loads the first room...have to check that.
 0.6.11 -> Added a variable status message to the blocker panel/function.
 0.6.10 -> First NC ("New Collector") parser built into gimli interpreter -> GLOBALS.

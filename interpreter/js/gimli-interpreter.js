@@ -24,7 +24,7 @@
  
 */
 
-const GIMLIVERSION = "0.6.13";
+const GIMLIVERSION = "0.6.14";
 
 // ADD the standard parsers.
 GMLParser.addParser("GLOBAL",new GMLParser_GLOBAL());
