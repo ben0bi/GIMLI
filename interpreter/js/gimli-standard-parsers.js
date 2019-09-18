@@ -141,6 +141,79 @@ var GMLParser_ROOMS = function()
 	}
 }
 
+// The SOUND parser
+// data structure for the sound
+var GMLData_SOUND = function()
+{
+	var me = this;
+	this.soundFile ="";	// the name of the sound file.
+	var m_internName = "";	// the intern name of this sound.
+	this.getIntern = function() {return m_internName;};
+	this.folder = "";		// folder where the sound resides.
+	this.audio = null;		// audio data for this sound file.
+	this.duration = 0.0;	// duration of this sound in seconds.
+
+	this.parseGML=function(gmlSound, rootPath="")
+	{
+		me.folder=__addSlashIfNot(rootPath);
+				
+		if(__defined(gmlSound['FILE']))
+			me.soundFile=gmlSound['FILE'];
+		if(__defined(gmlSound['FOLDER']))
+			me.folder=__shortenDirectory(me.folder+gmlSound['FOLDER']);
+		me.folder=__addSlashIfNot(me.folder);
+		if(__defined(gmlSound['INTERN']))
+			m_internName = gmlSound['INTERN'];
+		var i2 =m_internName.split(' ').join('_');
+		if(i2!=m_internName)
+		{
+			log("Spaces are not allowed in intern names. [Sound]['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
+			m_internName = i2;
+		}
+		
+		//log("SND PATH: "+m_folder+m_soundFile);
+// load in interpreter		__load(); // preload the sound.
+	};
+		
+	this.debug = function(loglevel = LOG_DEBUG)
+	{
+		log("* SOUND: "+m_internName, loglevel);
+		log("--&gt; File: "+me.soundFile, loglevel);
+		log("--&gt; Duration: "+me.duration+"s", loglevel);
+		log("--&gt; resides in: "+me.folder, loglevel);
+		log(" ", loglevel);
+	}
+}
+
+// the actual parser
+// 0.6.15: external from gimli-interpreter.js
+var GMLParser_SOUNDS = function()
+{
+	var me = this;
+	this.sounds = [];
+	this.clear = function() {me.sounds = [];}
+	this.parseGML = function(json, rootPath)
+	{
+		// load in the sounds.
+		if(__defined(json['SOUNDS']))
+		{
+			var soundArray = json['SOUNDS'];
+			for(var i=0;i<soundArray.length;i++)
+			{
+				var sound=soundArray[i];
+				var snd = new GMLData_SOUND();
+				// we need to include the project path here instead of "jump to room".
+				
+				snd.parseGML(sound, rootPath);
+
+				me.sounds.push(snd);
+				snd.debug(LOG_DEBUG_VERBOSE);
+			}
+		}
+
+	}
+}
+
 // The ITEM parser
 // data structure for the items
 var GMLData_ITEM = function()
@@ -153,23 +226,6 @@ var GMLParser_ITEMS = function()
 	var me = this;
 	this.items  = [];
 	this.clear = function() {me.items = [];}
-	this.parseGML = function(json, rootPath)
-	{
-	}
-}
-
-// The SOUND parser
-// data structure for the sound
-var GMLData_SOUND = function()
-{
-}
-
-// the actual parser
-var GMLParser_SOUNDS = function()
-{
-	var me = this;
-	this.sounds = [];
-	this.clear = function() {me.sounds = [];}
 	this.parseGML = function(json, rootPath)
 	{
 	}

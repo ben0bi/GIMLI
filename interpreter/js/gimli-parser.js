@@ -15,6 +15,7 @@
 var GMLParser = function()
 {
 	var me = this;
+	var m_afterLoadFunction = null; // your function called after loading all the files.
 	// This is the name with the array which holds your additional files.
 	// You can change it with GMLParser.instance.setFileArrayName
 	// remember that all json names will be converted to uppercase.
@@ -112,8 +113,10 @@ var GMLParser = function()
 	}
 	
 	// this is the main function you need to call after you added your gml parsers.
-	this.parseFile=function(filename)
+	this.parseFile=function(filename, afterloadfunction = null)
 	{
+		// get the new after loading function.
+		m_afterLoadFunction = afterloadfunction;
 		// get all the files and parse them here.
 		// additional files will be added in the collect function,
 		// and the parseGML function of this class.
@@ -175,8 +178,10 @@ var GMLParser = function()
 		{
 			log(m_gmlFileArray.length+" files loaded.",LOG_DEBUG);
 			log("-------- NC: ENDOF COLLECTING GMLS ---------",LOG_DEBUG);
-	
-			log("TODO: CALL AFTERLOAD FUNCTION");
+
+			if(typeof(m_afterLoadFunction)==="function")
+				m_afterLoadFunction()
+			
 			// 0.5.19: Doing the rest.
 /*			if(m_roomByURL!="")
 			{		
@@ -201,5 +206,5 @@ var GMLParser = function()
 }
 GMLParser.instance = new GMLParser();
 GMLParser.addParser = function(name, parser) {GMLParser.instance.addParser(name, parser);};
-GMLParser.parseFile = PARSEGMLFILE = function(filename) {GMLParser.instance.parseFile(filename);};
+GMLParser.parseFile = PARSEGMLFILE = function(filename, afterloadfunction=null) {GMLParser.instance.parseFile(filename, afterloadfunction);};
 GMLParser.getParser = function(name) {return GMLParser.instance.getParser(name);}

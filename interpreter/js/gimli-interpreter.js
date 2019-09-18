@@ -24,7 +24,7 @@
  
 */
 
-const GIMLIVERSION = "0.6.14";
+const GIMLIVERSION = "0.6.16";
 
 // ADD the standard parsers.
 GMLParser.addParser("GLOBAL",new GMLParser_GLOBAL());
@@ -283,7 +283,7 @@ var GIMLpanel = function()
 // a sound file in the giml system.
 
 // NOT NC YET
-var GIMLsound = function()
+/*var GIMLsound = function()
 {
 	var me = this;
 	var m_soundFile ="";	// the name of the sound file.
@@ -293,8 +293,9 @@ var GIMLsound = function()
 	var m_duration = 0.0;	// duration of this sound in seconds.
 	
 	this.getIntern = function() {return m_internName;};
-	
-	var __load = function()
+// NOT NC, LOAD EXTERNAL !!	
+// NC?
+/*	var __load = function()
 	{
 		if(m_audio==null)
 		{
@@ -306,9 +307,12 @@ var GIMLsound = function()
 			return;
 		}
 	}
-	
+*/	
+// NOT NC, PLAY EXTERNAL !!
 	// play the sound. if it is not loaded yet, load it before.
-	this.playSound = function()
+
+// NC?
+/*	this.playSound = function()
 	{
 		if(m_audio!=null)
 		{
@@ -317,12 +321,14 @@ var GIMLsound = function()
 			m_audio.play();
 		}
 	};
+*/
 
 	// get the duration of the sound file.
-	this.getDuration=function() {return m_duration;}
+//	this.getDuration=function() {return m_duration;}
 	
 	// parse the gml for this SOUND.
-	this.parseGML=function(gmlSound, rootPath="")
+// NC
+/*	this.parseGML=function(gmlSound, rootPath="")
 	{
 		m_folder=__addSlashIfNot(rootPath);
 				
@@ -352,7 +358,9 @@ var GIMLsound = function()
 		log("--&gt; resides in: "+m_folder, loglevel);
 		log(" ", loglevel);
 	}
-}
+*/
+// ENDOF NC
+//}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -714,10 +722,9 @@ GIMLitem.getNewID = function()
 
 // a room in the giml system.
 
-// NOT NC YET
+// NC
 /*var GIMLroom = function()
 {
-// NC
 	var me = this;
 	var m_roomName ="";
 	var m_internName = "";
@@ -872,13 +879,13 @@ var GIMLI = function()
 	var m_actualRoomY = 0;
 // NC	var m_roomsLoaded = [];		// the rooms (locations) loaded with the gml file.
 	var m_itemsLoaded = [];		// the items loaaded with the gml file.
-	var m_soundsLoaded = [];	// the sounds loaded with the gml file.
+// NC	var m_soundsLoaded = [];	// the sounds loaded with the gml file.
 	var m_panelsLoaded = [];	// the panels loaded with the gml file. (0.3.16)
 
 	// 0.6.01: Get the structures out of this class.
 	this.getStructure_ITEMS = function() {return m_itemsLoaded;};
 //	this.getStructure_ROOMS = function() {return m_roomsLoaded;};
-	this.getStructure_SOUNDS = function() {return m_soundsLoaded;};
+//	this.getStructure_SOUNDS = function() {return m_soundsLoaded;};
 	this.getStructure_PANELS = function() {return m_panelsLoaded;};
 	
 //	var m_loadedGMLFiles = [];	// list with all the GML files which were loaeded.
@@ -1017,8 +1024,9 @@ var GIMLI = function()
 			}
 		}
 
+// NC
 		// load in the sounds.
-		if(__defined(json['SOUNDS']))
+/*		if(__defined(json['SOUNDS']))
 		{
 			var soundArray = json['SOUNDS'];
 			for(var i=0;i<soundArray.length;i++)
@@ -1033,7 +1041,8 @@ var GIMLI = function()
 				m_soundsLoaded.push(snd);
 				snd.debug(LOG_DEBUG_VERBOSE);
 			}
-		}
+		}*/
+// ENDOF NC
 
 		// load in the text panels (dialogues, "real" panels)
 		if(__defined(json['PANELS']))
@@ -1325,7 +1334,24 @@ var GIMLI = function()
 		GIMLI.showBlocker(true, "Welcome to GIMLI");
 		//return; // TODO: REMOVE THAT RETURN
 
-		PARSEGMLFILE(gmurl);
+		PARSEGMLFILE(gmurl, function() 
+		{
+			// load all the sounds.
+			log("PRELOADING the sounds.");
+			var sounds = GMLParser.SOUNDS();
+			for(var i=0;i<sounds.length;i++)
+			{
+				var s=sounds[i];
+				if(s.audio==null)
+				{
+					s.audio=new Audio();
+					s.audio.preload = "metadata";
+					s.audio.addEventListener("loadedmetadata", function() {s.duration = s.audio.duration;});
+					s.audio.src=s.folder+s.soundFile;
+					log("Audio loaded for '"+s.getIntern()+"' ==&gt; "+s.folder+s.soundFile);
+				}
+			}
+		});
 
 		m_roomByURL="";
 		// get the url parameters.
@@ -1813,12 +1839,22 @@ var GIMLI = function()
 		if(internName=='' || internName==null)
 			return;
 		
-		for(var i=0;i<m_soundsLoaded.length;i++)
+		// 0.6.15: externalized from the interpreter.
+		var soundsLoaded = GMLParser.SOUNDS();
+		
+		for(var i=0;i<soundsLoaded.length;i++)
 		{
-			var s = m_soundsLoaded[i];
+			var s = soundsLoaded[i];
 			if(s.getIntern()==internName)
 			{
-				s.playSound();
+				if(s.audio!=null)
+				{
+					// maybe stop the sound and reset it.
+					s.audio.pause();
+					s.audio.currentTime = 0;
+					// play the sound.
+					s.audio.play();
+				}
 				return;
 			}
 		}
@@ -1830,13 +1866,16 @@ var GIMLI = function()
 	{
 		if(internName=='' || internName==null)
 			return 0;
+
+		// 0.6.15: NC external sounds.
+		var soundsLoaded = GMLParser.SOUNDS();
 		
-		for(var i=0;i<m_soundsLoaded.length;i++)
+		for(var i=0;i<soundsLoaded.length;i++)
 		{
-			var s = m_soundsLoaded[i];
+			var s = soundsLoaded[i];
 			if(s.getIntern()==internName)
 			{
-				return s.getDuration();
+				return s.duration;
 			}
 		}
 		return 0;
@@ -2022,7 +2061,7 @@ function(params)
 				break;
 			case "sound":
 			case "sounds":
-				arr = GIMLI.instance.getStructure_SOUNDS();
+				arr = GMLParser.SOUNDS(); // NC GIMLI.instance.getStructure_SOUNDS();
 				break;
 			case "panel":
 			case "panels":
