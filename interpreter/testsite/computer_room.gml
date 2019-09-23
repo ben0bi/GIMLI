@@ -35,7 +35,7 @@
 			"FOLDER": "locations/computer_room/",
 			"COLLISIONIMAGE": "computer_room_screen_gimli.png",
 			"OVERIMAGE": "computer_room_screen_gimli.png",
-			"onclick": ["link to ../documentation/index.html"],
+			"onclick": ["link to https://github.com/ben0bi/GIMLI/wiki"],
 			"LOCATION": ["computer_room", 0, 0]
 		},
 		{

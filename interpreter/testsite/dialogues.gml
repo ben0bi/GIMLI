@@ -117,7 +117,7 @@
 				},
 				{
 					"TEXT": "[LEAVE] I would like to see the GIMLI Documentation, <font color=\"#FFAA00\">ASAP</font>!",
-					"SCRIPT": ["link to documentation/"]
+					"SCRIPT": ["link to https://github.com/ben0bi/GIMLI/wiki"]
 				},
 				{
 					"TEXT": "[STAY] Ok, I'll try the door..",
