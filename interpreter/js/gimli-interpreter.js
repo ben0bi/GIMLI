@@ -18,13 +18,13 @@
  or such, natively.
 
  needs jQuery, BeJQuery, behelpers and jBash.
- Also needs, since 0.6.10: gimli-parser.js
+ Also needs, since 0.6.10: gimli-parser.js and gimli-standard-parsers.js
  
  See the GIMLI-JSFILES.json in the config dir.
  
 */
 
-const GIMLIVERSION = "0.6.16";
+const GIMLIVERSION = "0.6.28";
 
 // ADD the standard parsers.
 GMLParser.addParser("GLOBAL",new GMLParser_GLOBAL());
@@ -366,42 +366,45 @@ var GIMLpanel = function()
 
 // an item in the giml system.
 
-// NOT NC YET
+// NC
+/*
 var GIMLitem = function()
-{
+{	
 	var me = this;
-	var m_id = GIMLitem.getNewID(); // unique ID used for DOM processing.
-	var m_isPickable = false;		// pickable not used yet.
-	this.setPickable = function(pickable) {m_isPickable = pickable;};
-	var m_posX = 0;
-	var m_posY = 0;
-	var m_posZ = 10; // pos z is the z index.
-	var m_posLocation = "";	// the location where the item is placed.
-	this.getLocationIntern = function() {return m_posLocation;}
-	var m_imageFile = "";	  // the visible image for this item.
+//	var m_id = GIMLitem.getNewID(); // unique ID used for DOM processing.
+//	var m_isPickable = false;		// pickable not used yet.
+//	this.setPickable = function(pickable) {m_isPickable = pickable;};
+//	var m_posX = 0;
+//	var m_posY = 0;
+//	var m_posZ = 10; // pos z is the z index.
+//	var m_posLocation = "";	// the location where the item is placed.
+//	this.getLocationIntern = function() {return m_posLocation;}
+//	var m_imageFile = "";	  // the visible image for this item.
 				  // if none is set, it will take the size of the collision image.
-	var m_overImageFile = ""; // mouse over image.
-	var m_clickSound = "";		// intern name of the sound to play when clicked.
-	var m_soundDelay = 1.0;		// wait this * sound_length until the click will be done.
+//	var m_overImageFile = ""; // mouse over image.
+//	var m_clickSound = "";		// intern name of the sound to play when clicked.
+//	var m_soundDelay = 1.0;		// wait this * sound_length until the click will be done.
 
-	var m_collisionImageFile = "";	
-	var m_collisionDataContext = null; // the collision image pixel data.
-	var m_collisionWidth = 0;
-	var m_collisionHeight = 0;
-	var m_collisionScaleFactor = 1.0; // scale factor for collision including world factor,
+//	var m_collisionImageFile = "";	
+//	var m_collisionDataContext = null; // the collision image pixel data.
+//	var m_collisionWidth = 0;
+//	var m_collisionHeight = 0;
+//	var m_collisionScaleFactor = 1.0; // scale factor for collision including world factor,
 									  // please reset after each get.
-	var m_internName = "";
-	this.getIntern = function() {return m_internName;};
-	var m_itemName = "";
-	var m_description = "";
-	var m_folder = "";
-	var m_scaleFactor = 1.0;	// the scale factor without world scale factor.
-	var m_scripts_click = [];
+//	var m_internName = "";
+//	this.getIntern = function() {return m_internName;};
+//	var m_itemName = "";
+//	var m_description = "";
+//	var m_folder = "";
+//	var m_scaleFactor = 1.0;	// the scale factor without world scale factor.
+//	var m_scripts_click = [];
 
-	var m_myDiv = null;
+//	var m_myDiv = null;
+
+// ENDOF NC
 
 	// if this is false, no further processing will be done on mouseover.
-	var m_CollisionLoaded = false;
+/*	var m_CollisionLoaded = false;
 	this.isCollisionLoaded =function() {return m_CollisionLoaded;};
 	
 	// get world scale factor.
@@ -410,7 +413,7 @@ var GIMLitem = function()
 		m_collisionScaleFactor = m_scaleFactor * outerScaleFactor;
 		return m_collisionScaleFactor;
 	}
-	
+
 	//this.setImage=function(imageName) {m_imageFile = imageName;}
 	this.showName = function(evt)
 	{
@@ -424,9 +427,10 @@ var GIMLitem = function()
 		else
 			d.hide();
 	}
-	
+*/	
 	// get the dom element for this item.
-	this.getDOMElement = function(outerscalefactor = 1.0) 
+// NC
+/*	this.getDOMElement = function(outerscalefactor = 1.0) 
 	{
 		m_myDiv = null;
 		m_CollisionLoaded = false;
@@ -437,11 +441,10 @@ var GIMLitem = function()
 		var overpath = __shortenDirectory(m_folder+m_overImageFile);
 		var collisionpath = __shortenDirectory(m_folder+m_collisionImageFile);
 		
-		/*log("ITEM PATHS: ", LOG_DEBUG);
-		log("* MAIN: "+path, LOG_DEBUG);
-		log("* OVER: "+overpath, LOG_DEBUG);
-		log("* COLL: "+collisionpath, LOG_DEBUG);
-		*/
+		//log("ITEM PATHS: ", LOG_DEBUG);
+		//log("* MAIN: "+path, LOG_DEBUG);
+		//log("* OVER: "+overpath, LOG_DEBUG);
+		//log("* COLL: "+collisionpath, LOG_DEBUG);
 		
 		var divel = jQuery.getNewDiv('','item_'+m_id,'gimli-item');
 		
@@ -500,9 +503,9 @@ var GIMLitem = function()
 		// (maybe) play the sound.
 		GIMLI.playSound(m_clickSound);
 		// click after the sound has played.
-		setTimeout(__realClick,duration);
+		setTimeout(__realClick_ITEM,duration);
 	};
-	var __realClick = function()
+	var __realClick_ITEM = function()
 	{
 		// click it.
 		if(m_scripts_click.length>0)
@@ -517,9 +520,10 @@ var GIMLitem = function()
 		// do an mtouchover after the click.
 		GIMLI.instance.mtouchover(m_clickEvt);
 	}
+*/
 
 	// show debug information.
-	this.debug=function(loglevel=LOG_DEBUG) {
+/*	this.debug=function(loglevel=LOG_DEBUG) {
 		log("* ITEM '"+m_itemName+"' (intern: '"+m_internName+"')", loglevel);
 		log(" --&gt; resides in '"+m_folder+"'", loglevel);
 		log(" --&gt; Image: '"+m_imageFile+"'", loglevel);
@@ -529,10 +533,13 @@ var GIMLitem = function()
 		log(" --&gt; Loc./Room: ['"+m_posLocation+"', "+m_posX+", "+m_posY+"]", loglevel);
 		log(" ", loglevel);
 	};
-	
+*/
+// ENDOF NC
+
 	// show or hide the mouseover image of this item.
 	// 0.3.05
-	this.showMouseOverImage=function(show=false)
+// NC
+/*	this.showMouseOverImage=function(show=false)
 	{
 		if(show)
 		{
@@ -544,9 +551,10 @@ var GIMLitem = function()
 			$('#item_image_'+m_id).show();
 		}
 	}
-	
+*/
+// ENDOF NC	
 	// check if the mouse is over an item and show the appropiate image.
-	var __checkMouseOver = function(evt)
+/* NC	var __checkMouseOver = function(evt)
 	{
 		// do nothing if the mouse is inactive.
 		if(GIMLI.stopMouse || evt==null || GIMLI.panelActive)
@@ -582,9 +590,9 @@ var GIMLitem = function()
 		}
 		return false;
 	};
-	
+
 	// load in the values for the ITEM from the json array.
-	this.parseGML=function(gmlItem, rootPath="")
+/*	this.parseGML=function(gmlItem, rootPath="")
 	{
 		m_itemName = gmlItem['NAME'];
 		m_internName = gmlItem['INTERN'];
@@ -696,27 +704,32 @@ var GIMLitem = function()
 		if(__defined(gmlItem['DELAY']))
 			m_soundDelay = parseFloat(gmlItem['DELAY']);
 	};
+// ENDOF NC
+*/
 	
 	// add this item to a room div.
-	this.addToRoomDiv=function(div, outerscalefactor = 1.0)
+/* NC	this.addToRoomDiv=function(div, outerscalefactor = 1.0)
 	{
 		log("Placing the item '"+m_internName+"' in the room...", LOG_DEBUG);
 		var myElement = me.getDOMElement(outerscalefactor);
 		div.append(myElement);		
 	};
-	
+*/	
 	// check if the mouse is over this item.
-	this.isMouseOver = function(evt) {return __checkMouseOver(evt);};
-};
+// NC	this.isMouseOver = function(evt) {return __checkMouseOver(evt);};
+//};
 
 // get an unique id for each item.
-GIMLitem.g_nextItemID = 0;
+// NC
+/*GIMLitem.g_nextItemID = 0;
 GIMLitem.getNewID = function()
 {
 	var id = GIMLitem.g_nextItemID;
 	GIMLitem.g_nextItemID+=1;
 	return id;
 }
+*/
+// ENDOF NC
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -878,12 +891,12 @@ var GIMLI = function()
 	var m_actualRoomX = 0;
 	var m_actualRoomY = 0;
 // NC	var m_roomsLoaded = [];		// the rooms (locations) loaded with the gml file.
-	var m_itemsLoaded = [];		// the items loaaded with the gml file.
+// NC	var m_itemsLoaded = [];		// the items loaaded with the gml file.
 // NC	var m_soundsLoaded = [];	// the sounds loaded with the gml file.
 	var m_panelsLoaded = [];	// the panels loaded with the gml file. (0.3.16)
 
 	// 0.6.01: Get the structures out of this class.
-	this.getStructure_ITEMS = function() {return m_itemsLoaded;};
+//	this.getStructure_ITEMS = function() {return m_itemsLoaded;};
 //	this.getStructure_ROOMS = function() {return m_roomsLoaded;};
 //	this.getStructure_SOUNDS = function() {return m_soundsLoaded;};
 	this.getStructure_PANELS = function() {return m_panelsLoaded;};
@@ -1007,8 +1020,6 @@ var GIMLI = function()
 				room.debug(LOG_DEBUG_VERBOSE);
 			}
 		}
-*/
-// ENDOF NC
 		
 		// load in the items.
 		if(__defined(json['ITEMS']))
@@ -1024,9 +1035,8 @@ var GIMLI = function()
 			}
 		}
 
-// NC
 		// load in the sounds.
-/*		if(__defined(json['SOUNDS']))
+		if(__defined(json['SOUNDS']))
 		{
 			var soundArray = json['SOUNDS'];
 			for(var i=0;i<soundArray.length;i++)
@@ -1150,6 +1160,71 @@ var GIMLI = function()
 
 
 // ENDOF GML PARSER
+
+	var getDOMElement_ITEM = function(item, outerscalefactor = 1.0) 
+	{
+		item.myDiv = null;
+		item.setCollisionLoaded(false);
+
+		var sc = item.getScaleFactor(outerscalefactor);
+
+		var path = __shortenDirectory(item.folder+item.imageFile);
+		var overpath = __shortenDirectory(item.folder+item.overImageFile);
+		var collisionpath = __shortenDirectory(item.folder+item.collisionImageFile);
+		
+		/*log("ITEM PATHS: ", LOG_DEBUG);
+		log("* MAIN: "+path, LOG_DEBUG);
+		log("* OVER: "+overpath, LOG_DEBUG);
+		log("* COLL: "+collisionpath, LOG_DEBUG);
+		*/
+		
+		var divel = jQuery.getNewDiv('','item_'+item.getUniqueID(),'gimli-item');
+		
+		var txt = '';
+		// maybe there is no main image (transparent, open doors or alike)
+		if(item.imageFile!="@ IMAGE not found. @")
+			txt='<img src="'+path+'" id="item_image_'+item.getUniqueID()+'" class="gimli-image" />';
+		// maybe there is no mouseover image (hidden items only need a collision image.)
+		if(item.overImageFile!="@ IMAGE not found. @")
+			txt+='<img src="'+overpath+'" id="item_image_over_'+item.getUniqueID()+'" class="gimli-image" style="display:none;">';
+
+		divel.css('top', item.posY+'px');
+		divel.css('left', item.posX+'px');
+		divel.css('z-index', item.posZ);
+		
+		//divel.css('border', '1px solid #FF0000');
+		divel.html(txt);
+
+		// get the size of the collision image and set the divs size to it.
+		var colimg = new Image();
+		colimg.onload = function()
+		{
+			// width and height.
+			var width = this.naturalWidth;
+			var height = this.naturalHeight;
+			
+			// scale the div.
+			divel.width(width*sc);
+			divel.height(height*sc);
+
+			// create the canvas for the image and render it to it.
+			var canvas = document.createElement('canvas');
+			var context = canvas.getContext('2d');
+			//var img = document.getElementById('myimg');
+			canvas.width = colimg.naturalWidth+1;
+			canvas.height = colimg.naturalHeight+1;
+			context.drawImage(colimg, 0, 0 );
+			// set the collision parameters.
+			item.collisionDataContext = context;
+			item.collisionWidth = width;
+			item.collisionHeight = height;
+			item.setCollisionLoaded(true);
+		}
+		colimg.src = collisionpath;
+		item.myDiv = divel;
+		return divel;
+	};
+
 // JUMP FUNCTION *********************************************************************************************************************
 
 // this is the second main function:  It loads a room and its items and shows it in the window.
@@ -1191,14 +1266,18 @@ var GIMLI = function()
 		
 		// Search all items which are associated to this room.
 		var count = 0;
-		for(var i=0; i < __itemCount(); i++)
+		var itemsLoaded = GMLParser.ITEMS();
+		for(var i=0; i < itemsLoaded.length; i++)
 		{
-			var itm = m_itemsLoaded[i];
-			var intern = itm.getIntern();
-			if(room.getIntern() == itm.getLocationIntern())
+			var itm = itemsLoaded[i];
+			//var intern = itm.getIntern();
+			if(room.getIntern() == itm.posLocation)
 			{
 				count++;
-				itm.addToRoomDiv(newroom, room.getScaleFactor(globals.scaleFactor));
+				//itm.addToRoomDiv(newroom, room.getScaleFactor(globals.scaleFactor));
+				log("Placing the item '"+itm.getIntern()+"' in the room...", LOG_DEBUG);
+				var myElement = getDOMElement_ITEM(itm, room.getScaleFactor(globals.scaleFactor));
+				newroom.append(myElement);		
 				m_actualRoomItems.push(itm);
 			}
 		}
@@ -1305,12 +1384,12 @@ var GIMLI = function()
 	
 	// return and clear rooms and items.
 	var __clearRooms = function() {GMLParser.getParser("ROOMS").clear();/* NC m_roomsLoaded = [];*/};
-	var __clearItems = function() {m_itemsLoaded = [];};
-	var __clearSounds = function() {m_soundsLoaded = [];};
+	var __clearItems = function() {GMLParser.getParser("ITEMS").clear();};
+	var __clearSounds = function() {GMLParser.getParser("SOUNDS").clear();};
 	var __clearPanels = function() {m_panelsLoaded = [];};
-//	NC var __roomCount = function() {return m_roomsLoaded.length;}
-	var __itemCount = function() {return m_itemsLoaded.length;}
-	var __soundCount = function() {return m_soundsLoaded.length;}
+// NC var __roomCount = function() {return m_roomsLoaded.length;}
+// NC var __itemCount = function() {return m_itemsLoaded.length;}
+// NC var __soundCount = function() {return m_soundsLoaded.length;}
 	var __panelCount = function() {return m_panelsLoaded.length;}
 	
 	// OBSOLETE
@@ -1426,15 +1505,17 @@ var GIMLI = function()
 	this.focusItem=function(itemname,x="not",y="not")
 	{
 		// get the item.
-		for(var i=0;i<__itemCount();i++)
+		// 0.6.20: externalized items.
+		var itemsLoaded = GMLParser.ITEMS();
+		for(var i=0;i<itemsLoaded.length;i++)
 		{
-			var itm=m_itemsLoaded[i];
+			var itm=itemsLoaded[i];
 			if(itm.getIntern()==itemname)
 			{
 				var globals = GMLParser.GLOBALS();
 				
 				// jump to another room if the item is not here.
-				var iloc=itm.getLocationIntern();
+				var iloc=itm.posLocation;
 				var interval = 1;
 				if(iloc!=globals.actualRoomIntern)
 				{
@@ -1442,6 +1523,7 @@ var GIMLI = function()
 					log("Item '"+itemname+"' is in another room. Actual room is '"+globals.actualRoomIntern+"'. Jumping to room '"+iloc+"'..");
 					jBash.Parse("jump to "+iloc);
 				}
+				
 				// highlight the item.
 				itm.showMouseOverImage(true);
 				var room = __findRoom(iloc);
@@ -1450,6 +1532,7 @@ var GIMLI = function()
 					log("Room '"+roomInternName+"' not found. Position not changed.", LOG_WARN);
 					return;
 				}
+				
 				// maybe set the room position.
 				if(x!="not" && y!="not") {
 					setTimeout(function(){
@@ -1464,7 +1547,7 @@ var GIMLI = function()
 							y=m_scrollBoundarY2;
 						//console.log("NOW! "+x+"/"+y);
 						me.setRoomPosition(x,y);
-						},interval);
+					},interval);
 				}
 				return;
 			}
@@ -1689,9 +1772,63 @@ var GIMLI = function()
 	var __getOuterWindow = function() {return $('#gimli-outer-window');};	// where console and middle window is put into.
 	this.getOuterWindow = function() {return __getOuterWindow();}; // TODO: remove the var function.
 
+	// 0.6.25: show mouse over image function external from data structure.
+	var showMouseOverImage_ITEM = function(item, show=false)
+	{
+		if(show)
+		{
+			$('#item_image_'+item.getUniqueID()).hide();
+			$('#item_image_over_'+item.getUniqueID()).show();
+			return true;
+		}else{
+			$('#item_image_over_'+item.getUniqueID()).hide();
+			$('#item_image_'+item.getUniqueID()).show();
+		}
+	}
+	
+	// 0.6.26: check for pixel-function external from data structure
+	// check if the mouse collides with the image or not.
+	var __checkForPixel_ITEM=function(item, evt) 
+	{
+		// get mouse position related to this item.
+		var pos   = item.myDiv.offset();
+	    var elPos = { X:pos.left , Y:pos.top };
+	    var mPos  = { X:evt.clientX-elPos.X, Y:evt.clientY-elPos.Y };
+		var mPosInt = { X:parseInt(mPos.X*1.0/item.collisionScaleFactor), Y:parseInt(mPos.Y*1.0/item.collisionScaleFactor) };
+		
+		// it does not collide when it is not on the area.
+		if(mPosInt.X>=0 && mPosInt.Y>=0 && mPosInt.X<item.collisionWidth && mPosInt.Y<item.collisionHeight)
+		{
+			var pixelData=item.collisionDataContext.getImageData(mPosInt.X,mPosInt.Y,1,1).data;
+			// check if the alpha value is > 0. Alpha is the third entry.
+			if(pixelData[3]>0)
+				return true;
+		}
+		return false;
+	};
+
+	// 0.6.25: mouseover function external from data structure.
+	var isMouseOver_ITEM =function(item, evt)
+	{
+		// do nothing if the mouse is inactive.
+		if(GIMLI.stopMouse || evt==null || GIMLI.panelActive)
+			return false;
+		
+		// if the pixel is set, show the mouseover image.
+		if(__checkForPixel_ITEM(item, evt))
+		{
+			showMouseOverImage_ITEM(item,true);
+			return true;
+		}else{
+			showMouseOverImage_ITEM(item,false);
+		}
+		return false;
+	}
+
 	// event function to go through all items and check if there is a mouse over.
 	var __mtouchover = function(evt)
 	{
+		//console.log("MTOUCHOVER");
 		var outerwindow = $('#gimli-outer-window');
 		var isover = null;
 		var isloaded = true;
@@ -1701,14 +1838,26 @@ var GIMLI = function()
 			// check if the collision image is already loaded.
 			if(!itm.isCollisionLoaded())
 				isloaded = false;
-			if(itm.isMouseOver(evt))
+			if(isMouseOver_ITEM(itm, evt))
 				isover=itm;
 		}
-		// maybe set another cursor.
+		// maybe set another cursor
+		// and show the name of the item.
 		if(isover!=null)
 		{
 			outerwindow.css('cursor','pointer');
-			isover.showName(evt);
+			
+			// 0.6.27 : show name function removed, showing here directly.
+			var d=$('#gimli-text-description');
+			d.css('top', evt.clientY-20);
+			d.css('left', evt.clientX-(d.width()*0.5));
+			d.css('pointer-events', 'none');
+			d.html(isover.itemName);
+			if(isover.itemName.length>0)
+				d.show();
+			else
+				d.hide();
+
 		}else{
 			outerwindow.css('cursor','auto');
 			$('#gimli-text-description').hide();
@@ -1719,6 +1868,42 @@ var GIMLI = function()
 			window.setTimeout(function() {__mtouchover(evt);}, 50);
 	};
 	this.mtouchover=function(evt) {__mtouchover(evt);}; // for using mtouchover on items.
+
+
+	// 0.6.28: click for items external from data structure
+	// do something when the item is clicked.
+	var m_clickEvt = null;
+	var m_clickItem = null;	// 0.6.28: needs an item for new click function.
+	var click_ITEM=function(item,evt) 
+	{
+		m_clickEvt=evt;
+		m_clickItem = item;
+		
+		var duration = GIMLI.getSoundDuration(item.clickSound);
+		//log("SOUND DURATION: "+duration);
+		duration = parseInt(duration*1000)*item.soundDelay + 1; // get in ms and add one ms.
+		// (maybe) play the sound.
+		GIMLI.playSound(item.clickSound);
+		// click after the sound has played.
+		setTimeout(__realClick_ITEM,duration);
+	};
+	var __realClick_ITEM = function()
+	{
+		if(m_clickItem==null)
+			return;
+		// click it.
+		if(m_clickItem.scripts_click.length>0)
+		{
+			// 0.5.00: multible lines.
+			for(var rc=0;rc<m_clickItem.scripts_click.length;rc++)
+			{
+				if(m_clickItem.scripts_click[rc]!=parseInt(m_clickItem.scripts_click[rc]))
+					jBash.Parse(m_clickItem.scripts_click[rc]);
+			}
+		}
+		// do an mtouchover after the click.
+		__mtouchover(m_clickEvt);
+	}
 
 	// create the div where the action goes. :)
 	var __createMainWindow = function()
@@ -1773,13 +1958,10 @@ var GIMLI = function()
 			for(var i = 0; i<m_actualRoomItems.length;i++)
 			{
 				var itm = m_actualRoomItems[i];
-				if(itm.isMouseOver(evt))
+				if(isMouseOver_ITEM(itm, evt))
 					clickedItem = itm;
 			}
-			if(clickedItem!=null)
-			{
-				clickedItem.click(evt);
-			}
+			if(clickedItem!=null) {click_ITEM(clickedItem,evt);}
 		});
 
 		var t='<a href="https://github.com/ben0bi/GIMLI/">GIML-Interpreter</a> v'+GIMLIVERSION+' (JS-Version) by Benedict Jäggi in 2019&nbsp;|&nbsp;';

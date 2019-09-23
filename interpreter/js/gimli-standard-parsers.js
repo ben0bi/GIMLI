@@ -93,10 +93,13 @@ var GMLData_ROOM = function()
 		log(" --&gt; resides in '"+me.folder+"'", loglevel);
 		log(" --&gt; bgImage: '"+me.bgImageFile+"'", loglevel);
 		log(" --&gt; ITEMS:", loglevel);
-		var arr = GIMLI.instance.getStructure_ITEMS();
+		var iparser = GMLParser.getParser("ITEMS");
+		var arr = [];
+		if(iparser!=null)
+			arr=iparser.items;
 		for(var i=0;i<arr.length;i++)
 		{
-			if(arr[i].getLocationIntern()==m_internName)
+			if(arr[i].posLocation==m_internName)
 				log("--&gt; * "+i+": "+arr[i].getIntern(), loglevel);
 		}
 		log(" ", loglevel);
@@ -143,6 +146,7 @@ var GMLParser_ROOMS = function()
 
 // The SOUND parser
 // data structure for the sound
+// the load and play functions are defined in the interpreter.
 var GMLData_SOUND = function()
 {
 	var me = this;
@@ -202,7 +206,6 @@ var GMLParser_SOUNDS = function()
 			{
 				var sound=soundArray[i];
 				var snd = new GMLData_SOUND();
-				// we need to include the project path here instead of "jump to room".
 				
 				snd.parseGML(sound, rootPath);
 
@@ -210,14 +213,192 @@ var GMLParser_SOUNDS = function()
 				snd.debug(LOG_DEBUG_VERBOSE);
 			}
 		}
-
 	}
 }
 
 // The ITEM parser
 // data structure for the items
+// 0.6.17: external from gimli-interpreter.js
 var GMLData_ITEM = function()
 {
+	var me = this;
+	var m_internName = ""; // the unique intern name of this item.
+	this.getIntern = function() {return m_internName;}
+	
+	// unique id for DOM element processing.
+	var m_id = GMLData_ITEM.getNewID();
+	this.getUniqueID = function() {return m_id;}
+	
+	this.myDiv = null;	// DOM div data for that item. Created outside this class.
+	
+	this.itemName = "";		// the item name.
+	this.folder = "";
+	this.description = "";
+	this.imageFile = "@ IMAGE not found. @";
+	this.overImageFile = "";
+	this.collisionImageFile = "";
+	this.posLocation = "";		// intern name of the location where this item is located.
+	this.posX = 0;
+	this.posY = 0;
+	this.posZ = 10;				// z index of this item.
+	this.script_clicks = [];	// array with the scripts.
+	this.clickSound = "";
+
+	this.soundDelay = 1.0;
+	this.scaleFactor = 1.0;
+
+	this.collisionDataContext = null; // the collision image pixel data
+	this.collisionWidth = 0;
+	this.collisionHeight = 0;
+	this.collisionScaleFactor = 1.0;
+
+	this.myDiv = null;
+
+	// if this is false, no further processing will be done on mouseover.
+	var m_CollisionLoaded = false;
+	this.isCollisionLoaded =function() {return m_CollisionLoaded;};
+	this.setCollisionLoaded = function(loaded = true) {m_CollisionLoaded = loaded;}
+	
+	// get world scale factor.
+	this.getScaleFactor=function(outerScaleFactor=1.0) 
+	{
+		me.collisionScaleFactor = me.scaleFactor * outerScaleFactor;
+		return me.collisionScaleFactor;
+	}
+
+	this.parseGML = function(gmlItem, rootPath) 
+	{
+		me.itemName = gmlItem['NAME'];
+		m_internName = gmlItem['INTERN'];
+		me.folder = __addSlashIfNot(rootPath);
+		me.description = gmlItem['DESCRIPTION'];	// description not used yet.
+		me.imageFile = "@ IMAGE not found. @";//gmlItem['IMAGE'];
+		me.overImageFile = "";//gmlItem['OVERIMAGE'];
+		me.collisionImageFile = "";// gmlItem['COLLISIONIMAGE'];
+		me.posLocation = "";
+		me.posX = 0;
+		me.posY = 0;
+		me.scripts_click = [];
+		me.soundDelay = 1.0;
+
+		if(!__defined(gmlItem['INTERN']))
+			m_internName = "@_INTERN_not_found_@";
+		// replace spaces from intern name.
+		var i2 = m_internName.split(' ').join('_');
+		if(m_internName!=i2)
+		{
+			log("Spaces are not allowed in intern names.[Item]['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
+			m_internName = i2;
+		}
+		
+		// get the location.
+		var loca = [];
+		if(__defined(gmlItem['LOCATION']))
+			loca = gmlItem['LOCATION'];
+		if(__defined(gmlItem['ROOM']))
+			loca = gmlItem['ROOM'];
+		if(loca.length>0)
+		{
+			var loc = loca[0];
+			var loc2 =loc.split(' ').join('_');
+			if(loc!=loc2)
+				log("Spaces are not allowed in intern names. [Item-Location]['"+loc+"' ==&gt; '"+loc2+"'] in location for item '"+m_internName+"'.", LOG_WARN);
+			me.posLocation = loc2;
+		}
+		if(loca.length>1)
+			me.posX = parseInt(loca[1]);
+		if(loca.length>2)
+			me.posY = parseInt(loca[2]);
+		
+		// check if the json has the entries.
+		if(!__defined(gmlItem['NAME']))
+			me.itemName = "@ NAME not found @";
+		// check for the folder.
+		if(__defined(gmlItem['FOLDER']))
+			me.folder = __shortenDirectory(me.folder+gmlItem['FOLDER']);
+		me.folder=__addSlashIfNot(me.folder);
+
+		if(!__defined(gmlItem['DESCRIPTION']))
+			me.description = "";
+		if(__defined(gmlItem['IMAGE']))
+			me.imageFile = gmlItem['IMAGE'];
+		if(__defined(gmlItem['OVERIMAGE']))
+			me.overImageFile = gmlItem['OVERIMAGE'];
+		else
+			me.overImageFile = m_imageFile;
+		// get the collision image file name.	
+		if(__defined(gmlItem['COLLISIONIMAGE']))
+			me.collisionImageFile = gmlItem['COLLISIONIMAGE'];
+		if(__defined(gmlItem['COLLISION']))
+			me.collisionImageFile = gmlItem['COLLISION'];
+		// if there is no collision image, take another one.
+		if(!__defined(gmlItem['COLLISIONIMAGE']) && !__defined(gmlItem['COLLISION']))
+		{
+			if(me.imageFile!="@ IMAGE not found. @") // take the main image if there is one
+				me.collisionImageFile = me.imageFile;
+			else
+				me.collisionImageFile = me.overImageFile;	// as last solution, take the mouseover image.
+		}
+
+		if(__defined(gmlItem['SCALEFACTOR']))	// get item scale.
+			me.scaleFactor=parseFloat(gmlItem['SCALEFACTOR']);
+		if(__defined(gmlItem['SCALE']))	// get item scale 2.
+			me.scaleFactor=parseFloat(gmlItem['SCALE']);
+		
+		// get the click events
+		// 0.5.00
+		if(__defined(gmlItem['ONCLICK']))
+		{
+			var arr = gmlItem['ONCLICK'];
+			for(var ic=0;ic<arr.length;ic++)
+				me.scripts_click.push(arr[ic])
+		}
+		if(__defined(gmlItem['SCRIPT']))
+		{
+			var arr = gmlItem['SCRIPT'];
+			for(var ic=0;ic<arr.length;ic++)
+				me.scripts_click.push(arr[ic])
+		}
+		if(__defined(gmlItem['SCRIPTS']))
+		{
+			var arr = gmlItem['SCRIPTS'];
+			for(var ic=0;ic<arr.length;ic++)
+				me.scripts_click.push(arr[ic])
+		}
+				
+		// get the sound to play when the item is clicked.
+		if(__defined(gmlItem['SOUND']))
+			me.clickSound = gmlItem['SOUND'];
+		var cs2 = me.clickSound.split(' ').join('_');
+		if(me.clickSound!=cs2)
+		{
+			log("Spaces are not allowed in intern names. [Item-Clicksound]['"+me.clickSound+"' ==&gt; '"+cs2+"']", LOG_WARN);
+			me.clickSound = cs2;
+		}
+		
+		// get the sound delay.
+		if(__defined(gmlItem['DELAY']))
+			me.soundDelay = parseFloat(gmlItem['DELAY']);
+
+	};
+	
+	this.debug=function(loglevel=LOG_DEBUG) {
+		log("* ITEM '"+me.itemName+"' (intern: '"+m_internName+"')", loglevel);
+		log(" --&gt; resides in '"+me.folder+"'", loglevel);
+		log(" --&gt; Image: '"+me.imageFile+"'", loglevel);
+		log(" --&gt; Collision: '"+me.collisionImageFile+"'", loglevel);
+		log(" --&gt; Mouseover: '"+me.overImageFile+"'", loglevel);
+		log(" --&gt; Clicksound: '"+me.clickSound+"'", loglevel);
+		log(" --&gt; Loc./Room: ['"+me.posLocation+"', "+me.posX+", "+me.posY+"]", loglevel);
+		log(" ", loglevel);
+	};
+}
+GMLData_ITEM.g_nextItemID = 0;
+GMLData_ITEM.getNewID = function()
+{
+	var id = GMLData_ITEM.g_nextItemID;
+	GMLData_ITEM.g_nextItemID+=1;
+	return id;
 }
 
 // the actual parser
@@ -228,6 +409,18 @@ var GMLParser_ITEMS = function()
 	this.clear = function() {me.items = [];}
 	this.parseGML = function(json, rootPath)
 	{
+		if(__defined(json['ITEMS']))
+		{
+			var itemArray = json['ITEMS'];
+			for(var i=0;i<itemArray.length;i++)
+			{
+				var item = itemArray[i];
+				var itm = new GMLData_ITEM();
+				itm.parseGML(item, rootPath);
+				me.items.push(itm);
+				itm.debug(LOG_DEBUG_VERBOSE);
+			}
+		}
 	}
 }
 
