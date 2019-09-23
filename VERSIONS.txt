@@ -1,4 +1,6 @@
-0.6.17-20 -> continued externalisation of the items structure.
+0.6.30-34 -> contiued externalisation of the panels structure.
+0.6.29 -> began externalisation of the panels structure.
+0.6.17-28 -> continued externalisation of the items structure.
 0.6.16 -> began externalisation of the items structure.
 0.6.16 -> Completely externalized the sounds structure with just one typo! Awesome for that much changes.
 0.6.15 -> began externalisation of the SOUNDs structure.

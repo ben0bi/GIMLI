@@ -426,15 +426,130 @@ var GMLParser_ITEMS = function()
 
 // The PANEL parser
 // data structure for the panel
+// 0.6.29: external from interpreter file.
 var GMLData_PANEL = function()
 {
-	var m_panelButtons = [];
-	
+	var me = this;
+	var m_internName = "";
+	this.text = ""; // the text for this panel.
+	this.getIntern = function() {return m_internName;};
+	this.buttons = []; // array with all the buttons for this panel.
+	this.panelDiv = null;
+
+	this.parseGML=function(gmlPanel, rootPath)
+	{
+		// clear the buttons.
+		me.buttons = [];
+		
+		// get the text for this panel.
+		if(__defined(gmlPanel['TEXT']))
+		{
+			var t=gmlPanel['TEXT'];
+			me.text="";
+			for(var i=0;i<t.length;i++)
+				me.text=me.text+t[i];
+		}
+
+		// get the intern name for this panel.
+		if(__defined(gmlPanel['INTERN']))
+			m_internName = gmlPanel['INTERN'];
+		var i2 =m_internName.split(' ').join('_');
+		if(i2!=m_internName)
+		{
+			log("Spaces are not allowed in intern names. [Panel]['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
+			m_internName = i2;
+		}
+		
+		// get the buttons for this panel.
+		if(__defined(gmlPanel['BUTTONS']))
+		{
+			for(var i=0;i<gmlPanel['BUTTONS'].length;i++)
+			{
+				var btn = gmlPanel['BUTTONS'][i];
+				var b = new GMLData_PANELBUTTON();
+				b.parseGML(btn, rootPath);
+				me.buttons.push(b);
+			}
+		}
+		
+		// or just one button. buttonS are before button (no s)
+		if(__defined(gmlPanel['BUTTON']))
+		{
+			var btn = gmlPanel['BUTTON'];
+			var b = new GMLData_PANELBUTTON();
+			b.parseGML(btn, rootPath);
+			me.buttons.push(b);	
+		}
+	};
+
+	this.debug= function(loglevel = LOG_DEBUG_VERBOSE)
+	{
+		log("* PANEL intern name: "+m_internName,loglevel);
+		log("--&gt; Button count: "+me.buttons.length, loglevel);
+		log(" ", loglevel);
+	}
 }
 
 // data structure for the panel buttons.
 var GMLData_PANELBUTTON = function()
 {
+	var me = this;
+	var m_internName = "";
+	this.getIntern = function() {return m_internName;}
+	this.buttonText = "";		// text shown for this button.
+	this.buttonFunctions = [];	// jBash function called with this button.
+	this.clickSound = "";
+	this.soundDelay = 1.0;
+
+	this.parseGML = function(GIMLbutton, rootPath)
+	{
+		// get the intern name for this panel.
+		if(__defined(GIMLbutton['INTERN']))
+			m_internName = GIMLbutton['INTERN'];
+		var i2 =m_internName.split(' ').join('_');
+		if(i2!=m_internName)
+		{
+			log("Spaces are not allowed in intern names. [Panel]['"+m_internName+"' ==&gt; '"+i2+"']", LOG_WARN);
+			m_internName = i2;
+		}
+		
+		if(__defined(GIMLbutton['TEXT']))
+			me.buttonText=GIMLbutton['TEXT'];
+		// button functions in an array.
+		me.buttonFunctions = [];
+		if(__defined(GIMLbutton['ONCLICK']))
+		{
+			var arr = GIMLbutton['ONCLICK'];
+			for(var ic=0;ic<arr.length;ic++)
+				me.buttonFunctions.push(arr[ic])
+		}
+		if(__defined(GIMLbutton['SCRIPT']))
+		{
+			var arr = GIMLbutton['SCRIPT'];
+			for(var ic=0;ic<arr.length;ic++)
+				me.buttonFunctions.push(arr[ic])
+		}
+		if(__defined(GIMLbutton['SCRIPTS']))
+		{
+			var arr = GIMLbutton['SCRIPTS'];
+			for(var ic=0;ic<arr.length;ic++)
+				me.buttonFunctions.push(arr[ic])
+		}
+
+		// loading in the sound.
+		if(__defined(GIMLbutton['SOUND']))
+			me.clickSound = GIMLbutton['SOUND'];
+		var cs2 = me.clickSound.split(' ').join('_');
+		if(me.clickSound!=cs2)
+		{
+			log("Spaces are not allowed in intern names. [Panelbutton-Clicksound]['"+me.clickSound+"' ==&gt; '"+cs2+"']", LOG_WARN);
+			me.clickSound = cs2;
+		}
+		
+		// get the sound delay.
+		if(__defined(GIMLbutton['DELAY']))
+			me.soundDelay = parseFloat(GIMLbutton['DELAY']);
+	};
 }
 
 // the actual parser
@@ -445,5 +560,17 @@ var GMLParser_PANELS = function()
 	this.clear = function() {me.panels=[];}
 	this.parseGML = function(json, rootPath)
 	{
+		if(__defined(json['PANELS']))
+		{
+			var panelArray = json['PANELS'];
+			for(var i=0;i < panelArray.length;i++)
+			{
+				var panel = panelArray[i];
+				var pnl = new GMLData_PANEL();
+				pnl.parseGML(panel, rootPath);
+				me.panels.push(pnl);
+				pnl.debug(LOG_DEBUG_VERBOSE);
+			}
+		}		
 	}
 }
