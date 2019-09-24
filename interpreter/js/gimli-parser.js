@@ -181,27 +181,7 @@ var GMLParser = function()
 
 			if(typeof(m_afterLoadFunction)==="function")
 				m_afterLoadFunction()
-			
-			// 0.5.19: Doing the rest.
-/*			if(m_roomByURL!="")
-			{		
-				// 0.5.22: check if the url room exists.
-				var room = __findRoom(m_roomByURL);
-				if(room==null)
-				{
-					log("Room ["+m_roomByURL+"] from URL not found!",LOG_WARN);
-					log("Jumping to original start room ["+m_startRoomIntern+"].", LOG_WARN);
-					me.jumpToStartRoom();
-				}else{
-					me.jumpToRoom(m_roomByURL);
-				}
-			}else{
-				me.jumpToStartRoom();
-			}
-			setTimeout(GIMLI.hideConsole,750);
-*/
 		}
-
 	}
 }
 GMLParser.instance = new GMLParser();

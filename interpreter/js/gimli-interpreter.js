@@ -24,7 +24,7 @@
  
 */
 
-const GIMLIVERSION = "0.6.34";
+const GIMLIVERSION = "0.6.35";
 
 // ADD the standard parsers.
 GMLParser.addParser("GLOBAL",new GMLParser_GLOBAL());
@@ -951,10 +951,10 @@ var GIMLI = function()
 // THIS IS THE MAIN GML FUNCTION SO FAR
 	
 	// load a gml json file.
-	this.parseGML = function(json, rootPath = "")
+/*	this.parseGML = function(json, rootPath = "")
 	{
 // NC
-		log("Parsing GML [Path: "+rootPath+"]"/*+JSON.stringify(json)*/, LOG_DEBUG_VERBOSE);
+		log("Parsing GML [Path: "+rootPath+"]"/*+JSON.stringify(json), LOG_DEBUG_VERBOSE);
 		
 		log("Converting array names to uppercase..", LOG_DEBUG_VERBOSE);
 		var json2 = __jsonUpperCase(json);
@@ -1087,7 +1087,7 @@ var GIMLI = function()
 		
 		// load the additional gml files recursively and one after each other.
 		// 0.5.17: load with the new collector code.
-	};
+//	};
 	
 	this.debug=function(loglevel)
 	{
@@ -1118,7 +1118,8 @@ var GIMLI = function()
 
 	// 0.5.17: collect function instead of recursive load function
 	// get the first one to collect and do it.
-	var collectioncounter = 0;
+//NC
+/*	var collectioncounter = 0;
 	var collect = function()
 	{
 		collectioncounter++;
@@ -1179,8 +1180,7 @@ var GIMLI = function()
 			setTimeout(GIMLI.hideConsole,750);
 		}
 	}
-
-
+*/
 // ENDOF GML PARSER
 
 	var getDOMElement_ITEM = function(item, outerscalefactor = 1.0) 
@@ -1433,26 +1433,14 @@ var GIMLI = function()
 		__createMainWindow();
 
 		GIMLI.showBlocker(true, "Welcome to GIMLI");
-		//return; // TODO: REMOVE THAT RETURN
 
-		PARSEGMLFILE(gmurl, function() 
-		{
-			// load all the sounds.
-			log("PRELOADING the sounds.");
-			var sounds = GMLParser.SOUNDS();
-			for(var i=0;i<sounds.length;i++)
-			{
-				var s=sounds[i];
-				if(s.audio==null)
-				{
-					s.audio=new Audio();
-					s.audio.preload = "metadata";
-					s.audio.addEventListener("loadedmetadata", function() {s.duration = s.audio.duration;});
-					s.audio.src=s.folder+s.soundFile;
-					log("Audio loaded for '"+s.getIntern()+"' ==&gt; "+s.folder+s.soundFile);
-				}
-			}
-		});
+		var checkurl = GMLurl.makeGMURL(__shortenDirectory(gmurl));
+
+		// 0.5.17: clearing everything before loading the json.
+		__clearItems();
+		__clearRooms();
+		__clearPanels();
+		__clearSounds();
 
 		m_roomByURL="";
 		// get the url parameters.
@@ -1468,20 +1456,58 @@ var GIMLI = function()
 		
 		if(m_roomByURL!="")
 			log("Set room from URL to "+m_roomByURL+".", LOG_DEBUG);
-	
-		var checkurl = GMLurl.makeGMURL(__shortenDirectory(gmurl));
-		// 0.5.19: set the initpage directory to the first loaded gmurl.
-		//m_GMURL_initpage = checkurl;
+
+		GIMLI.showBlocker(true, "Loading "+checkurl.getCombined()+"...");
 		log("Loading "+checkurl.getCombined()+"...");
 
-		// 0.5.17: clearing everything before loading the json.
-		__clearItems();
-		__clearRooms();
-		__clearPanels();
-		__clearSounds();
+		PARSEGMLFILE(checkurl.getCombined(), function() 
+		{
+			// load all the sounds.
+			GIMLI.showBlocker(true, "Preloading the sounds...");
+			log("Preloading the sounds...");
+			var sounds = GMLParser.SOUNDS();
+			for(var i=0;i<sounds.length;i++)
+			{
+				var s=sounds[i];
+				if(s.audio==null)
+				{
+					s.audio=new Audio();
+					s.audio.preload = "metadata";
+					s.audio.addEventListener("loadedmetadata", function() {s.duration = s.audio.duration;});
+					s.audio.src=s.folder+s.soundFile;
+					log("Audio loaded for '"+s.getIntern()+"' ==&gt; "+s.folder+s.soundFile);
+				}
+			}
+			
+			GIMLI.showBlocker(true, "Jumping to start room...");
+			
+			// 0.5.19: Doing the rest.
+			if(m_roomByURL!="")
+			{		
+				// 0.5.22: check if the url room exists.
+				var room = __findRoom(m_roomByURL);
+				if(room==null)
+				{
+					log("Room ["+m_roomByURL+"] from URL not found!",LOG_WARN);
+					log("Jumping to original start room ["+GMLParser.GLOBALS().startRoomIntern+"].", LOG_WARN);
+					me.jumpToStartRoom();
+				}else{
+					me.jumpToRoom(m_roomByURL);
+				}
+			}else{
+				me.jumpToStartRoom();
+			}
+			
+			// hide the console after a while.
+			setTimeout(GIMLI.hideConsole,750);
+		});
+	
+		// 0.5.19: set the initpage directory to the first loaded gmurl.
+		//m_GMURL_initpage = checkurl;
+
 // NC		m_scaleFactor=1.0;
 
-		log("----------- COLLECTING GMLS ----------------", LOG_DEBUG);
+/*		log("----------- COLLECTING GMLS ----------------", LOG_DEBUG);
 	
 		// clear the gml file array.
 		m_gmlFileArray=[];
@@ -1493,7 +1519,7 @@ var GIMLI = function()
 		m_gmlFileArray.push(first);
 	
 		// 0.5.17: start collection
-		collect();
+		collect();*/
 	};
 	
 	// jump to the start location of a gml file.
