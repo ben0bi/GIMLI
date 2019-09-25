@@ -1,4 +1,7 @@
-0.6.30-34 -> contiued externalisation of the panels structure.
+0.6.38 -> removed more overhead.
+0.6.37 -> repairing the show (jBash) function.
+0.6.36 -> removed overhead from the code fiddling.
+0.6.30-35 -> contiued externalisation of the panels structure.
 0.6.29 -> began externalisation of the panels structure.
 0.6.17-28 -> continued externalisation of the items structure.
 0.6.16 -> began externalisation of the items structure.
