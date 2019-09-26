@@ -23,7 +23,54 @@
  See the GIMLI-JSFILES.json in the config dir.
 */
 
-const GIMLIVERSION = "0.6.38";
+const GIMLIVERSION = "0.7.00";
+
+// Functions from BeJQuery.js
+
+// append a jquery element (el) to other jquery element/s (id or class name).
+jQuery.appendElementTo=function(contentIDorClass, jqElement)
+{
+	$(contentIDorClass).each(function() {$(this).append(jqElement);});
+};
+
+// create a new DOM element with given tagname, id and classes.
+jQuery.getNewElement=function(tagname='div',id='', classes='')
+{
+	var el = $(document.createElement(tagname));
+	if(id!='')
+		el.attr('id', id);
+	if(classes!='')
+		el.attr('class', classes);
+	return el;
+};
+
+// create a new div with given  content, id and classes.
+jQuery.getNewDiv=function(content='',id='', classes='')
+{
+	var el = jQuery.getNewElement('div',id,classes);
+	if(content!='')
+		el.html(content);
+	return el;
+};
+
+// create a new A tag with a normal href linking.
+jQuery.getNewLink=function(url,text, id='',classes='')
+{
+	var el = jQuery.getNewElement('a',id,classes);
+	$(el).attr('href',url);
+	$(el).html(text);
+	return el;
+};
+
+// create a new A tag which calls a JS function on click.
+jQuery.getNewJSButton=function(buttonContent,jsFunctionName, id='',classes='')
+{
+	var el = jQuery.getNewLink('javascript:',buttonContent,id,classes);
+	$(el).attr('onclick', jsFunctionName);
+	return el;
+};
+
+// ENDOF BeJQuery.js
 
 // ADD the standard parsers.
 GMLParser.addParser("GLOBAL",new GMLParser_GLOBAL());
@@ -431,24 +478,36 @@ var GIMLI = function()
 		GIMLI.showBlocker(true, "Loading "+checkurl.getCombined()+"...");
 		log("Loading "+checkurl.getCombined()+"...");
 
+		// get all the data and do something with it.
 		PARSEGMLFILE(checkurl.getCombined(), function() 
 		{
 			// load all the sounds.
 			GIMLI.showBlocker(true, "Preloading the sounds...");
 			log("Preloading the sounds...");
-			var sounds = GMLParser.SOUNDS();
-			for(var i=0;i<sounds.length;i++)
+			var preloadsounds = function()
 			{
-				var s=sounds[i];
-				if(s.audio==null)
+				var sounds = GMLParser.SOUNDS();
+				for(var i=0;i<sounds.length;i++)
 				{
-					s.audio=new Audio();
-					s.audio.preload = "metadata";
-					s.audio.addEventListener("loadedmetadata", function() {s.duration = s.audio.duration;});
-					s.audio.src=s.folder+s.soundFile;
-					log("Audio loaded for '"+s.getIntern()+"' ==&gt; "+s.folder+s.soundFile);
+					var s=sounds[i];
+					if(s.audio==null)
+					{
+						log("PRELOAD AUDIO "+i+" "+s.getIntern());
+						s.audio=new Audio();
+						s.audio.preload = "metadata";
+						s.audio.addEventListener("loadedmetadata", function() 
+						{
+							s.duration = s.audio.duration;
+							log("Audio loaded for '"+s.getIntern()+"' ==&gt; "+s.folder+s.soundFile);
+						});
+						s.audio.src=s.folder+s.soundFile;
+						// preload the sounds as long as there may be another empty sound.
+						preloadsounds();
+						return;
+					}
 				}
 			}
+			preloadsounds();
 			
 			GIMLI.showBlocker(true, "Jumping to start room...");
 			
@@ -746,7 +805,7 @@ var GIMLI = function()
 	{
 		var duration = GIMLI.getSoundDuration(btn.clickSound);
 		//log("SOUND DURATION: "+duration);
-		duration = parseInt(duration*1000)*btn.soundDelay + 1; // get in ms and add one ms.
+		duration = parseInt(duration*1000*btn.soundDelay + 1); // get in ms and add one ms.
 		// (maybe) play the sound.
 		GIMLI.playSound(btn.clickSound);
 		// click after the sound has played.
@@ -966,7 +1025,9 @@ var GIMLI = function()
 		m_clickItem = item;
 		
 		var duration = GIMLI.getSoundDuration(item.clickSound);
-		duration = parseInt(duration*1000)*item.soundDelay + 1; // get in ms and add one ms.
+		
+		duration = parseInt(duration*1000*item.soundDelay + 1); // get in ms and add one ms.
+		
 		// (maybe) play the sound.
 		GIMLI.playSound(item.clickSound);
 		// click after the sound has played.

@@ -1,4 +1,4 @@
-<h1>Manual for <span class="jBashCmd">SHOW</span> what</h1>
+<h1>Manual for <span class="jBashCmd">SHOW</span> what [id_or_name]</h1>
 <span class="jBashCmd">show</span> debug info about the given stuff.<br />
 <br />
 Use <span class="jBashCmd">items</span>, <span class="jBashCmd">rooms</span>, <span class="jBashCmd">panels</span> or <span class="jBashCmd">sounds</span> for <span class="jBashCmd">what</span>
@@ -6,11 +6,18 @@ Use <span class="jBashCmd">items</span>, <span class="jBashCmd">rooms</span>, <s
 
 Parameter:<br />
 <b><span class="jBashCmd">what</span></b>: Show debug info about all the stuff given as parameter.<br />
+<b><span class="jBashCmd">id_or_name</span></b>: ID or name of a specific item in the list.<br />
+<br />
 You can show debug info about: <span class="jBashCmd">items</span>, <span class="jBashCmd">sounds</span>,
 <span class="jBashCmd">panels</span> and <span class="jBashCmd">rooms</span><br />
 <br />
+It will then show a list with all the given items and a number for them.</ br>
+<br />
+Use "show item x" or "show panel panelname" or such for info about a specific item.
 <br />
 Example:<br />
 <span class="jBashCmd">show items</span><br />
+<span class="jBashCmd">show sound 0</span><br />
+<span class="jBashCmd">show room my_room</span><br />
 <br />
 <small><span class="jBashCmd">show</span> command created by oki wan benobi @ 2019-07-07 (ymd)</small>

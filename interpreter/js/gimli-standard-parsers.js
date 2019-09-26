@@ -389,6 +389,7 @@ var GMLData_ITEM = function()
 		log(" --&gt; Collision: '"+me.collisionImageFile+"'", loglevel);
 		log(" --&gt; Mouseover: '"+me.overImageFile+"'", loglevel);
 		log(" --&gt; Clicksound: '"+me.clickSound+"'", loglevel);
+		log(" --&gt;      Delay: "+(me.soundDelay*100.0)+"% ("+me.soundDelay+")", loglevel);
 		log(" --&gt; Loc./Room: ['"+me.posLocation+"', "+me.posX+", "+me.posY+"]", loglevel);
 		log(" ", loglevel);
 	};
