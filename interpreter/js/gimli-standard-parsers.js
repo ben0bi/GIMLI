@@ -325,7 +325,7 @@ var GMLData_ITEM = function()
 		if(__defined(gmlItem['OVERIMAGE']))
 			me.overImageFile = gmlItem['OVERIMAGE'];
 		else
-			me.overImageFile = m_imageFile;
+			me.overImageFile = me.imageFile;
 		// get the collision image file name.	
 		if(__defined(gmlItem['COLLISIONIMAGE']))
 			me.collisionImageFile = gmlItem['COLLISIONIMAGE'];

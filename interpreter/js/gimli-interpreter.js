@@ -23,7 +23,7 @@
  See the GIMLI-JSFILES.json in the config dir.
 */
 
-const GIMLIVERSION = "0.7.00";
+const GIMLIVERSION = "0.7.01";
 
 // Functions from BeJQuery.js
 
