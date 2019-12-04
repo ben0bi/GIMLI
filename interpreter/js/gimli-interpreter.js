@@ -111,68 +111,6 @@ log.logfunction = function(text, loglevel)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// a GML url has a forepart with the initial directory (all images will be loaded from that point)
-// and a back part with the actual site filename.
-var GMLurl = function(filename)
-{
-	var me = this;
-	var m_directory = "";
-	var m_filename = "";
-	this.getDirectory = function() {return m_directory;}
-	this.getFilename = function() {return m_filename;}
-	this.getCombined = function() {return m_directory+m_filename;}
-	
-	// create the actual stuff and maybe overwrite the old one.
-	// check if the file has gml ending or add it.
-	this.makeGMURL = function(gmurl)
-	{
-		var r = gmurl;
-		var addending = ".gml";
-		// if length is < 4 it does not have the right endings at all.
-		if(r.length<=4)
-		{
-			r+=addending;
-		}else{
-			var e = r.substr(r.length - 4)
-			switch(e.toLowerCase())
-			{
-				case ".gml":
-				case "giml":
-					break;
-				default:
-					r+=addending;
-			}
-		}
-		
-		// regex from the internets
-		m_directory = r.match(/(.*)[\/\\]/); //[1]||'';
-		if(m_directory==null) 
-			m_directory ="";
-		else
-			m_directory = m_directory[1]||'';
-		
-		if(m_directory!="") m_directory+='/';
-		m_filename = r.replace(/^.*[\\\/]/, '');
-
-		log("MakeGMLUrl: "+gmurl,LOG_DEBUG_VERBOSE)
-		log(" --&gt; Directory: "+m_directory, LOG_DEBUG_VERBOSE);
-		log(" --&gt; Filename : "+m_filename, LOG_DEBUG_VERBOSE);
-		return me;
-	};
-	
-	// initialize the stuff.
-	me.makeGMURL(filename);
-	return this;
-}
-GMLurl.makeGMURL = function(filename)
-{
-	var gmurl = new GMLurl(filename);
-	return gmurl;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*******************************************************************************************************************************************************************/
-
 // The GIML-Interpreter
 var GIMLI = function()
 {

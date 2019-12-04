@@ -252,8 +252,6 @@ var GMLData_ITEM = function()
 	this.collisionHeight = 0;
 	this.collisionScaleFactor = 1.0;
 
-	this.myDiv = null;
-
 	// if this is false, no further processing will be done on mouseover.
 	var m_CollisionLoaded = false;
 	this.isCollisionLoaded =function() {return m_CollisionLoaded;};
