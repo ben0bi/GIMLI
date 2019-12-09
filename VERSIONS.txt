@@ -1,4 +1,6 @@
-0.7.01 -> Small bugfix for reference error when there is no mouseover image found.
+0.7.03 -> Heavy bugfix, "item focus" and "item unfocus" did not work anymore because of rewritten architecture.
+0.7.02 -> Small bugfix for reference error when there is no mouseover image found.
+0.7.01 -> forgot to incorporate the gmurl stuff into gimli-parser.js
 0.7.00 -> Completely externalized the parser, so you can make your own data structures.
 
 0.6.42 -> fixed a bug, sounds did not preload right.

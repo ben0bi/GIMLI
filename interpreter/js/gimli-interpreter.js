@@ -17,13 +17,15 @@
  Hopefully this will be included into Firefox
  or such, natively.
 
- needs jQuery, BeJQuery, behelpers and jBash.
+ needs jQuery and jBash.
+ and pre-0.7.00 also needs behelpers.js and BeJQuery.js
+ 
  Also needs, since 0.6.10: gimli-parser.js and gimli-standard-parsers.js
  
  See the GIMLI-JSFILES.json in the config dir.
 */
 
-const GIMLIVERSION = "0.7.01";
+const GIMLIVERSION = "0.7.03";
 
 // Functions from BeJQuery.js
 
@@ -494,7 +496,7 @@ var GIMLI = function()
 		for(var i=0;i<m_actualRoomItems.length;i++)
 		{
 			var itm=m_actualRoomItems[i];
-			itm.showMouseOverImage(false);
+			showMouseOverImage_ITEM(itm,false);
 		}
 	}
 	
@@ -522,7 +524,7 @@ var GIMLI = function()
 				}
 				
 				// highlight the item.
-				itm.showMouseOverImage(true);
+				showMouseOverImage_ITEM(itm, true);
 				var room = __findRoom(iloc);
 				if(room==null)
 				{
@@ -1254,10 +1256,10 @@ GIMLI.item = function(params)
 		{
 			case "unfocus":
 				GIMLI.instance.unfocusItems();
-				break;
+				return;
 			case "focus":
 				log("You need to give the item-name first and 'focus' with the 'item' command. E.g. {item my_item focus}", LOG_WARN);
-				break;
+				return;
 			default:
 				break;
 		}
