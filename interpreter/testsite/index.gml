@@ -34,6 +34,18 @@
 			"SOUND": "sound_nintendo",
 			"DELAY": 0.25,
 			"LOCATION": ["living_room", 215, 370]
+		},
+		
+		
+		{
+			"NAME": "Meine Serien",
+			"INTERN": "lookat_tv",
+			"FOLDER": "locations/living_room",
+			"OVERIMAGE": "living_room_tv_overlay.png",
+			"onclick": ["panel closeall", "link to https://bs.to"],
+			"SOUND": "sound_nintendo",
+			"DELAY": 0.25,
+			"LOCATION": ["living_room", 215, 370]
 		}
 	],
 	"SOUNDS": [
