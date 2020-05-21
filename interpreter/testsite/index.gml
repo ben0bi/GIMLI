@@ -41,7 +41,7 @@
 			"FOLDER": "locations/living_room",
 			"IMAGE": "living_room_tv.png",
 			"OVERIMAGE": "living_room_tv_overlay.png",
-			"onclick": ["panel closeall", "link to https://bs.to"],
+			"onclick": ["panel closeall", "link to https://bs.to/andere-serien"],
 			"SOUND": "sound_nintendo",
 			"DELAY": 0.25,
 			"LOCATION": ["living_room", 0, 0]
