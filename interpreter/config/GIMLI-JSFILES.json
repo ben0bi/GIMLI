@@ -8,5 +8,5 @@
 	"Benis Console": "js/jBash.js",
 	"GIMLI-PARSER": "js/gimli-parser.js",
 	"GIMLI-STRUCTURES": "js/gimli-standard-parsers.js",
-	"GIMLI-BASE": "js/gimli-interpreter.js"
+	"GIMLI-BASE": "js/gimli-adventure-interpreter.js"
 }
