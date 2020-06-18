@@ -16,17 +16,17 @@
 			"LOCATION": ["photo_museum", 0, 0]
 		},
 		{
-			"NAME": "StarForce Foto Blog",
+			"NAME": "Planet Erde on Facebook",
 			"INTERN": "fotoblog_starforce",
 			"OVERIMAGE": "museum_starforce.png",
-			"onclick": ["link to http://starforce.masterbit.net"],
+			"onclick": ["link to https://facebook.com/Planet.Erde.10"],
 			"LOCATION": ["photo_museum", 0, 0]
 		},
 		{
-			"NAME": "Party Foto Blog",
+			"NAME": "My private Facebook",
 			"INTERN": "fotoblog_parties",
 			"OVERIMAGE": "museum_parties.png",
-			"onclick": ["link to http://party.masterbit.net"],
+			"onclick": ["link to https://facebook.com/beni.yager"],
 			"LOCATION": ["photo_museum", 0, 0]
 		}
 
