@@ -25,7 +25,7 @@
 			"FOLDER": "locations/computer_room/",
 			"COLLISIONIMAGE": "computer_room_screen_github.png",
 			"OVERIMAGE": "computer_room_screen_github.png",
-			"onclick": ["link to https://github.com/ben0bi"],
+			"onclick": ["link to https://github.com/benis-bastelschuppen"],
 			"LOCATION": ["computer_room", 0, 0]
 		},
 		
@@ -35,15 +35,16 @@
 			"FOLDER": "locations/computer_room/",
 			"COLLISIONIMAGE": "computer_room_screen_gimli.png",
 			"OVERIMAGE": "computer_room_screen_gimli.png",
-			"onclick": ["link to https://github.com/ben0bi/GIMLI/wiki"],
+			"onclick": ["link to https://github.com/benis-bastelschuppen/GIMLI/wiki"],
 			"LOCATION": ["computer_room", 0, 0]
 		},
 		{
-			"NAME": "NetRunner Game<br /><span class='jBashError' style='text-align:centered;'>- not yet functional -</span><br />Sorry.",
+			"NAME": "Netrunner CCG",
 			"INTERN": "computer_room_netrunner_link",
 			"FOLDER": "locations/computer_room/",
 			"COLLISIONIMAGE": "computer_room_screen_netrunner.png",
 			"OVERIMAGE": "computer_room_screen_netrunner.png",
+			"onclick": ["link to https://en.wikipedia.org/wiki/Netrunner"],
 			"LOCATION": ["computer_room", 0, 0]
 		}	
 	]
